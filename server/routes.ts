@@ -43,10 +43,10 @@ function requireSubsidiaryAccess(req: Request, res: Response, next: Function) {
     return res.status(401).json({ message: "Unauthorized" });
   }
 
-  const subsidiaryId = parseInt(req.params.subsidiaryId);
+  const subsidiaryId = parseInt(req.params.subsidiaryId || req.params.id);
   if (
-    req.user.role !== "mhc_admin" &&
-    req.user.subsidiaryId !== subsidiaryId
+    req.user?.role !== "mhc_admin" &&
+    req.user?.subsidiaryId !== subsidiaryId
   ) {
     return res.status(403).json({ message: "Forbidden" });
   }
