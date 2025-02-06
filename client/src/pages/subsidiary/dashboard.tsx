@@ -46,6 +46,13 @@ export default function SubsidiaryDashboard() {
     amount: sale.quantity * sale.salePrice,
   }));
 
+  // Function to get the correct logo URL
+  const getLogoUrl = (logoPath: string) => {
+    if (!logoPath) return '';
+    // Remove /uploads/ prefix if present since the directory is served at root
+    return logoPath.replace('/uploads/', '/');
+  };
+
   return (
     <div className="space-y-8 p-8">
       {/* Subsidiary Info */}
@@ -53,9 +60,9 @@ export default function SubsidiaryDashboard() {
         <div className="flex items-start gap-6">
           {subsidiary?.logo && (
             <img 
-              src={subsidiary.logo} 
+              src={getLogoUrl(subsidiary.logo)}
               alt={`${subsidiary.name} logo`}
-              className="w-20 h-20 object-contain rounded-lg"
+              className="w-20 h-20 object-contain bg-muted rounded-lg p-2"
             />
           )}
           <div className="flex-1">
