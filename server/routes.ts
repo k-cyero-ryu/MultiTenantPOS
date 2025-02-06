@@ -358,6 +358,7 @@ export function registerRoutes(app: Express): Server {
           // Get all subsidiaries and their sales
           const subsidiaries = await storage.listSubsidiaries();
           let allSales: Sale[] = [];
+          const users = await storage.listUsers();
 
           for (const subsidiary of subsidiaries) {
             const subsidiarySales = await storage.listSalesBySubsidiary(subsidiary.id);
@@ -367,15 +368,18 @@ export function registerRoutes(app: Express): Server {
           // Filter by date and format data
           data = allSales
             .filter(sale => new Date(sale.timestamp) >= startDate)
-            .map(sale => ({
-              Date: new Date(sale.timestamp).toLocaleDateString(),
-              'Sale ID': sale.id,
-              'Subsidiary ID': sale.subsidiaryId,
-              'Item ID': sale.itemId,
-              Quantity: sale.quantity,
-              'Sale Price': `$${sale.salePrice.toFixed(2)}`,
-              'Total': `$${(sale.quantity * sale.salePrice).toFixed(2)}`
-            }));
+            .map(sale => {
+              const subsidiary = subsidiaries.find(s => s.id === sale.subsidiaryId);
+              const user = users.find(u => u.id === sale.userId);
+              return {
+                Date: new Date(sale.timestamp).toLocaleDateString(),
+                'Subsidiary': subsidiary?.name || 'Unknown',
+                'Sold By': user?.username || 'Unknown',
+                'Quantity': sale.quantity,
+                'Sale Price': `$${sale.salePrice.toFixed(2)}`,
+                'Total': `$${(sale.quantity * sale.salePrice).toFixed(2)}`
+              };
+            });
           break;
         }
         case 'inventory': {
@@ -385,8 +389,8 @@ export function registerRoutes(app: Express): Server {
             const items = await storage.listInventoryBySubsidiary(subsidiary.id);
             return items.map(item => ({
               'Subsidiary': subsidiary.name,
-              'Item SKU': item.sku,
               'Product Name': item.name,
+              'SKU': item.sku,
               'Quantity': item.quantity,
               'Sale Price': `$${item.salePrice.toFixed(2)}`,
               'Total Value': `$${(item.quantity * item.salePrice).toFixed(2)}`
@@ -397,18 +401,24 @@ export function registerRoutes(app: Express): Server {
           break;
         }
         case 'activity': {
-          // Get activity logs
+          // Get activity logs with user and subsidiary details
           const logs = await storage.listActivityLogs();
+          const subsidiaries = await storage.listSubsidiaries();
+          const users = await storage.listUsers();
+
           data = logs
             .filter(log => new Date(log.timestamp) >= startDate)
-            .map(log => ({
-              Date: new Date(log.timestamp).toLocaleDateString(),
-              'Log ID': log.id,
-              'Subsidiary ID': log.subsidiaryId,
-              'User ID': log.userId,
-              'Action': log.action,
-              'Details': log.details
-            }));
+            .map(log => {
+              const subsidiary = subsidiaries.find(s => s.id === log.subsidiaryId);
+              const user = users.find(u => u.id === log.userId);
+              return {
+                Date: new Date(log.timestamp).toLocaleDateString(),
+                'Subsidiary': subsidiary?.name || 'MHC',
+                'User': user?.username || 'System',
+                'Action': log.action,
+                'Details': log.details
+              };
+            });
           break;
         }
         default:
@@ -422,16 +432,21 @@ export function registerRoutes(app: Express): Server {
         res.attachment(`${type}-report-${timeRange}.csv`);
         return res.send(csv);
       } else if (format === 'pdf') {
-        // For now, send formatted JSON that can be easily converted to PDF
-        // In a real application, you would use a PDF generation library
+        // Format JSON in a way that's more readable when downloaded
+        const formattedData = {
+          title: `${type.charAt(0).toUpperCase() + type.slice(1)} Report`,
+          timeRange: timeRange,
+          generatedAt: new Date().toISOString(),
+          summary: {
+            totalRecords: data.length,
+            dateRange: `${startDate.toLocaleDateString()} - ${now.toLocaleDateString()}`
+          },
+          records: data
+        };
+
         res.header('Content-Type', 'application/json');
         res.attachment(`${type}-report-${timeRange}.json`);
-        return res.json({
-          title: `${type.charAt(0).toUpperCase() + type.slice(1)} Report`,
-          timeRange,
-          generatedAt: new Date().toISOString(),
-          data
-        });
+        return res.json(formattedData);
       } else {
         // JSON format for preview
         res.json(data);
