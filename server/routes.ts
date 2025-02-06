@@ -82,6 +82,16 @@ export function registerRoutes(app: Express): Server {
       };
 
       const subsidiary = await storage.createSubsidiary(subsidiaryData);
+
+      // Log the activity
+      await storage.createActivityLog({
+        userId: req.user!.id,
+        action: "CREATE_SUBSIDIARY",
+        details: `Created subsidiary: ${subsidiary.name}`,
+        subsidiaryId: subsidiary.id,
+        timestamp: new Date(),
+      });
+
       res.status(201).json(subsidiary);
     } catch (error: any) {
       res.status(400).json({ error: error.message });
@@ -155,12 +165,26 @@ export function registerRoutes(app: Express): Server {
     "/api/subsidiaries/:subsidiaryId/sales",
     requireSubsidiaryAccess,
     async (req, res) => {
-      const sale = await storage.createSale({
-        ...req.body,
-        subsidiaryId: parseInt(req.params.subsidiaryId),
-        userId: req.user.id,
-      });
-      res.status(201).json(sale);
+      try {
+        const sale = await storage.createSale({
+          ...req.body,
+          subsidiaryId: parseInt(req.params.subsidiaryId),
+          userId: req.user!.id,
+        });
+
+        // Log the activity
+        await storage.createActivityLog({
+          userId: req.user!.id,
+          action: "CREATE_SALE",
+          details: `Created sale: ${sale.quantity} items at $${sale.salePrice}`,
+          subsidiaryId: parseInt(req.params.subsidiaryId),
+          timestamp: new Date(),
+        });
+
+        res.status(201).json(sale);
+      } catch (error: any) {
+        res.status(400).json({ error: error.message });
+      }
     },
   );
 
@@ -239,8 +263,17 @@ export function registerRoutes(app: Express): Server {
         const user = await storage.createUser({
           ...req.body,
           subsidiaryId,
-          role: "staff", // Force role to be staff
+          role: "staff",
           password: hashedPassword,
+        });
+
+        // Log the activity
+        await storage.createActivityLog({
+          userId: req.user.id,
+          action: "CREATE_USER",
+          details: `Created user: ${user.username}`,
+          subsidiaryId: subsidiaryId,
+          timestamp: new Date(),
         });
 
         res.status(201).json(user);
