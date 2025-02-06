@@ -14,7 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { Download, FileSpreadsheet, FileText } from "lucide-react";
+import { FileSpreadsheet, FileText } from "lucide-react";
 import type { Subsidiary, Sale, Inventory } from "@shared/schema";
 import { useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -35,20 +35,29 @@ export default function Reports() {
 
   const downloadReport = async (format: "csv" | "pdf") => {
     try {
-      const response = await fetch(
-        `/api/reports/${reportType}?format=${format}&timeRange=${timeRange}`
-      );
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `${reportType}-report-${timeRange}.${format}`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      window.URL.revokeObjectURL(url);
+      if (format === 'pdf') {
+        // For PDF, open in new window
+        window.open(
+          `/api/reports/${reportType}?format=${format}&timeRange=${timeRange}`,
+          '_blank'
+        );
+      } else {
+        // For CSV, download as file
+        const response = await fetch(
+          `/api/reports/${reportType}?format=${format}&timeRange=${timeRange}`
+        );
+        const blob = await response.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `${reportType}-report-${timeRange}.${format}`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+      }
     } catch (error) {
-      console.error('Error downloading report:', error);
+      console.error('Error handling report:', error);
     }
   };
 
@@ -149,7 +158,7 @@ export default function Reports() {
                 className="w-full"
               >
                 <FileText className="w-4 h-4 mr-2" />
-                Export PDF
+                View Report
               </Button>
             </div>
           </CardContent>
