@@ -13,6 +13,8 @@ import {
   YAxis,
 } from "recharts";
 import { Card } from "@/components/ui/card";
+import { SalesChart } from "@/components/analytics/sales-chart";
+import { InventoryAnalysis } from "@/components/analytics/inventory-analysis";
 
 export default function SubsidiaryDashboard() {
   const { user } = useAuth();
@@ -59,7 +61,7 @@ export default function SubsidiaryDashboard() {
       <Card className="p-6">
         <div className="flex items-start gap-6">
           {subsidiary?.logo && (
-            <img 
+            <img
               src={getLogoUrl(subsidiary.logo)}
               alt={`${subsidiary.name} logo`}
               className="w-20 h-20 object-contain bg-muted rounded-lg p-2"
@@ -131,26 +133,19 @@ export default function SubsidiaryDashboard() {
         />
       </div>
 
-      <Card className="p-6">
-        <h2 className="text-lg font-semibold mb-4">Sales Trend</h2>
-        <div className="h-[300px]">
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={salesData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="date" />
-              <YAxis />
-              <Tooltip />
-              <Area
-                type="monotone"
-                dataKey="amount"
-                stroke="hsl(var(--primary))"
-                fill="hsl(var(--primary))"
-                fillOpacity={0.2}
-              />
-            </AreaChart>
-          </ResponsiveContainer>
-        </div>
-      </Card>
+      {/* Enhanced Analytics Section */}
+      <div className="space-y-6">
+        <h2 className="text-2xl font-bold">Analytics Dashboard</h2>
+
+        {/* Sales Analytics */}
+        <SalesChart
+          sales={sales}
+          title="Sales Performance Analytics"
+        />
+
+        {/* Inventory Analytics */}
+        <InventoryAnalysis inventory={inventory} />
+      </div>
     </div>
   );
 }
