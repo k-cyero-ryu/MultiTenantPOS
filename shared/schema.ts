@@ -15,8 +15,13 @@ export const users = pgTable("users", {
 export const subsidiaries = pgTable("subsidiaries", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
-  taxId: text("tax_id").notNull(),
-  contact: text("contact").notNull(),
+  taxId: text("tax_id").notNull().unique(),
+  email: text("email").notNull(),
+  phoneNumber: text("phone_number").notNull(),
+  logo: text("logo"),
+  address: text("address"),
+  city: text("city"),
+  country: text("country"),
   status: boolean("status").notNull().default(true),
 });
 
@@ -54,7 +59,7 @@ export const activityLogs = pgTable("activity_logs", {
   timestamp: timestamp("timestamp").notNull().defaultNow(),
 });
 
-// Insert Schemas
+// Insert Schemas with validation
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
   password: true,
@@ -62,7 +67,15 @@ export const insertUserSchema = createInsertSchema(users).pick({
   subsidiaryId: true,
 });
 
-export const insertSubsidiarySchema = createInsertSchema(subsidiaries);
+export const insertSubsidiarySchema = createInsertSchema(subsidiaries).extend({
+  email: z.string().email("Invalid email format"),
+  phoneNumber: z.string().min(10, "Phone number must be at least 10 digits"),
+  logo: z.string().url("Invalid logo URL").optional(),
+  address: z.string().optional(),
+  city: z.string().optional(),
+  country: z.string().optional(),
+});
+
 export const insertInventorySchema = createInsertSchema(inventory);
 export const insertSaleSchema = createInsertSchema(sales);
 export const insertActivityLogSchema = createInsertSchema(activityLogs);

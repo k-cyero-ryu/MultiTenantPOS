@@ -46,7 +46,12 @@ export default function Subsidiaries() {
     defaultValues: {
       name: "",
       taxId: "",
-      contact: "",
+      email: "",
+      phoneNumber: "",
+      logo: "",
+      address: "",
+      city: "",
+      country: "",
       status: true,
     },
   });
@@ -98,7 +103,7 @@ export default function Subsidiaries() {
           <DialogTrigger asChild>
             <Button>Add Subsidiary</Button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent className="max-w-2xl">
             <DialogHeader>
               <DialogTitle>Add New Subsidiary</DialogTitle>
             </DialogHeader>
@@ -109,45 +114,112 @@ export default function Subsidiaries() {
                 )}
                 className="space-y-4"
               >
-                <FormField
-                  control={form.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Name</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="taxId"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Tax ID</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="contact"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Contact</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Name</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="taxId"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Tax ID</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Email</FormLabel>
+                        <FormControl>
+                          <Input type="email" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="phoneNumber"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Phone Number</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="logo"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Logo URL</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="address"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Address</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="city"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>City</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="country"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Country</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
                 <FormField
                   control={form.control}
                   name="status"
@@ -182,7 +254,9 @@ export default function Subsidiaries() {
             <TableRow>
               <TableHead>Name</TableHead>
               <TableHead>Tax ID</TableHead>
-              <TableHead>Contact</TableHead>
+              <TableHead>Email</TableHead>
+              <TableHead>Phone</TableHead>
+              <TableHead>Location</TableHead>
               <TableHead>Status</TableHead>
               <TableHead className="w-24">Actions</TableHead>
             </TableRow>
@@ -191,10 +265,25 @@ export default function Subsidiaries() {
             {subsidiaries.map((subsidiary) => (
               <TableRow key={subsidiary.id}>
                 <TableCell className="font-medium">
-                  {subsidiary.name}
+                  <div className="flex items-center gap-2">
+                    {subsidiary.logo && (
+                      <img
+                        src={subsidiary.logo}
+                        alt={`${subsidiary.name} logo`}
+                        className="w-6 h-6 rounded-full object-contain"
+                      />
+                    )}
+                    {subsidiary.name}
+                  </div>
                 </TableCell>
                 <TableCell>{subsidiary.taxId}</TableCell>
-                <TableCell>{subsidiary.contact}</TableCell>
+                <TableCell>{subsidiary.email}</TableCell>
+                <TableCell>{subsidiary.phoneNumber}</TableCell>
+                <TableCell>
+                  {[subsidiary.city, subsidiary.country]
+                    .filter(Boolean)
+                    .join(", ")}
+                </TableCell>
                 <TableCell>
                   {subsidiary.status ? "Active" : "Inactive"}
                 </TableCell>
