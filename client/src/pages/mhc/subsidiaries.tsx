@@ -52,6 +52,13 @@ import {
 } from "@/components/ui/select";
 import { UserPlus } from "lucide-react";
 
+// Add the getLogoUrl function at the top of the file, after the imports
+const getLogoUrl = (logoPath: string) => {
+  if (!logoPath) return '';
+  // Remove /uploads/ prefix if present since the directory is served at root
+  return logoPath.replace('/uploads/', '/');
+};
+
 export default function Subsidiaries() {
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
@@ -347,7 +354,7 @@ export default function Subsidiaries() {
                   <TableCell>
                     {subsidiary.logo && (
                       <img
-                        src={subsidiary.logo}
+                        src={getLogoUrl(subsidiary.logo)}
                         alt={`${subsidiary.name} logo`}
                         className="w-8 h-8 rounded object-contain bg-muted p-1"
                       />
