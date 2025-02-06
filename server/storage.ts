@@ -18,8 +18,10 @@ import {
 import { db } from "./db";
 import { eq } from "drizzle-orm";
 import session from "express-session";
+import { loadDbConfig } from "./config";
+import createMemoryStore from "memorystore";
 import connectPg from "connect-pg-simple";
-import { pool } from "./db";
+import { PrismaClient } from '@prisma/client';
 import { scrypt, randomBytes, timingSafeEqual } from "crypto";
 import { promisify } from "util";
 
@@ -31,15 +33,16 @@ async function hashPassword(password: string) {
   return `${buf.toString("hex")}.${salt}`;
 }
 
-const PostgresSessionStore = connectPg(session);
+const MemoryStore = createMemoryStore(session);
+const config = loadDbConfig();
 
 export interface IStorage {
   // User Operations
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
-  updateUser(id: number, user: Partial<InsertUser>): Promise<User>; // Added method signature
-  deleteUser(id: number): Promise<void>; // Added method signature
+  updateUser(id: number, user: Partial<InsertUser>): Promise<User>;
+  deleteUser(id: number): Promise<void>;
 
   // Subsidiary Operations
   getSubsidiary(id: number): Promise<Subsidiary | undefined>;
@@ -63,60 +66,119 @@ export interface IStorage {
   listActivityLogs(subsidiaryId?: number): Promise<ActivityLog[]>;
 
   // Session Store
-  sessionStore: session.SessionStore;
+  sessionStore: session.Store;
   ensureDefaultAdmin(): Promise<void>;
   listUsersBySubsidiary(subsidiaryId: number): Promise<User[]>;
   listUsers(): Promise<User[]>;
 }
 
+// Add this function to check if db is initialized
+function ensureDbConnection() {
+  if (!db) {
+    throw new Error('Database connection not yet established');
+  }
+  return db;
+}
+
 export class DatabaseStorage implements IStorage {
-  sessionStore: session.SessionStore;
+  sessionStore: session.Store;
 
   constructor() {
-    this.sessionStore = new PostgresSessionStore({
-      pool,
-      createTableIfMissing: true,
-    });
+    // Create appropriate session store based on database engine
+    if (config.engine === 'postgresql' && process.env.DATABASE_URL) {
+      const PostgresStore = connectPg(session);
+      this.sessionStore = new PostgresStore({
+        conString: process.env.DATABASE_URL,
+        createTableIfMissing: true,
+      });
+    } else {
+      // Use memory store as fallback
+      this.sessionStore = new MemoryStore({
+        checkPeriod: 86400000, // prune expired entries every 24h
+      });
+    }
   }
 
   // User Operations
   async getUser(id: number): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.id, id));
-    return user;
+    try {
+      const connection = ensureDbConnection();
+      const [user] = await connection.select().from(users).where(eq(users.id, id));
+      return user;
+    } catch (error) {
+      console.error('Error getting user:', error);
+      throw error;
+    }
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    const [user] = await db.select().from(users).where(eq(users.username, username));
-    return user;
+    try {
+      const connection = ensureDbConnection();
+      const [user] = await connection.select().from(users).where(eq(users.username, username));
+      return user;
+    } catch (error) {
+      console.error('Error getting user by username:', error);
+      throw error;
+    }
   }
 
   async createUser(user: InsertUser): Promise<User> {
-    const [newUser] = await db.insert(users).values(user).returning();
-    return newUser;
+    try {
+      const connection = ensureDbConnection();
+      const [newUser] = await connection.insert(users).values(user).returning();
+      return newUser;
+    } catch (error) {
+      console.error('Error creating user:', error);
+      throw error;
+    }
   }
 
   async updateUser(id: number, user: Partial<InsertUser>): Promise<User> {
-    const [updated] = await db
-      .update(users)
-      .set(user)
-      .where(eq(users.id, id))
-      .returning();
-    if (!updated) throw new Error("User not found");
-    return updated;
+    try {
+      const connection = ensureDbConnection();
+      const [updated] = await connection
+        .update(users)
+        .set(user)
+        .where(eq(users.id, id))
+        .returning();
+      if (!updated) throw new Error("User not found");
+      return updated;
+    } catch (error) {
+      console.error('Error updating user:', error);
+      throw error;
+    }
   }
 
   async deleteUser(id: number): Promise<void> {
-    await db.delete(users).where(eq(users.id, id));
+    try {
+      const connection = ensureDbConnection();
+      await connection.delete(users).where(eq(users.id, id));
+    } catch (error) {
+      console.error('Error deleting user:', error);
+      throw error;
+    }
   }
 
   // Subsidiary Operations
   async getSubsidiary(id: number): Promise<Subsidiary | undefined> {
-    const [subsidiary] = await db.select().from(subsidiaries).where(eq(subsidiaries.id, id));
-    return subsidiary;
+    try {
+      const connection = ensureDbConnection();
+      const [subsidiary] = await connection.select().from(subsidiaries).where(eq(subsidiaries.id, id));
+      return subsidiary;
+    } catch (error) {
+      console.error('Error getting subsidiary:', error);
+      throw error;
+    }
   }
 
   async listSubsidiaries(): Promise<Subsidiary[]> {
-    return db.select().from(subsidiaries);
+    try {
+      const connection = ensureDbConnection();
+      return connection.select().from(subsidiaries);
+    } catch (error) {
+      console.error('Error listing subsidiaries:', error);
+      throw error;
+    }
   }
 
   async createSubsidiary(subsidiary: InsertSubsidiary): Promise<Subsidiary> {
@@ -126,7 +188,8 @@ export class DatabaseStorage implements IStorage {
         throw new Error('Missing required fields');
       }
 
-      const [newSubsidiary] = await db
+      const connection = ensureDbConnection();
+      const [newSubsidiary] = await connection
         .insert(subsidiaries)
         .values({
           name: subsidiary.name,
@@ -146,126 +209,207 @@ export class DatabaseStorage implements IStorage {
       if (error.code === '23505') {
         throw new Error('Tax ID already exists');
       }
+      console.error('Error creating subsidiary:', error);
       throw error;
     }
   }
 
   async updateSubsidiary(id: number, subsidiary: Partial<InsertSubsidiary>): Promise<Subsidiary> {
-    const [updated] = await db
-      .update(subsidiaries)
-      .set(subsidiary)
-      .where(eq(subsidiaries.id, id))
-      .returning();
-    if (!updated) throw new Error("Subsidiary not found");
-    return updated;
+    try {
+      const connection = ensureDbConnection();
+      const [updated] = await connection
+        .update(subsidiaries)
+        .set(subsidiary)
+        .where(eq(subsidiaries.id, id))
+        .returning();
+      if (!updated) throw new Error("Subsidiary not found");
+      return updated;
+    } catch (error) {
+      console.error('Error updating subsidiary:', error);
+      throw error;
+    }
   }
 
   // Inventory Operations
   async getInventory(id: number): Promise<Inventory | undefined> {
-    const [item] = await db.select().from(inventory).where(eq(inventory.id, id));
-    return item;
+    try {
+      const connection = ensureDbConnection();
+      const [item] = await connection.select().from(inventory).where(eq(inventory.id, id));
+      return item;
+    } catch (error) {
+      console.error('Error getting inventory item:', error);
+      throw error;
+    }
   }
 
   async listInventoryBySubsidiary(subsidiaryId: number): Promise<Inventory[]> {
-    return db.select().from(inventory).where(eq(inventory.subsidiaryId, subsidiaryId));
+    try {
+      const connection = ensureDbConnection();
+      return connection.select().from(inventory).where(eq(inventory.subsidiaryId, subsidiaryId));
+    } catch (error) {
+      console.error('Error listing inventory by subsidiary:', error);
+      throw error;
+    }
   }
 
   async createInventory(item: InsertInventory): Promise<Inventory> {
-    const [newItem] = await db.insert(inventory).values(item).returning();
-    return newItem;
+    try {
+      const connection = ensureDbConnection();
+      const [newItem] = await connection.insert(inventory).values(item).returning();
+      return newItem;
+    } catch (error) {
+      console.error('Error creating inventory item:', error);
+      throw error;
+    }
   }
 
   async updateInventory(id: number, item: Partial<InsertInventory>): Promise<Inventory> {
-    const [updated] = await db
-      .update(inventory)
-      .set(item)
-      .where(eq(inventory.id, id))
-      .returning();
-    if (!updated) throw new Error("Inventory item not found");
-    return updated;
+    try {
+      const connection = ensureDbConnection();
+      const [updated] = await connection
+        .update(inventory)
+        .set(item)
+        .where(eq(inventory.id, id))
+        .returning();
+      if (!updated) throw new Error("Inventory item not found");
+      return updated;
+    } catch (error) {
+      console.error('Error updating inventory item:', error);
+      throw error;
+    }
   }
 
   async deleteInventory(id: number): Promise<void> {
-    await db.delete(inventory).where(eq(inventory.id, id));
+    try {
+      const connection = ensureDbConnection();
+      await connection.delete(inventory).where(eq(inventory.id, id));
+    } catch (error) {
+      console.error('Error deleting inventory item:', error);
+      throw error;
+    }
   }
 
   // Sales Operations
   async createSale(sale: InsertSale): Promise<Sale> {
-    // Get the inventory item to check stock and update quantity
-    const [inventoryItem] = await db
-      .select()
-      .from(inventory)
-      .where(eq(inventory.id, sale.itemId));
-
-    if (!inventoryItem) {
-      throw new Error("Inventory item not found");
-    }
-
-    if (inventoryItem.quantity < sale.quantity) {
-      throw new Error("Insufficient stock");
-    }
-
-    // Start a transaction to ensure both operations succeed or fail together
-    const [newSale] = await db.transaction(async (tx) => {
-      // Create the sale record
-      const [createdSale] = await tx
-        .insert(sales)
-        .values({
-          ...sale,
-          timestamp: sale.timestamp ? new Date(sale.timestamp) : new Date(),
-        })
-        .returning();
-
-      // Update inventory quantity
-      await tx
-        .update(inventory)
-        .set({
-          quantity: inventoryItem.quantity - sale.quantity,
-        })
+    try {
+      // Get the inventory item to check stock and update quantity
+      const connection = ensureDbConnection();
+      const [inventoryItem] = await connection
+        .select()
+        .from(inventory)
         .where(eq(inventory.id, sale.itemId));
 
-      return [createdSale];
-    });
+      if (!inventoryItem) {
+        throw new Error("Inventory item not found");
+      }
 
-    return newSale;
+      if (inventoryItem.quantity < sale.quantity) {
+        throw new Error("Insufficient stock");
+      }
+
+      // Start a transaction to ensure both operations succeed or fail together
+      const [newSale] = await connection.transaction(async (tx) => {
+        // Create the sale record
+        const [createdSale] = await tx
+          .insert(sales)
+          .values({
+            ...sale,
+            timestamp: sale.timestamp ? new Date(sale.timestamp) : new Date(),
+          })
+          .returning();
+
+        // Update inventory quantity
+        await tx
+          .update(inventory)
+          .set({
+            quantity: inventoryItem.quantity - sale.quantity,
+          })
+          .where(eq(inventory.id, sale.itemId));
+
+        return [createdSale];
+      });
+
+      return newSale;
+    } catch (error) {
+      console.error('Error creating sale:', error);
+      throw error;
+    }
   }
 
   async listSalesBySubsidiary(subsidiaryId: number): Promise<Sale[]> {
-    return db.select().from(sales).where(eq(sales.subsidiaryId, subsidiaryId));
+    try {
+      const connection = ensureDbConnection();
+      return connection.select().from(sales).where(eq(sales.subsidiaryId, subsidiaryId));
+    } catch (error) {
+      console.error('Error listing sales by subsidiary:', error);
+      throw error;
+    }
   }
 
   // Activity Log Operations
   async createActivityLog(log: InsertActivityLog): Promise<ActivityLog> {
-    const [newLog] = await db.insert(activityLogs).values(log).returning();
-    return newLog;
+    try {
+      const connection = ensureDbConnection();
+      const [newLog] = await connection.insert(activityLogs).values(log).returning();
+      return newLog;
+    } catch (error) {
+      console.error('Error creating activity log:', error);
+      throw error;
+    }
   }
 
   async listActivityLogs(subsidiaryId?: number): Promise<ActivityLog[]> {
-    if (subsidiaryId) {
-      return db.select().from(activityLogs).where(eq(activityLogs.subsidiaryId, subsidiaryId));
+    try {
+      const connection = ensureDbConnection();
+      if (subsidiaryId) {
+        return connection.select().from(activityLogs).where(eq(activityLogs.subsidiaryId, subsidiaryId));
+      }
+      return connection.select().from(activityLogs);
+    } catch (error) {
+      console.error('Error listing activity logs:', error);
+      throw error;
     }
-    return db.select().from(activityLogs);
   }
   async ensureDefaultAdmin(): Promise<void> {
-    const adminUser = await this.getUserByUsername("admin");
-    if (!adminUser) {
-      await this.createUser({
-        username: "admin",
-        password: await hashPassword("admin123"),
-        role: "mhc_admin",
-        subsidiaryId: null,
-      });
+    try {
+      const adminUser = await this.getUserByUsername("admin");
+      if (!adminUser) {
+        await this.createUser({
+          username: "admin",
+          password: await hashPassword("admin123"),
+          role: "mhc_admin",
+          subsidiaryId: null,
+        });
+        console.log('Default admin user created successfully');
+      }
+    } catch (error) {
+      console.error('Error ensuring default admin:', error);
+      throw error;
     }
   }
   async listUsersBySubsidiary(subsidiaryId: number): Promise<User[]> {
-    return db.select().from(users).where(eq(users.subsidiaryId, subsidiaryId));
+    try {
+      const connection = ensureDbConnection();
+      return connection.select().from(users).where(eq(users.subsidiaryId, subsidiaryId));
+    } catch (error) {
+      console.error('Error listing users by subsidiary:', error);
+      throw error;
+    }
   }
   async listUsers(): Promise<User[]> {
-    return db.select().from(users);
+    try {
+      const connection = ensureDbConnection();
+      return connection.select().from(users);
+    } catch (error) {
+      console.error('Error listing users:', error);
+      throw error;
+    }
   }
 }
 
 export const storage = new DatabaseStorage();
 
-// Initialize default admin user
-storage.ensureDefaultAdmin().catch(console.error);
+// Initialize default admin user with a delay to ensure database connection is ready
+setTimeout(() => {
+  storage.ensureDefaultAdmin().catch(console.error);
+}, 1000);
