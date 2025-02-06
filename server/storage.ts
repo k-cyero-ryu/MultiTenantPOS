@@ -102,8 +102,34 @@ export class DatabaseStorage implements IStorage {
   }
 
   async createSubsidiary(subsidiary: InsertSubsidiary): Promise<Subsidiary> {
-    const [newSubsidiary] = await db.insert(subsidiaries).values(subsidiary).returning();
-    return newSubsidiary;
+    try {
+      // Validate required fields
+      if (!subsidiary.name || !subsidiary.taxId || !subsidiary.email || !subsidiary.phoneNumber) {
+        throw new Error('Missing required fields');
+      }
+
+      const [newSubsidiary] = await db
+        .insert(subsidiaries)
+        .values({
+          name: subsidiary.name,
+          taxId: subsidiary.taxId,
+          email: subsidiary.email,
+          phoneNumber: subsidiary.phoneNumber,
+          logo: subsidiary.logo,
+          address: subsidiary.address,
+          city: subsidiary.city,
+          country: subsidiary.country,
+          status: subsidiary.status ?? true,
+        })
+        .returning();
+
+      return newSubsidiary;
+    } catch (error: any) {
+      if (error.code === '23505') {
+        throw new Error('Tax ID already exists');
+      }
+      throw error;
+    }
   }
 
   async updateSubsidiary(id: number, subsidiary: Partial<InsertSubsidiary>): Promise<Subsidiary> {
@@ -167,7 +193,7 @@ export class DatabaseStorage implements IStorage {
     }
     return db.select().from(activityLogs);
   }
-    async ensureDefaultAdmin(): Promise<void> {
+  async ensureDefaultAdmin(): Promise<void> {
     const adminUser = await this.getUserByUsername("admin");
     if (!adminUser) {
       await this.createUser({

@@ -2,6 +2,26 @@ import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
 import { setupAuth } from "./auth";
 import { storage } from "./storage";
+import multer from "multer";
+import path from "path";
+import express from 'express';
+
+const upload = multer({
+  storage: multer.diskStorage({
+    destination: './uploads/',
+    filename: function (req, file, cb) {
+      cb(null, Date.now() + path.extname(file.originalname))
+    }
+  }),
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = ['image/jpeg', 'image/png'];
+    if (allowedTypes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Invalid file type. Only JPEG and PNG are allowed.'));
+    }
+  }
+});
 
 function requireAuth(req: Request, res: Response, next: Function) {
   if (!req.isAuthenticated()) {
@@ -35,15 +55,36 @@ function requireSubsidiaryAccess(req: Request, res: Response, next: Function) {
 export function registerRoutes(app: Express): Server {
   setupAuth(app);
 
+  // Ensure uploads directory exists
+  app.use(express.static('uploads'));
+  app.use(express.json()); //added to handle json body
+
+
   // Subsidiary Management
   app.get("/api/subsidiaries", requireMHCAdmin, async (req, res) => {
     const subsidiaries = await storage.listSubsidiaries();
     res.json(subsidiaries);
   });
 
-  app.post("/api/subsidiaries", requireMHCAdmin, async (req, res) => {
-    const subsidiary = await storage.createSubsidiary(req.body);
-    res.status(201).json(subsidiary);
+  app.post("/api/subsidiaries", requireMHCAdmin, upload.single('logo'), async (req, res) => {
+    try {
+      const subsidiaryData = {
+        name: req.body.name,
+        taxId: req.body.taxId,
+        email: req.body.email,
+        phoneNumber: req.body.phoneNumber,
+        address: req.body.address,
+        city: req.body.city,
+        country: req.body.country,
+        status: req.body.status === 'true',
+        logo: req.file ? `/uploads/${req.file.filename}` : undefined
+      };
+
+      const subsidiary = await storage.createSubsidiary(subsidiaryData);
+      res.status(201).json(subsidiary);
+    } catch (error: any) {
+      res.status(400).json({ error: error.message });
+    }
   });
 
   app.patch("/api/subsidiaries/:id", requireMHCAdmin, async (req, res) => {
