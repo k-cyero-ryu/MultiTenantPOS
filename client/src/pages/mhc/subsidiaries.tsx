@@ -62,12 +62,19 @@ export default function Subsidiaries() {
       const logoInput = document.querySelector<HTMLInputElement>('#logo-upload');
       const logoFile = logoInput?.files?.[0];
 
-      Object.entries(data).forEach(([key, value]) => {
-        if (value !== undefined) {
-          formData.append(key, value.toString());
-        }
-      });
+      // Add all form fields to FormData
+      formData.append('name', data.name);
+      formData.append('taxId', data.taxId);
+      formData.append('email', data.email);
+      formData.append('phoneNumber', data.phoneNumber);
+      formData.append('status', data.status.toString());
 
+      // Add optional fields only if they have values
+      if (data.address) formData.append('address', data.address);
+      if (data.city) formData.append('city', data.city);
+      if (data.country) formData.append('country', data.country);
+
+      // Add logo file if selected
       if (logoFile) {
         formData.append('logo', logoFile);
       }
@@ -78,7 +85,8 @@ export default function Subsidiaries() {
       });
 
       if (!res.ok) {
-        throw new Error('Failed to create subsidiary');
+        const error = await res.text();
+        throw new Error(error || 'Failed to create subsidiary');
       }
 
       return res.json();
