@@ -1,14 +1,19 @@
 import { StatsCard } from "@/components/dashboard/stats-card";
+import { useAuth } from "@/hooks/use-auth";
 import { useQuery } from "@tanstack/react-query";
 import {
   Building2,
   Users,
   PackageOpen,
   TrendingUp,
+  User,
 } from "lucide-react";
 import type { Subsidiary, Sale } from "@shared/schema";
+import { Card } from "@/components/ui/card";
 
 export default function MHCDashboard() {
+  const { user } = useAuth();
+
   const { data: subsidiaries = [] } = useQuery<Subsidiary[]>({
     queryKey: ["/api/subsidiaries"],
   });
@@ -30,6 +35,21 @@ export default function MHCDashboard() {
 
   return (
     <div className="space-y-8 p-8">
+      {/* User Info */}
+      <Card className="p-6">
+        <div className="flex items-center gap-2">
+          <User className="h-5 w-5 text-muted-foreground" />
+          <div>
+            <h3 className="font-semibold">
+              {user?.username} ({user?.role})
+            </h3>
+            <p className="text-sm text-muted-foreground">
+              Main Head Company Administrator
+            </p>
+          </div>
+        </div>
+      </Card>
+
       <div>
         <h1 className="text-3xl font-bold mb-2">MHC Dashboard</h1>
         <p className="text-muted-foreground">

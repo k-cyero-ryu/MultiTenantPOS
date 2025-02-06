@@ -1,8 +1,8 @@
 import { StatsCard } from "@/components/dashboard/stats-card";
 import { useAuth } from "@/hooks/use-auth";
 import { useQuery } from "@tanstack/react-query";
-import type { Sale, Inventory } from "@shared/schema";
-import { Package, CreditCard, BarChart3, TrendingUp } from "lucide-react";
+import type { Sale, Inventory, Subsidiary } from "@shared/schema";
+import { Package, CreditCard, BarChart3, TrendingUp, Building2, User } from "lucide-react";
 import {
   Area,
   AreaChart,
@@ -17,6 +17,11 @@ import { Card } from "@/components/ui/card";
 export default function SubsidiaryDashboard() {
   const { user } = useAuth();
   const subsidiaryId = user?.subsidiaryId;
+
+  const { data: subsidiary } = useQuery<Subsidiary>({
+    queryKey: [`/api/subsidiaries/${subsidiaryId}`],
+    enabled: !!subsidiaryId,
+  });
 
   const { data: inventory = [] } = useQuery<Inventory[]>({
     queryKey: [`/api/subsidiaries/${subsidiaryId}/inventory`],
@@ -43,6 +48,40 @@ export default function SubsidiaryDashboard() {
 
   return (
     <div className="space-y-8 p-8">
+      {/* User and Subsidiary Info */}
+      <Card className="p-6">
+        <div className="flex items-start justify-between">
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <User className="h-5 w-5 text-muted-foreground" />
+              <h3 className="font-semibold">
+                {user?.username} ({user?.role})
+              </h3>
+            </div>
+            {subsidiary && (
+              <div className="flex items-center gap-2">
+                <Building2 className="h-5 w-5 text-muted-foreground" />
+                <div>
+                  <p className="font-medium">{subsidiary.name}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {subsidiary.city}, {subsidiary.country}
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+          <div className="text-right">
+            <p className="text-sm text-muted-foreground">Contact</p>
+            {subsidiary && (
+              <>
+                <p className="font-medium">{subsidiary.email}</p>
+                <p className="text-sm">{subsidiary.phoneNumber}</p>
+              </>
+            )}
+          </div>
+        </div>
+      </Card>
+
       <div>
         <h1 className="text-3xl font-bold mb-2">Dashboard</h1>
         <p className="text-muted-foreground">
