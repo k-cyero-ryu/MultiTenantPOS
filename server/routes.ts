@@ -241,6 +241,64 @@ export function registerRoutes(app: Express): Server {
     }
   );
 
+  // Add these routes after the existing user management routes
+  app.patch(
+    "/api/subsidiaries/:subsidiaryId/users/:userId",
+    requireSubsidiaryAccess,
+    async (req, res) => {
+      if (req.user?.role !== "subsidiary_admin") {
+        return res.status(403).json({ message: "Only subsidiary admins can modify users" });
+      }
+
+      const subsidiaryId = parseInt(req.params.subsidiaryId);
+      const userId = parseInt(req.params.userId);
+
+      try {
+        // Verify user belongs to this subsidiary
+        const user = await storage.getUser(userId);
+        if (!user || user.subsidiaryId !== subsidiaryId) {
+          return res.status(404).json({ message: "User not found" });
+        }
+
+        // If password is being updated, hash it
+        const updates = { ...req.body };
+        if (updates.password) {
+          updates.password = await hashPassword(updates.password);
+        }
+
+        const updatedUser = await storage.updateUser(userId, updates);
+        res.json(updatedUser);
+      } catch (error: any) {
+        res.status(400).json({ error: error.message });
+      }
+    }
+  );
+
+  app.delete(
+    "/api/subsidiaries/:subsidiaryId/users/:userId",
+    requireSubsidiaryAccess,
+    async (req, res) => {
+      if (req.user?.role !== "subsidiary_admin") {
+        return res.status(403).json({ message: "Only subsidiary admins can delete users" });
+      }
+
+      const subsidiaryId = parseInt(req.params.subsidiaryId);
+      const userId = parseInt(req.params.userId);
+
+      try {
+        // Verify user belongs to this subsidiary
+        const user = await storage.getUser(userId);
+        if (!user || user.subsidiaryId !== subsidiaryId) {
+          return res.status(404).json({ message: "User not found" });
+        }
+
+        await storage.deleteUser(userId);
+        res.sendStatus(204);
+      } catch (error: any) {
+        res.status(400).json({ error: error.message });
+      }
+    }
+  );
 
   // Activity Logs
   app.get("/api/activity-logs", requireAuth, async (req, res) => {

@@ -38,6 +38,8 @@ export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
+  updateUser(id: number, user: Partial<InsertUser>): Promise<User>; // Added method signature
+  deleteUser(id: number): Promise<void>; // Added method signature
 
   // Subsidiary Operations
   getSubsidiary(id: number): Promise<Subsidiary | undefined>;
@@ -63,7 +65,7 @@ export interface IStorage {
   // Session Store
   sessionStore: session.SessionStore;
   ensureDefaultAdmin(): Promise<void>;
-  listUsersBySubsidiary(subsidiaryId: number): Promise<User[]>; // Added method signature
+  listUsersBySubsidiary(subsidiaryId: number): Promise<User[]>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -90,6 +92,20 @@ export class DatabaseStorage implements IStorage {
   async createUser(user: InsertUser): Promise<User> {
     const [newUser] = await db.insert(users).values(user).returning();
     return newUser;
+  }
+
+  async updateUser(id: number, user: Partial<InsertUser>): Promise<User> {
+    const [updated] = await db
+      .update(users)
+      .set(user)
+      .where(eq(users.id, id))
+      .returning();
+    if (!updated) throw new Error("User not found");
+    return updated;
+  }
+
+  async deleteUser(id: number): Promise<void> {
+    await db.delete(users).where(eq(users.id, id));
   }
 
   // Subsidiary Operations
@@ -240,7 +256,7 @@ export class DatabaseStorage implements IStorage {
       });
     }
   }
-  async listUsersBySubsidiary(subsidiaryId: number): Promise<User[]> { 
+  async listUsersBySubsidiary(subsidiaryId: number): Promise<User[]> {
     return db.select().from(users).where(eq(users.subsidiaryId, subsidiaryId));
   }
 }
