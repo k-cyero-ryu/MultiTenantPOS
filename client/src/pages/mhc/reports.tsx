@@ -14,7 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { FileSpreadsheet, FileText } from "lucide-react";
+import { Download, FileSpreadsheet, FileText } from "lucide-react";
 import type { Subsidiary, Sale, Inventory } from "@shared/schema";
 import { useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -33,43 +33,20 @@ export default function Reports() {
     },
   });
 
-  // Update the downloadReport function
   const downloadReport = async (format: "csv" | "pdf") => {
     try {
-      if (format === 'pdf') {
-        // For PDF, open the HTML in a new window and trigger print
-        const response = await fetch(
-          `/api/reports/${reportType}?format=pdf&timeRange=${timeRange}`
-        );
-        const html = await response.text();
-
-        // Create a new window with the HTML content
-        const printWindow = window.open('', '_blank');
-        if (printWindow) {
-          printWindow.document.write(html);
-          printWindow.document.close();
-          // Wait for content to load then print
-          printWindow.onload = () => {
-            printWindow.print();
-            // Close the window after print dialog is closed
-            setTimeout(() => printWindow.close(), 500);
-          };
-        }
-      } else {
-        // For CSV, download as before
-        const response = await fetch(
-          `/api/reports/${reportType}?format=${format}&timeRange=${timeRange}`
-        );
-        const blob = await response.blob();
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `${reportType}-report-${timeRange}.${format}`;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(url);
-      }
+      const response = await fetch(
+        `/api/reports/${reportType}?format=${format}&timeRange=${timeRange}`
+      );
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${reportType}-report-${timeRange}.${format}`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error('Error downloading report:', error);
     }
@@ -78,33 +55,31 @@ export default function Reports() {
   // Function to format preview data
   const renderPreview = () => {
     if (isLoading) return <div className="text-center p-4">Loading...</div>;
-    if (!previewData || !previewData.length) return <div className="text-center p-4">No data available</div>;
+    if (!previewData) return <div className="text-center p-4">No data available</div>;
 
     return (
-      <div className="w-full overflow-auto">
-        <table className="w-full">
-          <thead>
-            <tr className="border-b">
-              {Object.keys(previewData[0]).map((header) => (
-                <th key={header} className="p-2 text-left text-sm font-medium text-muted-foreground">
-                  {header}
-                </th>
+      <table className="w-full">
+        <thead>
+          <tr className="border-b">
+            {Object.keys(previewData[0] || {}).map((header) => (
+              <th key={header} className="p-2 text-left text-sm font-medium text-muted-foreground">
+                {header}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {previewData.slice(0, 5).map((row, i) => (
+            <tr key={i} className="border-b">
+              {Object.values(row).map((value: any, j) => (
+                <td key={j} className="p-2 text-sm">
+                  {typeof value === 'object' ? JSON.stringify(value) : String(value)}
+                </td>
               ))}
             </tr>
-          </thead>
-          <tbody>
-            {previewData.slice(0, 5).map((row, i) => (
-              <tr key={i} className="border-b hover:bg-muted/50">
-                {Object.values(row).map((value: any, j) => (
-                  <td key={j} className="p-2 text-sm">
-                    {typeof value === 'object' ? JSON.stringify(value) : String(value)}
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+          ))}
+        </tbody>
+      </table>
     );
   };
 
@@ -117,7 +92,7 @@ export default function Reports() {
         </p>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2">
+      <div className="grid gap-4 md:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle>Generate Report</CardTitle>
@@ -125,11 +100,11 @@ export default function Reports() {
               Select report type and time range
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-4">
             <div className="space-y-2">
               <label className="text-sm font-medium">Report Type</label>
-              <Select
-                value={reportType}
+              <Select 
+                value={reportType} 
                 onValueChange={(value: "sales" | "inventory" | "activity") => setReportType(value)}
               >
                 <SelectTrigger>
@@ -145,8 +120,8 @@ export default function Reports() {
 
             <div className="space-y-2">
               <label className="text-sm font-medium">Time Range</label>
-              <Select
-                value={timeRange}
+              <Select 
+                value={timeRange} 
                 onValueChange={(value: "week" | "month" | "year") => setTimeRange(value)}
               >
                 <SelectTrigger>
@@ -160,18 +135,18 @@ export default function Reports() {
               </Select>
             </div>
 
-            <div className="pt-4 flex gap-4">
+            <div className="grid grid-cols-2 gap-2 pt-4">
               <Button
                 onClick={() => downloadReport('csv')}
                 variant="outline"
-                className="flex-1"
+                className="w-full"
               >
                 <FileSpreadsheet className="w-4 h-4 mr-2" />
                 Export CSV
               </Button>
               <Button
                 onClick={() => downloadReport('pdf')}
-                className="flex-1"
+                className="w-full"
               >
                 <FileText className="w-4 h-4 mr-2" />
                 Export PDF
@@ -188,7 +163,7 @@ export default function Reports() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <ScrollArea className="h-[400px] w-full rounded-md border">
+            <ScrollArea className="h-[300px] w-full rounded-md border">
               <div className="p-4">
                 {renderPreview()}
               </div>
