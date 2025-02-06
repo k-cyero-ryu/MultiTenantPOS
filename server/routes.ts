@@ -96,6 +96,15 @@ export function registerRoutes(app: Express): Server {
     res.json(subsidiary);
   });
 
+  // Add this after the existing subsidiary routes
+  app.get("/api/subsidiaries/:id", requireSubsidiaryAccess, async (req, res) => {
+    const subsidiary = await storage.getSubsidiary(parseInt(req.params.id));
+    if (!subsidiary) {
+      return res.status(404).json({ message: "Subsidiary not found" });
+    }
+    res.json(subsidiary);
+  });
+
   // Inventory Management
   app.get(
     "/api/subsidiaries/:subsidiaryId/inventory",
