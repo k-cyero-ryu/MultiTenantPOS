@@ -330,65 +330,66 @@ export default function Subsidiaries() {
       <div className="border rounded-lg">
         <Table>
           <TableHeader>
-            <TableRow>
-              <TableHead>Name</TableHead>
-              <TableHead>Tax ID</TableHead>
-              <TableHead>Email</TableHead>
-              <TableHead>Phone</TableHead>
-              <TableHead>Location</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead className="w-[150px]">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {subsidiaries.map((subsidiary) => (
-              <TableRow key={subsidiary.id}>
-                <TableCell className="font-medium">
-                  <div className="flex items-center gap-2">
+              <TableRow>
+                <TableHead className="w-[60px]">Logo</TableHead>
+                <TableHead>Name</TableHead>
+                <TableHead>Tax ID</TableHead>
+                <TableHead>Email</TableHead>
+                <TableHead>Phone</TableHead>
+                <TableHead>Location</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="w-[150px]">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {subsidiaries.map((subsidiary) => (
+                <TableRow key={subsidiary.id}>
+                  <TableCell>
                     {subsidiary.logo && (
                       <img
                         src={subsidiary.logo}
                         alt={`${subsidiary.name} logo`}
-                        className="w-6 h-6 rounded-full object-contain"
+                        className="w-8 h-8 rounded object-contain bg-muted p-1"
                       />
                     )}
+                  </TableCell>
+                  <TableCell className="font-medium">
                     {subsidiary.name}
-                  </div>
-                </TableCell>
-                <TableCell>{subsidiary.taxId}</TableCell>
-                <TableCell>{subsidiary.email}</TableCell>
-                <TableCell>{subsidiary.phoneNumber}</TableCell>
-                <TableCell>
-                  {[subsidiary.city, subsidiary.country]
-                    .filter(Boolean)
-                    .join(", ")}
-                </TableCell>
-                <TableCell>
-                  {subsidiary.status ? "Active" : "Inactive"}
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center gap-2">
-                    <Switch
-                      checked={subsidiary.status}
-                      onCheckedChange={(checked) =>
-                        updateStatusMutation.mutate({
-                          id: subsidiary.id,
-                          status: checked,
-                        })
-                      }
-                    />
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => setSelectedSubsidiary(subsidiary)}
-                    >
-                      <UserPlus className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
+                  </TableCell>
+                  <TableCell>{subsidiary.taxId}</TableCell>
+                  <TableCell>{subsidiary.email}</TableCell>
+                  <TableCell>{subsidiary.phoneNumber}</TableCell>
+                  <TableCell>
+                    {[subsidiary.city, subsidiary.country]
+                      .filter(Boolean)
+                      .join(", ")}
+                  </TableCell>
+                  <TableCell>
+                    {subsidiary.status ? "Active" : "Inactive"}
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <Switch
+                        checked={subsidiary.status}
+                        onCheckedChange={(checked) =>
+                          updateStatusMutation.mutate({
+                            id: subsidiary.id,
+                            status: checked,
+                          })
+                        }
+                      />
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setSelectedSubsidiary(subsidiary)}
+                      >
+                        <UserPlus className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
         </Table>
       </div>
 
