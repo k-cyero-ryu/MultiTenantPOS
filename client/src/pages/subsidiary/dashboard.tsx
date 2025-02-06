@@ -35,7 +35,7 @@ export default function SubsidiaryDashboard() {
 
   const totalStock = inventory.reduce((acc, item) => acc + item.quantity, 0);
   const totalValue = inventory.reduce(
-    (acc, item) => acc + item.quantity * item.costPrice,
+    (acc, item) => acc + item.quantity * item.salePrice,
     0
   );
   const totalSales = sales.reduce(
@@ -120,6 +120,7 @@ export default function SubsidiaryDashboard() {
           title="Inventory Value"
           value={`$${totalValue.toFixed(2)}`}
           icon={CreditCard}
+          description="Based on sales prices"
         />
         <StatsCard
           title="Products"

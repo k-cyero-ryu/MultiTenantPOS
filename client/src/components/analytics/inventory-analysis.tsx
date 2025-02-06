@@ -21,16 +21,16 @@ interface InventoryAnalysisProps {
 }
 
 export function InventoryAnalysis({ inventory }: InventoryAnalysisProps) {
-  // Calculate inventory metrics
+  // Calculate inventory metrics using sale price
   const totalValue = inventory.reduce(
-    (acc, item) => acc + item.quantity * item.costPrice,
+    (acc, item) => acc + item.quantity * item.salePrice,
     0
   );
 
   const inventoryMetrics = inventory.map(item => ({
     ...item,
-    totalValue: item.quantity * item.costPrice,
-    valuePercentage: (item.quantity * item.costPrice / totalValue) * 100,
+    totalValue: item.quantity * item.salePrice,
+    valuePercentage: (item.quantity * item.salePrice / totalValue) * 100,
   })).sort((a, b) => b.totalValue - a.totalValue);
 
   const lowStockThreshold = 10; // Can be made configurable
@@ -42,7 +42,7 @@ export function InventoryAnalysis({ inventory }: InventoryAnalysisProps) {
         <CardHeader>
           <CardTitle>Inventory Value Distribution</CardTitle>
           <CardDescription>
-            Breakdown of inventory value by product
+            Breakdown of inventory value by product (based on sales prices)
           </CardDescription>
         </CardHeader>
         <CardContent>
