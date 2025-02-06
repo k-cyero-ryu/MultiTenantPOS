@@ -20,6 +20,16 @@ import { eq } from "drizzle-orm";
 import session from "express-session";
 import connectPg from "connect-pg-simple";
 import { pool } from "./db";
+import { scrypt, randomBytes, timingSafeEqual } from "crypto";
+import { promisify } from "util";
+
+const scryptAsync = promisify(scrypt);
+
+async function hashPassword(password: string) {
+  const salt = randomBytes(16).toString("hex");
+  const buf = (await scryptAsync(password, salt, 64)) as Buffer;
+  return `${buf.toString("hex")}.${salt}`;
+}
 
 const PostgresSessionStore = connectPg(session);
 
@@ -52,6 +62,7 @@ export interface IStorage {
 
   // Session Store
   sessionStore: session.SessionStore;
+  ensureDefaultAdmin(): Promise<void>;
 }
 
 export class DatabaseStorage implements IStorage {
@@ -156,6 +167,20 @@ export class DatabaseStorage implements IStorage {
     }
     return db.select().from(activityLogs);
   }
+    async ensureDefaultAdmin(): Promise<void> {
+    const adminUser = await this.getUserByUsername("admin");
+    if (!adminUser) {
+      await this.createUser({
+        username: "admin",
+        password: await hashPassword("admin123"),
+        role: "mhc_admin",
+        subsidiaryId: null,
+      });
+    }
+  }
 }
 
 export const storage = new DatabaseStorage();
+
+// Initialize default admin user
+storage.ensureDefaultAdmin().catch(console.error);
