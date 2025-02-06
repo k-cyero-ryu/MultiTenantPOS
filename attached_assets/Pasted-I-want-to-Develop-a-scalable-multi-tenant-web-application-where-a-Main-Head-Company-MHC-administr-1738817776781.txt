@@ -1,0 +1,31 @@
+I want to Develop a scalable, multi-tenant web application where a Main Head Company (MHC) administrates a network of subsidiary companies. Each subsidiary operates within an isolated environment managing its own inventory, users, and sales, while the MHC retains oversight, reporting, and administrative controls. Using the details included on the atachment. can you show me your understanding of it before start
+
+Core Features
+1. Main Head Company (MHC) Module
+Company & User Management
+Subsidiary Company Management:
+CRUD operations for subsidiary profiles (name, tax ID, contact, status).
+Activate/deactivate subsidiary companies and update company details.
+Admin User Control:
+Create and manage MHC-level admin users with permissions to oversee subsidiary operations.
+Assign subsidiary-specific admin users with tiered permissions (e.g., view-only vs. full control).
+Global Dashboard & Reporting
+Aggregated performance metrics including total sales, overall inventory valuation, and usage logs across all companies.
+Drill-down capabilities to review individual subsidiary performance.
+Consolidated activity logs for auditing purposes.
+2. Subsidiary Company Module
+User Management
+Local user creation and management with role-based access (e.g., subsidiary admin, manager, staff, auditor).
+Detailed user activity logs to track changes and ensure accountability.
+Inventory Management
+Full CRUD operations on inventory items, capturing details like SKU, name, description, category, cost price, sale price, and stock quantity.
+Real-time inventory adjustments based on sales, returns, or stock audits.
+Bulk CSV import/export capabilities and PDF reporting for inventory summaries.
+Automatic calculation of total inventory value based on current prices.
+Sales Management
+Processing sales transactions with real-time updates to inventory.
+Record detailed sale data including items, quantities, pricing, customer details, and timestamp.
+Generate time-based sales reports (daily, weekly, monthly, or custom ranges) with filtering options by item, category, or sales user.
+Activity & Audit Logs
+Maintain an immutable log of all actions (inventory changes, sales events, user logins) for security and compliance.
+Provide in-app access to logs for internal audits.
