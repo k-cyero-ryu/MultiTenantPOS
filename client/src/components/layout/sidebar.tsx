@@ -32,6 +32,7 @@ export function Sidebar({ className }: SidebarProps) {
   const links = isMHCAdmin ? [
     { href: "/", icon: LayoutDashboard, label: "Dashboard" },
     { href: "/subsidiaries", icon: Building2, label: "Subsidiaries" },
+    { href: "/users", icon: Users, label: "Users" }, // Added Users link for MHC admins
   ] : [
     { href: "/", icon: LayoutDashboard, label: "Dashboard" },
     { href: "/inventory", icon: Package, label: "Inventory" },

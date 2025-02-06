@@ -88,6 +88,11 @@ export default function MHCDashboard() {
           description={`${subsidiaryAdmins} subsidiary admins`}
           icon={User}
         />
+        <StatsCard
+          title="Total Products"
+          value={inventoryStats.totalProducts}
+          icon={PackageOpen}
+        />
       </div>
     </div>
   );
