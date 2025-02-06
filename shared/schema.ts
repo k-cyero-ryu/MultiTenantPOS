@@ -18,7 +18,7 @@ export const subsidiaries = pgTable("subsidiaries", {
   taxId: text("tax_id").notNull().unique(),
   email: text("email").notNull(),
   phoneNumber: text("phone_number").notNull(),
-  logo: text("logo"),
+  logo: text("logo"), // Will store the path/id of the uploaded file
   address: text("address"),
   city: text("city"),
   country: text("country"),
@@ -67,14 +67,15 @@ export const insertUserSchema = createInsertSchema(users).pick({
   subsidiaryId: true,
 });
 
-export const insertSubsidiarySchema = createInsertSchema(subsidiaries).extend({
-  email: z.string().email("Invalid email format"),
-  phoneNumber: z.string().min(10, "Phone number must be at least 10 digits"),
-  logo: z.string().url("Invalid logo URL").optional(),
-  address: z.string().optional(),
-  city: z.string().optional(),
-  country: z.string().optional(),
-});
+export const insertSubsidiarySchema = createInsertSchema(subsidiaries)
+  .extend({
+    email: z.string().email("Invalid email format"),
+    phoneNumber: z.string().min(10, "Phone number must be at least 10 digits"),
+    address: z.string().optional(),
+    city: z.string().optional(),
+    country: z.string().optional(),
+  })
+  .omit({ logo: true }); // Logo will be handled separately through file upload
 
 export const insertInventorySchema = createInsertSchema(inventory);
 export const insertSaleSchema = createInsertSchema(sales);

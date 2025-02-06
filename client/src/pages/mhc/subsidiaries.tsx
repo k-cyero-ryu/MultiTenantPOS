@@ -32,6 +32,7 @@ import {
 } from "@/components/ui/form";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useState } from "react";
+import { Label } from "@/components/ui/label";
 
 export default function Subsidiaries() {
   const { toast } = useToast();
@@ -48,7 +49,6 @@ export default function Subsidiaries() {
       taxId: "",
       email: "",
       phoneNumber: "",
-      logo: "",
       address: "",
       city: "",
       country: "",
@@ -58,7 +58,29 @@ export default function Subsidiaries() {
 
   const createMutation = useMutation({
     mutationFn: async (data: ReturnType<typeof form.getValues>) => {
-      const res = await apiRequest("POST", "/api/subsidiaries", data);
+      const formData = new FormData();
+      const logoInput = document.querySelector<HTMLInputElement>('#logo-upload');
+      const logoFile = logoInput?.files?.[0];
+
+      Object.entries(data).forEach(([key, value]) => {
+        if (value !== undefined) {
+          formData.append(key, value.toString());
+        }
+      });
+
+      if (logoFile) {
+        formData.append('logo', logoFile);
+      }
+
+      const res = await fetch('/api/subsidiaries', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!res.ok) {
+        throw new Error('Failed to create subsidiary');
+      }
+
       return res.json();
     },
     onSuccess: () => {
@@ -167,19 +189,18 @@ export default function Subsidiaries() {
                       </FormItem>
                     )}
                   />
-                  <FormField
-                    control={form.control}
-                    name="logo"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Logo URL</FormLabel>
-                        <FormControl>
-                          <Input {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                  <div className="col-span-2">
+                    <Label htmlFor="logo-upload">Company Logo</Label>
+                    <Input
+                      id="logo-upload"
+                      type="file"
+                      accept="image/png,image/jpeg"
+                      className="cursor-pointer"
+                    />
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Upload a PNG or JPG image for the company logo
+                    </p>
+                  </div>
                   <FormField
                     control={form.control}
                     name="address"
