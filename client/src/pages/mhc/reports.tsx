@@ -27,10 +27,13 @@ export default function Reports() {
   const [startDate, setStartDate] = useState<Date>();
   const [endDate, setEndDate] = useState<Date>();
 
-  // Calculate query parameters based on time range
+  // Update the time params function to format dates properly
   const getTimeParams = () => {
     if (timeRange === 'custom' && startDate && endDate) {
-      return `startDate=${startDate.toISOString()}&endDate=${endDate.toISOString()}`;
+      // Set end date to end of the day
+      const endDateTime = new Date(endDate);
+      endDateTime.setHours(23, 59, 59, 999);
+      return `startDate=${startDate.toISOString()}&endDate=${endDateTime.toISOString()}`;
     }
     return `timeRange=${timeRange}`;
   };
@@ -126,8 +129,8 @@ export default function Reports() {
           <CardContent className="space-y-4">
             <div className="space-y-2">
               <label className="text-sm font-medium">Report Type</label>
-              <Select 
-                value={reportType} 
+              <Select
+                value={reportType}
                 onValueChange={(value: "sales" | "inventory" | "activity") => setReportType(value)}
               >
                 <SelectTrigger>
@@ -143,8 +146,8 @@ export default function Reports() {
 
             <div className="space-y-2">
               <label className="text-sm font-medium">Time Range</label>
-              <Select 
-                value={timeRange} 
+              <Select
+                value={timeRange}
                 onValueChange={(value: "week" | "month" | "year" | "custom") => {
                   setTimeRange(value);
                   if (value !== 'custom') {
@@ -173,6 +176,7 @@ export default function Reports() {
                     selected={startDate}
                     onSelect={setStartDate}
                     maxDate={endDate || new Date()}
+                    placeholderText="Select start date"
                   />
                 </div>
                 <div className="space-y-2">
@@ -182,6 +186,7 @@ export default function Reports() {
                     onSelect={setEndDate}
                     minDate={startDate}
                     maxDate={new Date()}
+                    placeholderText="Select end date"
                   />
                 </div>
               </div>

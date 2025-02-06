@@ -341,7 +341,10 @@ export function registerRoutes(app: Express): Server {
       if (startDate && endDate) {
         // Custom date range
         startDateTime = new Date(startDate as string);
-        now.setTime(new Date(endDate as string).getTime());
+        const endDateTime = new Date(endDate as string);
+        // Set end date to end of day
+        endDateTime.setHours(23, 59, 59, 999);
+        now.setTime(endDateTime.getTime());
       } else {
         // Predefined ranges
         switch (timeRange) {
@@ -357,6 +360,8 @@ export function registerRoutes(app: Express): Server {
           default:
             startDateTime.setMonth(now.getMonth() - 1); // Default to last month
         }
+        // Set end date to end of current day
+        now.setHours(23, 59, 59, 999);
       }
 
       // Gather data based on report type
