@@ -131,11 +131,25 @@ export function registerRoutes(app: Express): Server {
     "/api/subsidiaries/:subsidiaryId/inventory",
     requireSubsidiaryAccess,
     async (req, res) => {
-      const inventory = await storage.createInventory({
-        ...req.body,
-        subsidiaryId: parseInt(req.params.subsidiaryId),
-      });
-      res.status(201).json(inventory);
+      try {
+        const inventory = await storage.createInventory({
+          ...req.body,
+          subsidiaryId: parseInt(req.params.subsidiaryId),
+        });
+
+        // Log the activity
+        await storage.createActivityLog({
+          userId: req.user!.id,
+          action: "CREATE_INVENTORY",
+          details: `Created inventory item: ${inventory.name} with quantity ${inventory.quantity}`,
+          subsidiaryId: parseInt(req.params.subsidiaryId),
+          timestamp: new Date(),
+        });
+
+        res.status(201).json(inventory);
+      } catch (error: any) {
+        res.status(400).json({ error: error.message });
+      }
     },
   );
 
@@ -143,11 +157,26 @@ export function registerRoutes(app: Express): Server {
     "/api/subsidiaries/:subsidiaryId/inventory/:id",
     requireSubsidiaryAccess,
     async (req, res) => {
-      const inventory = await storage.updateInventory(
-        parseInt(req.params.id),
-        req.body,
-      );
-      res.json(inventory);
+      try {
+        const oldInventory = await storage.getInventory(parseInt(req.params.id));
+        const inventory = await storage.updateInventory(
+          parseInt(req.params.id),
+          req.body,
+        );
+
+        // Log the activity
+        await storage.createActivityLog({
+          userId: req.user!.id,
+          action: "UPDATE_INVENTORY",
+          details: `Updated inventory item: ${inventory.name} - Quantity changed from ${oldInventory?.quantity || 0} to ${inventory.quantity}`,
+          subsidiaryId: parseInt(req.params.subsidiaryId),
+          timestamp: new Date(),
+        });
+
+        res.json(inventory);
+      } catch (error: any) {
+        res.status(400).json({ error: error.message });
+      }
     },
   );
 
@@ -155,8 +184,23 @@ export function registerRoutes(app: Express): Server {
     "/api/subsidiaries/:subsidiaryId/inventory/:id",
     requireSubsidiaryAccess,
     async (req, res) => {
-      await storage.deleteInventory(parseInt(req.params.id));
-      res.sendStatus(204);
+      try {
+        const inventory = await storage.getInventory(parseInt(req.params.id));
+        await storage.deleteInventory(parseInt(req.params.id));
+
+        // Log the activity
+        await storage.createActivityLog({
+          userId: req.user!.id,
+          action: "DELETE_INVENTORY",
+          details: `Deleted inventory item: ${inventory?.name}`,
+          subsidiaryId: parseInt(req.params.subsidiaryId),
+          timestamp: new Date(),
+        });
+
+        res.sendStatus(204);
+      } catch (error: any) {
+        res.status(400).json({ error: error.message });
+      }
     },
   );
 
