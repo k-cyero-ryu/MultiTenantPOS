@@ -173,13 +173,42 @@ export class DatabaseStorage implements IStorage {
 
   // Sales Operations
   async createSale(sale: InsertSale): Promise<Sale> {
-    // Ensure timestamp is a proper Date object
-    const saleData = {
-      ...sale,
-      timestamp: sale.timestamp ? new Date(sale.timestamp) : new Date(),
-    };
+    // Get the inventory item to check stock and update quantity
+    const [inventoryItem] = await db
+      .select()
+      .from(inventory)
+      .where(eq(inventory.id, sale.itemId));
 
-    const [newSale] = await db.insert(sales).values(saleData).returning();
+    if (!inventoryItem) {
+      throw new Error("Inventory item not found");
+    }
+
+    if (inventoryItem.quantity < sale.quantity) {
+      throw new Error("Insufficient stock");
+    }
+
+    // Start a transaction to ensure both operations succeed or fail together
+    const [newSale] = await db.transaction(async (tx) => {
+      // Create the sale record
+      const [createdSale] = await tx
+        .insert(sales)
+        .values({
+          ...sale,
+          timestamp: sale.timestamp ? new Date(sale.timestamp) : new Date(),
+        })
+        .returning();
+
+      // Update inventory quantity
+      await tx
+        .update(inventory)
+        .set({
+          quantity: inventoryItem.quantity - sale.quantity,
+        })
+        .where(eq(inventory.id, sale.itemId));
+
+      return [createdSale];
+    });
+
     return newSale;
   }
 

@@ -75,9 +75,15 @@ export default function SalesPage() {
         {
           ...data,
           subsidiaryId,
-          timestamp: new Date(), // Send the timestamp as a Date object
+          timestamp: new Date(),
         }
       );
+
+      if (!res.ok) {
+        const error = await res.text();
+        throw new Error(error || "Failed to record sale");
+      }
+
       return res.json();
     },
     onSuccess: () => {
@@ -86,6 +92,13 @@ export default function SalesPage() {
       toast({ title: "Sale recorded successfully" });
       setOpen(false);
       form.reset();
+    },
+    onError: (error: Error) => {
+      toast({ 
+        title: "Failed to record sale", 
+        description: error.message,
+        variant: "destructive"
+      });
     },
   });
 
