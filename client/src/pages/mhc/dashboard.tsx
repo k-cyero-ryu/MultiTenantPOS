@@ -8,7 +8,7 @@ import {
   TrendingUp,
   User,
 } from "lucide-react";
-import type { Subsidiary, Sale } from "@shared/schema";
+import type { Subsidiary, Sale, User as UserType } from "@shared/schema";
 import { Card } from "@/components/ui/card";
 
 export default function MHCDashboard() {
@@ -26,6 +26,10 @@ export default function MHCDashboard() {
     queryKey: ["/api/inventory/total"],
   });
 
+  const { data: allUsers = [] } = useQuery<UserType[]>({
+    queryKey: ["/api/users"],
+  });
+
   const totalSales = sales.reduce(
     (acc, sale) => acc + sale.quantity * sale.salePrice,
     0
@@ -33,9 +37,11 @@ export default function MHCDashboard() {
 
   const activeSubsidiaries = subsidiaries.filter((s) => s.status).length;
 
+  const totalUsers = allUsers.length;
+  const subsidiaryAdmins = allUsers.filter((u) => u.role === "subsidiary_admin").length;
+
   return (
     <div className="space-y-8 p-8">
-      {/* User Info */}
       <Card className="p-6">
         <div className="flex items-center gap-2">
           <User className="h-5 w-5 text-muted-foreground" />
@@ -71,15 +77,16 @@ export default function MHCDashboard() {
           )}% active rate`}
           icon={Users}
         />
-        <StatsCard 
+        <StatsCard
           title="Total Sales"
           value={`$${totalSales.toFixed(2)}`}
           icon={TrendingUp}
         />
         <StatsCard
-          title="Total Products"
-          value={inventoryStats.totalProducts}
-          icon={PackageOpen}
+          title="Total Users"
+          value={totalUsers}
+          description={`${subsidiaryAdmins} subsidiary admins`}
+          icon={User}
         />
       </div>
     </div>

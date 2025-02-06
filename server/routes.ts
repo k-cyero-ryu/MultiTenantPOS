@@ -317,6 +317,16 @@ export function registerRoutes(app: Express): Server {
     res.json(logs);
   });
 
+  // Add this route after the existing user management routes
+  app.get("/api/users", requireMHCAdmin, async (req, res) => {
+    try {
+      const users = await storage.listUsers();
+      res.json(users);
+    } catch (error: any) {
+      res.status(400).json({ error: error.message });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }
