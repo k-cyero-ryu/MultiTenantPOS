@@ -10,19 +10,22 @@ neonConfig.webSocketConstructor = ws;
 
 const config = loadDbConfig();
 
+// Define a type for our database instance that can be either PostgreSQL or MySQL
+export type Database = ReturnType<typeof createPostgresConnection> | ReturnType<typeof createMysqlConnection>;
+
 // Function to create PostgreSQL connection
-async function createPostgresConnection() {
+function createPostgresConnection() {
   if (!process.env.DATABASE_URL) {
     throw new Error(
       "DATABASE_URL must be set for PostgreSQL connection.",
     );
   }
   const pool = new PgPool({ connectionString: process.env.DATABASE_URL });
-  return drizzlePg({ client: pool, schema });
+  return drizzlePg(pool, { schema });
 }
 
 // Function to create MySQL connection
-async function createMysqlConnection() {
+function createMysqlConnection() {
   const pool = mysql.createPool({
     host: config.host,
     port: config.port,
@@ -32,7 +35,7 @@ async function createMysqlConnection() {
   });
   return drizzleMysql(pool, { 
     schema,
-    mode: 'default' // Add required mode parameter
+    mode: 'default'
   });
 }
 
@@ -43,10 +46,10 @@ async function createDbConnection() {
     let connection;
     switch (config.engine) {
       case 'postgresql':
-        connection = await createPostgresConnection();
+        connection = createPostgresConnection();
         break;
       case 'mysql':
-        connection = await createMysqlConnection();
+        connection = createMysqlConnection();
         break;
       default:
         throw new Error(`Unsupported database engine: ${config.engine}`);
@@ -59,7 +62,7 @@ async function createDbConnection() {
 }
 
 // Initialize database connection
-export let db: ReturnType<typeof drizzlePg> | ReturnType<typeof drizzleMysql>;
+export let db: Database;
 
 // Initialize connection immediately
 createDbConnection()
