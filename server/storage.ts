@@ -9,182 +9,153 @@ import {
   type InsertSale,
   type ActivityLog,
   type InsertActivityLog,
+  users,
+  subsidiaries,
+  inventory,
+  sales,
+  activityLogs,
 } from "@shared/schema";
-import createMemoryStore from "memorystore";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
 import session from "express-session";
+import connectPg from "connect-pg-simple";
+import { pool } from "./db";
 
-const MemoryStore = createMemoryStore(session);
+const PostgresSessionStore = connectPg(session);
 
 export interface IStorage {
   // User Operations
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
-  
+
   // Subsidiary Operations
   getSubsidiary(id: number): Promise<Subsidiary | undefined>;
   listSubsidiaries(): Promise<Subsidiary[]>;
   createSubsidiary(subsidiary: InsertSubsidiary): Promise<Subsidiary>;
   updateSubsidiary(id: number, subsidiary: Partial<InsertSubsidiary>): Promise<Subsidiary>;
-  
+
   // Inventory Operations
   getInventory(id: number): Promise<Inventory | undefined>;
   listInventoryBySubsidiary(subsidiaryId: number): Promise<Inventory[]>;
   createInventory(inventory: InsertInventory): Promise<Inventory>;
   updateInventory(id: number, inventory: Partial<InsertInventory>): Promise<Inventory>;
   deleteInventory(id: number): Promise<void>;
-  
+
   // Sales Operations
   createSale(sale: InsertSale): Promise<Sale>;
   listSalesBySubsidiary(subsidiaryId: number): Promise<Sale[]>;
-  
+
   // Activity Log Operations
   createActivityLog(log: InsertActivityLog): Promise<ActivityLog>;
   listActivityLogs(subsidiaryId?: number): Promise<ActivityLog[]>;
-  
+
   // Session Store
   sessionStore: session.SessionStore;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<number, User>;
-  private subsidiaries: Map<number, Subsidiary>;
-  private inventory: Map<number, Inventory>;
-  private sales: Map<number, Sale>;
-  private activityLogs: Map<number, ActivityLog>;
-  private currentIds: {
-    users: number;
-    subsidiaries: number;
-    inventory: number;
-    sales: number;
-    activityLogs: number;
-  };
+export class DatabaseStorage implements IStorage {
   sessionStore: session.SessionStore;
 
   constructor() {
-    this.users = new Map();
-    this.subsidiaries = new Map();
-    this.inventory = new Map();
-    this.sales = new Map();
-    this.activityLogs = new Map();
-    this.currentIds = {
-      users: 1,
-      subsidiaries: 1,
-      inventory: 1,
-      sales: 1,
-      activityLogs: 1,
-    };
-    this.sessionStore = new MemoryStore({
-      checkPeriod: 86400000,
+    this.sessionStore = new PostgresSessionStore({
+      pool,
+      createTableIfMissing: true,
     });
   }
 
   // User Operations
   async getUser(id: number): Promise<User | undefined> {
-    return this.users.get(id);
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user;
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user;
   }
 
   async createUser(user: InsertUser): Promise<User> {
-    const id = this.currentIds.users++;
-    const newUser = { ...user, id };
-    this.users.set(id, newUser);
+    const [newUser] = await db.insert(users).values(user).returning();
     return newUser;
   }
 
   // Subsidiary Operations
   async getSubsidiary(id: number): Promise<Subsidiary | undefined> {
-    return this.subsidiaries.get(id);
+    const [subsidiary] = await db.select().from(subsidiaries).where(eq(subsidiaries.id, id));
+    return subsidiary;
   }
 
   async listSubsidiaries(): Promise<Subsidiary[]> {
-    return Array.from(this.subsidiaries.values());
+    return db.select().from(subsidiaries);
   }
 
   async createSubsidiary(subsidiary: InsertSubsidiary): Promise<Subsidiary> {
-    const id = this.currentIds.subsidiaries++;
-    const newSubsidiary = { ...subsidiary, id };
-    this.subsidiaries.set(id, newSubsidiary);
+    const [newSubsidiary] = await db.insert(subsidiaries).values(subsidiary).returning();
     return newSubsidiary;
   }
 
-  async updateSubsidiary(
-    id: number,
-    subsidiary: Partial<InsertSubsidiary>,
-  ): Promise<Subsidiary> {
-    const existing = await this.getSubsidiary(id);
-    if (!existing) throw new Error("Subsidiary not found");
-    const updated = { ...existing, ...subsidiary };
-    this.subsidiaries.set(id, updated);
+  async updateSubsidiary(id: number, subsidiary: Partial<InsertSubsidiary>): Promise<Subsidiary> {
+    const [updated] = await db
+      .update(subsidiaries)
+      .set(subsidiary)
+      .where(eq(subsidiaries.id, id))
+      .returning();
+    if (!updated) throw new Error("Subsidiary not found");
     return updated;
   }
 
   // Inventory Operations
   async getInventory(id: number): Promise<Inventory | undefined> {
-    return this.inventory.get(id);
+    const [item] = await db.select().from(inventory).where(eq(inventory.id, id));
+    return item;
   }
 
   async listInventoryBySubsidiary(subsidiaryId: number): Promise<Inventory[]> {
-    return Array.from(this.inventory.values()).filter(
-      (item) => item.subsidiaryId === subsidiaryId,
-    );
+    return db.select().from(inventory).where(eq(inventory.subsidiaryId, subsidiaryId));
   }
 
-  async createInventory(inventory: InsertInventory): Promise<Inventory> {
-    const id = this.currentIds.inventory++;
-    const newInventory = { ...inventory, id };
-    this.inventory.set(id, newInventory);
-    return newInventory;
+  async createInventory(item: InsertInventory): Promise<Inventory> {
+    const [newItem] = await db.insert(inventory).values(item).returning();
+    return newItem;
   }
 
-  async updateInventory(
-    id: number,
-    inventory: Partial<InsertInventory>,
-  ): Promise<Inventory> {
-    const existing = await this.getInventory(id);
-    if (!existing) throw new Error("Inventory item not found");
-    const updated = { ...existing, ...inventory };
-    this.inventory.set(id, updated);
+  async updateInventory(id: number, item: Partial<InsertInventory>): Promise<Inventory> {
+    const [updated] = await db
+      .update(inventory)
+      .set(item)
+      .where(eq(inventory.id, id))
+      .returning();
+    if (!updated) throw new Error("Inventory item not found");
     return updated;
   }
 
   async deleteInventory(id: number): Promise<void> {
-    this.inventory.delete(id);
+    await db.delete(inventory).where(eq(inventory.id, id));
   }
 
   // Sales Operations
   async createSale(sale: InsertSale): Promise<Sale> {
-    const id = this.currentIds.sales++;
-    const newSale = { ...sale, id };
-    this.sales.set(id, newSale);
+    const [newSale] = await db.insert(sales).values(sale).returning();
     return newSale;
   }
 
   async listSalesBySubsidiary(subsidiaryId: number): Promise<Sale[]> {
-    return Array.from(this.sales.values()).filter(
-      (sale) => sale.subsidiaryId === subsidiaryId,
-    );
+    return db.select().from(sales).where(eq(sales.subsidiaryId, subsidiaryId));
   }
 
   // Activity Log Operations
   async createActivityLog(log: InsertActivityLog): Promise<ActivityLog> {
-    const id = this.currentIds.activityLogs++;
-    const newLog = { ...log, id };
-    this.activityLogs.set(id, newLog);
+    const [newLog] = await db.insert(activityLogs).values(log).returning();
     return newLog;
   }
 
   async listActivityLogs(subsidiaryId?: number): Promise<ActivityLog[]> {
-    const logs = Array.from(this.activityLogs.values());
-    return subsidiaryId
-      ? logs.filter((log) => log.subsidiaryId === subsidiaryId)
-      : logs;
+    if (subsidiaryId) {
+      return db.select().from(activityLogs).where(eq(activityLogs.subsidiaryId, subsidiaryId));
+    }
+    return db.select().from(activityLogs);
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
