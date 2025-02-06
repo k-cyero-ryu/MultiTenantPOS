@@ -63,6 +63,7 @@ export interface IStorage {
   // Session Store
   sessionStore: session.SessionStore;
   ensureDefaultAdmin(): Promise<void>;
+  listUsersBySubsidiary(subsidiaryId: number): Promise<User[]>; // Added method signature
 }
 
 export class DatabaseStorage implements IStorage {
@@ -238,6 +239,9 @@ export class DatabaseStorage implements IStorage {
         subsidiaryId: null,
       });
     }
+  }
+  async listUsersBySubsidiary(subsidiaryId: number): Promise<User[]> { 
+    return db.select().from(users).where(eq(users.subsidiaryId, subsidiaryId));
   }
 }
 

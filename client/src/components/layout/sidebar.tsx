@@ -8,6 +8,7 @@ import {
   Building2, 
   Package, 
   ShoppingCart,
+  Users,
   LogOut,
   Menu
 } from "lucide-react";
@@ -26,6 +27,7 @@ export function Sidebar({ className }: SidebarProps) {
   const [open, setOpen] = useState(false);
 
   const isMHCAdmin = user?.role === "mhc_admin";
+  const isSubsidiaryAdmin = user?.role === "subsidiary_admin";
 
   const links = isMHCAdmin ? [
     { href: "/", icon: LayoutDashboard, label: "Dashboard" },
@@ -34,6 +36,7 @@ export function Sidebar({ className }: SidebarProps) {
     { href: "/", icon: LayoutDashboard, label: "Dashboard" },
     { href: "/inventory", icon: Package, label: "Inventory" },
     { href: "/sales", icon: ShoppingCart, label: "Sales" },
+    ...(isSubsidiaryAdmin ? [{ href: "/users", icon: Users, label: "Users" }] : []),
   ];
 
   const SidebarContent = () => (

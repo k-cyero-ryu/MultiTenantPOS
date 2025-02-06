@@ -11,6 +11,7 @@ import Subsidiaries from "@/pages/mhc/subsidiaries";
 import SubsidiaryDashboard from "@/pages/subsidiary/dashboard";
 import Inventory from "@/pages/subsidiary/inventory";
 import Sales from "@/pages/subsidiary/sales";
+import Users from "@/pages/subsidiary/users";
 import { Sidebar } from "@/components/layout/sidebar";
 import { useAuth } from "@/hooks/use-auth";
 
@@ -26,11 +27,12 @@ function AppLayout({ children }: { children: React.ReactNode }) {
 function Router() {
   const { user } = useAuth();
   const isMHCAdmin = user?.role === "mhc_admin";
+  const isSubsidiaryAdmin = user?.role === "subsidiary_admin";
 
   return (
     <Switch>
       <Route path="/auth" component={AuthPage} />
-      
+
       <ProtectedRoute
         path="/"
         component={() => (
@@ -59,7 +61,7 @@ function Router() {
           </AppLayout>
         )}
       />
-      
+
       <ProtectedRoute
         path="/sales"
         component={() => (
@@ -68,6 +70,18 @@ function Router() {
           </AppLayout>
         )}
       />
+
+      {/* User Management Route - Only for subsidiary admins */}
+      {isSubsidiaryAdmin && (
+        <ProtectedRoute
+          path="/users"
+          component={() => (
+            <AppLayout>
+              <Users />
+            </AppLayout>
+          )}
+        />
+      )}
 
       <Route component={NotFound} />
     </Switch>

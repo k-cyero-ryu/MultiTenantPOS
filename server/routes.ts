@@ -193,6 +193,53 @@ export function registerRoutes(app: Express): Server {
     res.json({ totalProducts });
   });
 
+  // User Management for Subsidiaries
+  app.get(
+    "/api/subsidiaries/:subsidiaryId/users",
+    requireSubsidiaryAccess,
+    async (req, res) => {
+      if (req.user.role !== "subsidiary_admin") {
+        return res.status(403).json({ message: "Only subsidiary admins can view users" });
+      }
+
+      const subsidiaryId = parseInt(req.params.subsidiaryId);
+      const users = await storage.listUsersBySubsidiary(subsidiaryId);
+      res.json(users);
+    }
+  );
+
+  app.post(
+    "/api/subsidiaries/:subsidiaryId/users",
+    requireSubsidiaryAccess,
+    async (req, res) => {
+      if (req.user.role !== "subsidiary_admin") {
+        return res.status(403).json({ message: "Only subsidiary admins can create users" });
+      }
+
+      const subsidiaryId = parseInt(req.params.subsidiaryId);
+
+      try {
+        // Check if username already exists
+        const existingUser = await storage.getUserByUsername(req.body.username);
+        if (existingUser) {
+          return res.status(400).send("Username already exists");
+        }
+
+        const user = await storage.createUser({
+          ...req.body,
+          subsidiaryId,
+          role: "staff", // Force role to be staff
+          password: await hashPassword(req.body.password),
+        });
+
+        res.status(201).json(user);
+      } catch (error: any) {
+        res.status(400).json({ error: error.message });
+      }
+    }
+  );
+
+
   // Activity Logs
   app.get("/api/activity-logs", requireAuth, async (req, res) => {
     const logs = await storage.listActivityLogs(
