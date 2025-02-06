@@ -432,21 +432,94 @@ export function registerRoutes(app: Express): Server {
         res.attachment(`${type}-report-${timeRange}.csv`);
         return res.send(csv);
       } else if (format === 'pdf') {
-        // Format JSON in a way that's more readable when downloaded
-        const formattedData = {
-          title: `${type.charAt(0).toUpperCase() + type.slice(1)} Report`,
-          timeRange: timeRange,
-          generatedAt: new Date().toISOString(),
-          summary: {
-            totalRecords: data.length,
-            dateRange: `${startDate.toLocaleDateString()} - ${now.toLocaleDateString()}`
-          },
-          records: data
-        };
+        // Create an HTML document that looks like a PDF report
+        const html = `
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <meta charset="UTF-8">
+            <title>${type.charAt(0).toUpperCase() + type.slice(1)} Report</title>
+            <style>
+              body {
+                font-family: Arial, sans-serif;
+                line-height: 1.6;
+                margin: 40px;
+              }
+              .header {
+                text-align: center;
+                margin-bottom: 30px;
+              }
+              .report-title {
+                font-size: 24px;
+                font-weight: bold;
+                margin-bottom: 10px;
+              }
+              .metadata {
+                color: #666;
+                margin-bottom: 20px;
+              }
+              table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 20px;
+              }
+              th, td {
+                border: 1px solid #ddd;
+                padding: 12px;
+                text-align: left;
+              }
+              th {
+                background-color: #f5f5f5;
+              }
+              .summary {
+                margin: 20px 0;
+                padding: 15px;
+                background: #f9f9f9;
+                border-radius: 4px;
+              }
+              @media print {
+                body { margin: 0; }
+                .header { margin-top: 0; }
+              }
+            </style>
+          </head>
+          <body>
+            <div class="header">
+              <div class="report-title">${type.charAt(0).toUpperCase() + type.slice(1)} Report</div>
+              <div class="metadata">
+                Generated on ${new Date().toLocaleString()}<br>
+                Time Range: ${timeRange}
+              </div>
+            </div>
 
-        res.header('Content-Type', 'application/json');
-        res.attachment(`${type}-report-${timeRange}.json`);
-        return res.json(formattedData);
+            <div class="summary">
+              <strong>Summary:</strong><br>
+              Total Records: ${data.length}<br>
+              Date Range: ${startDate.toLocaleDateString()} - ${now.toLocaleDateString()}
+            </div>
+
+            <table>
+              <thead>
+                <tr>
+                  ${Object.keys(data[0] || {}).map(header => `<th>${header}</th>`).join('')}
+                </tr>
+              </thead>
+              <tbody>
+                ${data.map(row => `
+                  <tr>
+                    ${Object.values(row).map(value => `<td>${value}</td>`).join('')}
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </body>
+          </html>
+        `;
+
+        res.header('Content-Type', 'text/html');
+        res.attachment(`${type}-report-${timeRange}.html`);
+        return res.send(html);
+
       } else {
         // JSON format for preview
         res.json(data);
