@@ -169,7 +169,7 @@ export default function Reports() {
             </div>
 
             {timeRange === 'custom' && (
-              <div className="grid gap-4 grid-cols-2">
+              <div className="space-y-4">
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Start Date</label>
                   <DatePicker
