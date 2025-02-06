@@ -10,7 +10,8 @@ import {
   ShoppingCart,
   Users,
   LogOut,
-  Menu
+  Menu,
+  FileText // Added import for FileText icon
 } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useState } from "react";
@@ -32,7 +33,8 @@ export function Sidebar({ className }: SidebarProps) {
   const links = isMHCAdmin ? [
     { href: "/", icon: LayoutDashboard, label: "Dashboard" },
     { href: "/subsidiaries", icon: Building2, label: "Subsidiaries" },
-    { href: "/users", icon: Users, label: "Users" }, // Added Users link for MHC admins
+    { href: "/users", icon: Users, label: "Users" },
+    { href: "/reports", icon: FileText, label: "Reports" }, // Add Reports link
   ] : [
     { href: "/", icon: LayoutDashboard, label: "Dashboard" },
     { href: "/inventory", icon: Package, label: "Inventory" },

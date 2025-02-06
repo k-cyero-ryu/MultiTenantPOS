@@ -327,6 +327,89 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
+  // Add after the existing routes
+  app.get("/api/reports/:type", requireMHCAdmin, async (req, res) => {
+    const { type } = req.params;
+    const { format, timeRange } = req.query;
+
+    try {
+      let data;
+      const now = new Date();
+      let startDate = new Date();
+
+      // Calculate start date based on time range
+      switch (timeRange) {
+        case 'week':
+          startDate.setDate(now.getDate() - 7);
+          break;
+        case 'month':
+          startDate.setMonth(now.getMonth() - 1);
+          break;
+        case 'year':
+          startDate.setFullYear(now.getFullYear() - 1);
+          break;
+        default:
+          startDate.setMonth(now.getMonth() - 1); // Default to last month
+      }
+
+      switch (type) {
+        case 'sales': {
+          // Get all sales within the date range
+          const sales = await storage.listSales();
+          data = sales.filter(sale => new Date(sale.timestamp) >= startDate);
+          break;
+        }
+        case 'inventory': {
+          // Get current inventory status
+          const subsidiaries = await storage.listSubsidiaries();
+          const inventoryPromises = subsidiaries.map(subsidiary =>
+            storage.listInventoryBySubsidiary(subsidiary.id)
+          );
+          const inventoryBySubsidiary = await Promise.all(inventoryPromises);
+          data = inventoryBySubsidiary.flat();
+          break;
+        }
+        case 'activity': {
+          // Get activity logs within the date range
+          const logs = await storage.listActivityLogs();
+          data = logs.filter(log => new Date(log.timestamp) >= startDate);
+          break;
+        }
+        default:
+          return res.status(400).json({ message: "Invalid report type" });
+      }
+
+      // Format data based on requested format
+      if (format === 'csv') {
+        // Convert data to CSV format
+        const csv = convertToCSV(data);
+        res.header('Content-Type', 'text/csv');
+        res.attachment(`${type}-report.csv`);
+        return res.send(csv);
+      } else if (format === 'pdf') {
+        // Send JSON for now, PDF generation will be implemented later
+        res.json(data);
+      } else {
+        res.json(data);
+      }
+    } catch (error: any) {
+      res.status(500).json({ message: error.message });
+    }
+  });
+
+  // Helper function to convert data to CSV format
+  function convertToCSV(data: any[]) {
+    if (data.length === 0) return '';
+
+    const headers = Object.keys(data[0]);
+    const rows = data.map(obj => headers.map(header => obj[header]));
+
+    return [
+      headers.join(','),
+      ...rows.map(row => row.join(','))
+    ].join('\n');
+  }
+
   const httpServer = createServer(app);
   return httpServer;
 }

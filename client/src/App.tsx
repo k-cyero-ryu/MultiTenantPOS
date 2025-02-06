@@ -8,10 +8,11 @@ import NotFound from "@/pages/not-found";
 import AuthPage from "@/pages/auth-page";
 import MHCDashboard from "@/pages/mhc/dashboard";
 import Subsidiaries from "@/pages/mhc/subsidiaries";
+import Reports from "@/pages/mhc/reports"; // Add Reports import
 import SubsidiaryDashboard from "@/pages/subsidiary/dashboard";
 import Inventory from "@/pages/subsidiary/inventory";
 import Sales from "@/pages/subsidiary/sales";
-import Users from "@/pages/mhc/users"; // Updated import path
+import Users from "@/pages/mhc/users";
 import { Sidebar } from "@/components/layout/sidebar";
 import { useAuth } from "@/hooks/use-auth";
 
@@ -52,16 +53,25 @@ function Router() {
         )}
       />
 
-      {/* Add the new MHC users route */}
       {isMHCAdmin && (
-        <ProtectedRoute
-          path="/users"
-          component={() => (
-            <AppLayout>
-              <Users />
-            </AppLayout>
-          )}
-        />
+        <>
+          <ProtectedRoute
+            path="/users"
+            component={() => (
+              <AppLayout>
+                <Users />
+              </AppLayout>
+            )}
+          />
+          <ProtectedRoute
+            path="/reports"
+            component={() => (
+              <AppLayout>
+                <Reports />
+              </AppLayout>
+            )}
+          />
+        </>
       )}
 
       {/* Subsidiary Routes */}
