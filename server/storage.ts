@@ -173,7 +173,13 @@ export class DatabaseStorage implements IStorage {
 
   // Sales Operations
   async createSale(sale: InsertSale): Promise<Sale> {
-    const [newSale] = await db.insert(sales).values(sale).returning();
+    // Ensure timestamp is a proper Date object
+    const saleData = {
+      ...sale,
+      timestamp: sale.timestamp ? new Date(sale.timestamp) : new Date(),
+    };
+
+    const [newSale] = await db.insert(sales).values(saleData).returning();
     return newSale;
   }
 
