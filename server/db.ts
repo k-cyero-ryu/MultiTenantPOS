@@ -10,11 +10,13 @@ neonConfig.webSocketConstructor = ws;
 
 const config = loadDbConfig();
 
-// Define a type for our database instance that can be either PostgreSQL or MySQL
-export type Database = ReturnType<typeof createPostgresConnection> | ReturnType<typeof createMysqlConnection>;
+// Define database-specific types
+type PostgresDB = ReturnType<typeof drizzlePg>;
+type MySQLDB = ReturnType<typeof drizzleMysql>;
+export type Database = PostgresDB | MySQLDB;
 
 // Function to create PostgreSQL connection
-function createPostgresConnection() {
+function createPostgresConnection(): PostgresDB {
   if (!process.env.DATABASE_URL) {
     throw new Error(
       "DATABASE_URL must be set for PostgreSQL connection.",
@@ -25,7 +27,7 @@ function createPostgresConnection() {
 }
 
 // Function to create MySQL connection
-function createMysqlConnection() {
+function createMysqlConnection(): MySQLDB {
   const pool = mysql.createPool({
     host: config.host,
     port: config.port,
@@ -40,10 +42,10 @@ function createMysqlConnection() {
 }
 
 // Create the appropriate database connection based on engine configuration
-async function createDbConnection() {
+async function createDbConnection(): Promise<Database> {
   console.log(`Initializing database connection for ${config.engine}`);
   try {
-    let connection;
+    let connection: Database;
     switch (config.engine) {
       case 'postgresql':
         connection = createPostgresConnection();
@@ -74,3 +76,12 @@ createDbConnection()
     console.error('Failed to initialize database:', error);
     process.exit(1);
   });
+
+// Helper function to check database engine type
+export function isPostgres(db: Database): db is PostgresDB {
+  return config.engine === 'postgresql';
+}
+
+export function isMysql(db: Database): db is MySQLDB {
+  return config.engine === 'mysql';
+}
