@@ -17,6 +17,10 @@ export default function MHCDashboard() {
     queryKey: ["/api/sales"],
   });
 
+  const { data: inventoryStats = { totalProducts: 0 } } = useQuery<{ totalProducts: number }>({
+    queryKey: ["/api/inventory/total"],
+  });
+
   const totalSales = sales.reduce(
     (acc, sale) => acc + sale.quantity * sale.salePrice,
     0
@@ -54,7 +58,7 @@ export default function MHCDashboard() {
         />
         <StatsCard
           title="Total Products"
-          value={sales.length}
+          value={inventoryStats.totalProducts}
           icon={PackageOpen}
         />
       </div>

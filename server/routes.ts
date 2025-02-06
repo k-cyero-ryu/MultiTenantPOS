@@ -165,6 +165,34 @@ export function registerRoutes(app: Express): Server {
     },
   );
 
+  // Add after existing sales routes
+  app.get("/api/sales", requireMHCAdmin, async (req, res) => {
+    const subsidiaries = await storage.listSubsidiaries();
+    let allSales: Sale[] = [];
+
+    // Gather sales from all subsidiaries
+    for (const subsidiary of subsidiaries) {
+      const subsidiarySales = await storage.listSalesBySubsidiary(subsidiary.id);
+      allSales = [...allSales, ...subsidiarySales];
+    }
+
+    res.json(allSales);
+  });
+
+  // Add route to get total inventory count
+  app.get("/api/inventory/total", requireMHCAdmin, async (req, res) => {
+    const subsidiaries = await storage.listSubsidiaries();
+    let totalProducts = 0;
+
+    // Count inventory items across all subsidiaries
+    for (const subsidiary of subsidiaries) {
+      const subsidiaryInventory = await storage.listInventoryBySubsidiary(subsidiary.id);
+      totalProducts += subsidiaryInventory.length;
+    }
+
+    res.json({ totalProducts });
+  });
+
   // Activity Logs
   app.get("/api/activity-logs", requireAuth, async (req, res) => {
     const logs = await storage.listActivityLogs(
