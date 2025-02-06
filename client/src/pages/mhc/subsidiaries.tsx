@@ -20,7 +20,7 @@ import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { insertSubsidiarySchema } from "@shared/schema";
+import { insertSubsidiarySchema, insertUserSchema } from "@shared/schema";
 import type { Subsidiary } from "@shared/schema";
 import {
   Form,
@@ -33,10 +33,29 @@ import {
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useState } from "react";
 import { Label } from "@/components/ui/label";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { UserPlus } from "lucide-react";
 
 export default function Subsidiaries() {
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
+  const [selectedSubsidiary, setSelectedSubsidiary] = useState<Subsidiary | null>(null);
 
   const { data: subsidiaries = [] } = useQuery<Subsidiary[]>({
     queryKey: ["/api/subsidiaries"],
@@ -62,19 +81,16 @@ export default function Subsidiaries() {
       const logoInput = document.querySelector<HTMLInputElement>('#logo-upload');
       const logoFile = logoInput?.files?.[0];
 
-      // Add all form fields to FormData
       formData.append('name', data.name);
       formData.append('taxId', data.taxId);
       formData.append('email', data.email);
       formData.append('phoneNumber', data.phoneNumber);
       formData.append('status', data.status.toString());
 
-      // Add optional fields only if they have values
       if (data.address) formData.append('address', data.address);
       if (data.city) formData.append('city', data.city);
       if (data.country) formData.append('country', data.country);
 
-      // Add logo file if selected
       if (logoFile) {
         formData.append('logo', logoFile);
       }
@@ -117,6 +133,40 @@ export default function Subsidiaries() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/subsidiaries"] });
       toast({ title: "Subsidiary status updated" });
+    },
+  });
+
+  // Add user creation form
+  const userForm = useForm({
+    resolver: zodResolver(insertUserSchema),
+    defaultValues: {
+      username: "",
+      password: "",
+      role: "subsidiary_admin" as const,
+      subsidiaryId: undefined,
+    },
+  });
+
+  const createUserMutation = useMutation({
+    mutationFn: async (data: ReturnType<typeof userForm.getValues>) => {
+      const res = await apiRequest("POST", "/api/register", data);
+      if (!res.ok) {
+        const error = await res.text();
+        throw new Error(error || "Failed to create user");
+      }
+      return res.json();
+    },
+    onSuccess: () => {
+      toast({ title: "User created successfully" });
+      setSelectedSubsidiary(null);
+      userForm.reset();
+    },
+    onError: (error: Error) => {
+      toast({ 
+        title: "Failed to create user", 
+        description: error.message,
+        variant: "destructive"
+      });
     },
   });
 
@@ -287,7 +337,7 @@ export default function Subsidiaries() {
               <TableHead>Phone</TableHead>
               <TableHead>Location</TableHead>
               <TableHead>Status</TableHead>
-              <TableHead className="w-24">Actions</TableHead>
+              <TableHead className="w-[150px]">Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -317,21 +367,88 @@ export default function Subsidiaries() {
                   {subsidiary.status ? "Active" : "Inactive"}
                 </TableCell>
                 <TableCell>
-                  <Switch
-                    checked={subsidiary.status}
-                    onCheckedChange={(checked) =>
-                      updateStatusMutation.mutate({
-                        id: subsidiary.id,
-                        status: checked,
-                      })
-                    }
-                  />
+                  <div className="flex items-center gap-2">
+                    <Switch
+                      checked={subsidiary.status}
+                      onCheckedChange={(checked) =>
+                        updateStatusMutation.mutate({
+                          id: subsidiary.id,
+                          status: checked,
+                        })
+                      }
+                    />
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setSelectedSubsidiary(subsidiary)}
+                    >
+                      <UserPlus className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       </div>
+
+      <Dialog
+        open={!!selectedSubsidiary}
+        onOpenChange={() => setSelectedSubsidiary(null)}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Add Admin User for {selectedSubsidiary?.name}</DialogTitle>
+          </DialogHeader>
+          <Form {...userForm}>
+            <form
+              onSubmit={userForm.handleSubmit((data) => {
+                if (selectedSubsidiary) {
+                  createUserMutation.mutate({
+                    ...data,
+                    subsidiaryId: selectedSubsidiary.id,
+                  });
+                }
+              })}
+              className="space-y-4"
+            >
+              <FormField
+                control={userForm.control}
+                name="username"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Username</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={userForm.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Password</FormLabel>
+                    <FormControl>
+                      <Input type="password" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={createUserMutation.isPending}
+              >
+                Create Admin User
+              </Button>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
