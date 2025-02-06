@@ -327,29 +327,36 @@ export function registerRoutes(app: Express): Server {
     }
   });
 
-  // Add after the existing routes
+  // Update the reports endpoint to handle custom date ranges
   app.get("/api/reports/:type", requireMHCAdmin, async (req, res) => {
     const { type } = req.params;
-    const { format = 'json', timeRange } = req.query;
+    const { format = 'json', timeRange, startDate, endDate } = req.query;
 
     try {
       let data;
       const now = new Date();
-      let startDate = new Date();
+      let startDateTime = new Date();
 
-      // Calculate start date based on time range
-      switch (timeRange) {
-        case 'week':
-          startDate.setDate(now.getDate() - 7);
-          break;
-        case 'month':
-          startDate.setMonth(now.getMonth() - 1);
-          break;
-        case 'year':
-          startDate.setFullYear(now.getFullYear() - 1);
-          break;
-        default:
-          startDate.setMonth(now.getMonth() - 1); // Default to last month
+      // Calculate start date based on parameters
+      if (startDate && endDate) {
+        // Custom date range
+        startDateTime = new Date(startDate as string);
+        now.setTime(new Date(endDate as string).getTime());
+      } else {
+        // Predefined ranges
+        switch (timeRange) {
+          case 'week':
+            startDateTime.setDate(now.getDate() - 7);
+            break;
+          case 'month':
+            startDateTime.setMonth(now.getMonth() - 1);
+            break;
+          case 'year':
+            startDateTime.setFullYear(now.getFullYear() - 1);
+            break;
+          default:
+            startDateTime.setMonth(now.getMonth() - 1); // Default to last month
+        }
       }
 
       // Gather data based on report type
@@ -367,7 +374,10 @@ export function registerRoutes(app: Express): Server {
 
           // Filter by date and format data
           data = allSales
-            .filter(sale => new Date(sale.timestamp) >= startDate)
+            .filter(sale => {
+              const saleDate = new Date(sale.timestamp);
+              return saleDate >= startDateTime && saleDate <= now;
+            })
             .map(sale => {
               const subsidiary = subsidiaries.find(s => s.id === sale.subsidiaryId);
               const user = users.find(u => u.id === sale.userId);
@@ -407,7 +417,10 @@ export function registerRoutes(app: Express): Server {
           const users = await storage.listUsers();
 
           data = logs
-            .filter(log => new Date(log.timestamp) >= startDate)
+            .filter(log => {
+              const logDate = new Date(log.timestamp);
+              return logDate >= startDateTime && logDate <= now;
+            })
             .map(log => {
               const subsidiary = subsidiaries.find(s => s.id === log.subsidiaryId);
               const user = users.find(u => u.id === log.userId);
@@ -429,7 +442,7 @@ export function registerRoutes(app: Express): Server {
       if (format === 'csv') {
         const csv = convertToCSV(data);
         res.header('Content-Type', 'text/csv');
-        res.attachment(`${type}-report-${timeRange}.csv`);
+        res.attachment(`${type}-report-${timeRange || 'custom'}.csv`);
         return res.send(csv);
       } else if (format === 'pdf') {
         // Create an HTML document that looks like a PDF report
@@ -487,15 +500,17 @@ export function registerRoutes(app: Express): Server {
             <div class="header">
               <div class="report-title">${type.charAt(0).toUpperCase() + type.slice(1)} Report</div>
               <div class="metadata">
-                Generated on ${new Date().toLocaleString()}<br>
-                Time Range: ${timeRange}
+                Generated on ${new Date().toLocaleDateString()}<br>
+                Time Range: ${timeRange === 'custom' 
+                  ? `${startDateTime.toLocaleDateString()} to ${now.toLocaleDateString()}`
+                  : timeRange}
               </div>
             </div>
 
             <div class="summary">
               <strong>Summary:</strong><br>
               Total Records: ${data.length}<br>
-              Date Range: ${startDate.toLocaleDateString()} - ${now.toLocaleDateString()}
+              Date Range: ${startDateTime.toLocaleDateString()} - ${now.toLocaleDateString()}
             </div>
 
             <table>
@@ -517,7 +532,7 @@ export function registerRoutes(app: Express): Server {
         `;
 
         res.header('Content-Type', 'text/html');
-        res.attachment(`${type}-report-${timeRange}.html`);
+        res.attachment(`${type}-report-${timeRange || 'custom'}.html`);
         return res.send(html);
 
       } else {
