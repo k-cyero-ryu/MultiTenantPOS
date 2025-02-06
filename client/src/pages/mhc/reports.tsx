@@ -17,22 +17,27 @@ import { Button } from "@/components/ui/button";
 import { Download, FileSpreadsheet, FileText } from "lucide-react";
 import type { Subsidiary, Sale, Inventory } from "@shared/schema";
 import { useState } from "react";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 export default function Reports() {
   const [timeRange, setTimeRange] = useState<"week" | "month" | "year">("month");
   const [reportType, setReportType] = useState<"sales" | "inventory" | "activity">("sales");
 
-  const { data: subsidiaries = [] } = useQuery<Subsidiary[]>({
-    queryKey: ["/api/subsidiaries"],
-  });
-
-  const { data: sales = [] } = useQuery<Sale[]>({
-    queryKey: ["/api/sales"],
+  // Query for report preview data
+  const { data: previewData, isLoading } = useQuery({
+    queryKey: ["/api/reports", reportType, { format: "json", timeRange }],
+    queryFn: async () => {
+      const res = await fetch(`/api/reports/${reportType}?format=json&timeRange=${timeRange}`);
+      if (!res.ok) throw new Error('Failed to fetch report data');
+      return res.json();
+    },
   });
 
   const downloadReport = async (format: "csv" | "pdf") => {
     try {
-      const response = await fetch(`/api/reports/${reportType}?format=${format}&timeRange=${timeRange}`);
+      const response = await fetch(
+        `/api/reports/${reportType}?format=${format}&timeRange=${timeRange}`
+      );
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -45,6 +50,37 @@ export default function Reports() {
     } catch (error) {
       console.error('Error downloading report:', error);
     }
+  };
+
+  // Function to format preview data
+  const renderPreview = () => {
+    if (isLoading) return <div className="text-center p-4">Loading...</div>;
+    if (!previewData) return <div className="text-center p-4">No data available</div>;
+
+    return (
+      <table className="w-full">
+        <thead>
+          <tr className="border-b">
+            {Object.keys(previewData[0] || {}).map((header) => (
+              <th key={header} className="p-2 text-left text-sm font-medium text-muted-foreground">
+                {header}
+              </th>
+            ))}
+          </tr>
+        </thead>
+        <tbody>
+          {previewData.slice(0, 5).map((row, i) => (
+            <tr key={i} className="border-b">
+              {Object.values(row).map((value: any, j) => (
+                <td key={j} className="p-2 text-sm">
+                  {typeof value === 'object' ? JSON.stringify(value) : String(value)}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    );
   };
 
   return (
@@ -99,21 +135,21 @@ export default function Reports() {
               </Select>
             </div>
 
-            <div className="flex gap-2 pt-4">
+            <div className="grid grid-cols-2 gap-2 pt-4">
               <Button
                 onClick={() => downloadReport('csv')}
-                className="flex-1"
                 variant="outline"
+                className="w-full"
               >
                 <FileSpreadsheet className="w-4 h-4 mr-2" />
-                Download CSV
+                Export CSV
               </Button>
               <Button
                 onClick={() => downloadReport('pdf')}
-                className="flex-1"
+                className="w-full"
               >
                 <FileText className="w-4 h-4 mr-2" />
-                Download PDF
+                Export PDF
               </Button>
             </div>
           </CardContent>
@@ -123,14 +159,15 @@ export default function Reports() {
           <CardHeader>
             <CardTitle>Report Preview</CardTitle>
             <CardDescription>
-              Preview of the selected report
+              Preview of the first 5 rows
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {/* Preview content will be added here */}
-            <div className="h-[300px] flex items-center justify-center border rounded-lg bg-muted/50">
-              Report preview will be shown here
-            </div>
+            <ScrollArea className="h-[300px] w-full rounded-md border">
+              <div className="p-4">
+                {renderPreview()}
+              </div>
+            </ScrollArea>
           </CardContent>
         </Card>
       </div>

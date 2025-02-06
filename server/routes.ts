@@ -330,7 +330,7 @@ export function registerRoutes(app: Express): Server {
   // Add after the existing routes
   app.get("/api/reports/:type", requireMHCAdmin, async (req, res) => {
     const { type } = req.params;
-    const { format, timeRange } = req.query;
+    const { format = 'json', timeRange } = req.query;
 
     try {
       let data;
@@ -352,44 +352,88 @@ export function registerRoutes(app: Express): Server {
           startDate.setMonth(now.getMonth() - 1); // Default to last month
       }
 
+      // Gather data based on report type
       switch (type) {
         case 'sales': {
-          // Get all sales within the date range
-          const sales = await storage.listSales();
-          data = sales.filter(sale => new Date(sale.timestamp) >= startDate);
+          // Get all subsidiaries and their sales
+          const subsidiaries = await storage.listSubsidiaries();
+          let allSales: Sale[] = [];
+
+          for (const subsidiary of subsidiaries) {
+            const subsidiarySales = await storage.listSalesBySubsidiary(subsidiary.id);
+            allSales = [...allSales, ...subsidiarySales];
+          }
+
+          // Filter by date and format data
+          data = allSales
+            .filter(sale => new Date(sale.timestamp) >= startDate)
+            .map(sale => ({
+              Date: new Date(sale.timestamp).toLocaleDateString(),
+              'Sale ID': sale.id,
+              'Subsidiary ID': sale.subsidiaryId,
+              'Item ID': sale.itemId,
+              Quantity: sale.quantity,
+              'Sale Price': `$${sale.salePrice.toFixed(2)}`,
+              'Total': `$${(sale.quantity * sale.salePrice).toFixed(2)}`
+            }));
           break;
         }
         case 'inventory': {
-          // Get current inventory status
+          // Get current inventory status for all subsidiaries
           const subsidiaries = await storage.listSubsidiaries();
-          const inventoryPromises = subsidiaries.map(subsidiary =>
-            storage.listInventoryBySubsidiary(subsidiary.id)
-          );
-          const inventoryBySubsidiary = await Promise.all(inventoryPromises);
-          data = inventoryBySubsidiary.flat();
+          const inventoryPromises = subsidiaries.map(async subsidiary => {
+            const items = await storage.listInventoryBySubsidiary(subsidiary.id);
+            return items.map(item => ({
+              'Subsidiary': subsidiary.name,
+              'Item SKU': item.sku,
+              'Product Name': item.name,
+              'Quantity': item.quantity,
+              'Sale Price': `$${item.salePrice.toFixed(2)}`,
+              'Total Value': `$${(item.quantity * item.salePrice).toFixed(2)}`
+            }));
+          });
+
+          data = (await Promise.all(inventoryPromises)).flat();
           break;
         }
         case 'activity': {
-          // Get activity logs within the date range
+          // Get activity logs
           const logs = await storage.listActivityLogs();
-          data = logs.filter(log => new Date(log.timestamp) >= startDate);
+          data = logs
+            .filter(log => new Date(log.timestamp) >= startDate)
+            .map(log => ({
+              Date: new Date(log.timestamp).toLocaleDateString(),
+              'Log ID': log.id,
+              'Subsidiary ID': log.subsidiaryId,
+              'User ID': log.userId,
+              'Action': log.action,
+              'Details': log.details
+            }));
           break;
         }
         default:
           return res.status(400).json({ message: "Invalid report type" });
       }
 
-      // Format data based on requested format
+      // Format and send response based on requested format
       if (format === 'csv') {
-        // Convert data to CSV format
         const csv = convertToCSV(data);
         res.header('Content-Type', 'text/csv');
-        res.attachment(`${type}-report.csv`);
+        res.attachment(`${type}-report-${timeRange}.csv`);
         return res.send(csv);
       } else if (format === 'pdf') {
-        // Send JSON for now, PDF generation will be implemented later
-        res.json(data);
+        // For now, send formatted JSON that can be easily converted to PDF
+        // In a real application, you would use a PDF generation library
+        res.header('Content-Type', 'application/json');
+        res.attachment(`${type}-report-${timeRange}.json`);
+        return res.json({
+          title: `${type.charAt(0).toUpperCase() + type.slice(1)} Report`,
+          timeRange,
+          generatedAt: new Date().toISOString(),
+          data
+        });
       } else {
+        // JSON format for preview
         res.json(data);
       }
     } catch (error: any) {
@@ -402,7 +446,15 @@ export function registerRoutes(app: Express): Server {
     if (data.length === 0) return '';
 
     const headers = Object.keys(data[0]);
-    const rows = data.map(obj => headers.map(header => obj[header]));
+    const rows = data.map(obj => 
+      headers.map(header => {
+        const value = obj[header];
+        // Handle values that might contain commas
+        return typeof value === 'string' && value.includes(',') 
+          ? `"${value}"` 
+          : value;
+      })
+    );
 
     return [
       headers.join(','),
