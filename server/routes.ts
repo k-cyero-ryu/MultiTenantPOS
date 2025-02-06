@@ -1,11 +1,11 @@
 import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
-import { setupAuth, hashPassword } from "./auth"; // Add hashPassword import
+import { setupAuth, hashPassword } from "./auth";
 import { storage } from "./storage";
 import multer from "multer";
 import path from "path";
 import express from 'express';
-import { type Sale } from "@shared/schema"; // Add Sale type import
+import { type Sale } from "@shared/schema";
 
 const upload = multer({
   storage: multer.diskStorage({
@@ -432,21 +432,49 @@ export function registerRoutes(app: Express): Server {
         res.attachment(`${type}-report-${timeRange}.csv`);
         return res.send(csv);
       } else if (format === 'pdf') {
-        // Format JSON in a way that's more readable when downloaded
-        const formattedData = {
-          title: `${type.charAt(0).toUpperCase() + type.slice(1)} Report`,
-          timeRange: timeRange,
-          generatedAt: new Date().toISOString(),
-          summary: {
-            totalRecords: data.length,
-            dateRange: `${startDate.toLocaleDateString()} - ${now.toLocaleDateString()}`
-          },
-          records: data
-        };
+        // Send HTML that can be printed to PDF by the browser
+        const htmlContent = `
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <title>${type.charAt(0).toUpperCase() + type.slice(1)} Report</title>
+              <style>
+                body { font-family: Arial, sans-serif; padding: 20px; }
+                h1 { text-align: center; color: #333; }
+                .metadata { margin: 20px 0; }
+                table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+                th { background-color: #f5f5f5; }
+              </style>
+            </head>
+            <body>
+              <h1>${type.charAt(0).toUpperCase() + type.slice(1)} Report</h1>
+              <div class="metadata">
+                <p>Generated: ${new Date().toLocaleString()}</p>
+                <p>Time Range: ${timeRange}</p>
+                <p>Total Records: ${data.length}</p>
+              </div>
+              <table>
+                <thead>
+                  <tr>
+                    ${Object.keys(data[0] || {}).map(header => `<th>${header}</th>`).join('')}
+                  </tr>
+                </thead>
+                <tbody>
+                  ${data.map(row => `
+                    <tr>
+                      ${Object.values(row).map(value => `<td>${value}</td>`).join('')}
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </body>
+          </html>
+        `;
 
-        res.header('Content-Type', 'application/json');
-        res.attachment(`${type}-report-${timeRange}.json`);
-        return res.json(formattedData);
+        res.header('Content-Type', 'text/html');
+        res.send(htmlContent);
+        return;
       } else {
         // JSON format for preview
         res.json(data);
@@ -461,12 +489,12 @@ export function registerRoutes(app: Express): Server {
     if (data.length === 0) return '';
 
     const headers = Object.keys(data[0]);
-    const rows = data.map(obj => 
+    const rows = data.map(obj =>
       headers.map(header => {
         const value = obj[header];
         // Handle values that might contain commas
-        return typeof value === 'string' && value.includes(',') 
-          ? `"${value}"` 
+        return typeof value === 'string' && value.includes(',')
+          ? `"${value}"`
           : value;
       })
     );
