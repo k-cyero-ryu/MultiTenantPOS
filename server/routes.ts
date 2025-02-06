@@ -1,10 +1,11 @@
 import type { Express, Request, Response } from "express";
 import { createServer, type Server } from "http";
-import { setupAuth } from "./auth";
+import { setupAuth, hashPassword } from "./auth"; // Add hashPassword import
 import { storage } from "./storage";
 import multer from "multer";
 import path from "path";
 import express from 'express';
+import { type Sale } from "@shared/schema"; // Add Sale type import
 
 const upload = multer({
   storage: multer.diskStorage({
@@ -212,7 +213,7 @@ export function registerRoutes(app: Express): Server {
     "/api/subsidiaries/:subsidiaryId/users",
     requireSubsidiaryAccess,
     async (req, res) => {
-      if (req.user.role !== "subsidiary_admin") {
+      if (req.user?.role !== "subsidiary_admin") {
         return res.status(403).json({ message: "Only subsidiary admins can create users" });
       }
 
@@ -225,11 +226,12 @@ export function registerRoutes(app: Express): Server {
           return res.status(400).send("Username already exists");
         }
 
+        const hashedPassword = await hashPassword(req.body.password);
         const user = await storage.createUser({
           ...req.body,
           subsidiaryId,
           role: "staff", // Force role to be staff
-          password: await hashPassword(req.body.password),
+          password: hashedPassword,
         });
 
         res.status(201).json(user);
