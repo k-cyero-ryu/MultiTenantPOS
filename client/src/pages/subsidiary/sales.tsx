@@ -75,7 +75,7 @@ export default function SalesPage() {
         {
           ...data,
           subsidiaryId,
-          timestamp: new Date()
+          timestamp: new Date().toISOString() // Ensure proper date format
         }
       );
       return res.json();
