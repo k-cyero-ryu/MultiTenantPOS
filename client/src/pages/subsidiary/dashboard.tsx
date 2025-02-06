@@ -48,36 +48,47 @@ export default function SubsidiaryDashboard() {
 
   return (
     <div className="space-y-8 p-8">
-      {/* User and Subsidiary Info */}
+      {/* Subsidiary Info */}
       <Card className="p-6">
-        <div className="flex items-start justify-between">
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <User className="h-5 w-5 text-muted-foreground" />
-              <h3 className="font-semibold">
-                {user?.username} ({user?.role})
-              </h3>
-            </div>
-            {subsidiary && (
-              <div className="flex items-center gap-2">
-                <Building2 className="h-5 w-5 text-muted-foreground" />
-                <div>
-                  <p className="font-medium">{subsidiary.name}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {subsidiary.city}, {subsidiary.country}
-                  </p>
+        <div className="flex items-start gap-6">
+          {subsidiary?.logo && (
+            <img 
+              src={subsidiary.logo} 
+              alt={`${subsidiary.name} logo`}
+              className="w-20 h-20 object-contain rounded-lg"
+            />
+          )}
+          <div className="flex-1">
+            <div className="flex items-start justify-between">
+              <div>
+                <div className="flex items-center gap-2">
+                  <Building2 className="h-6 w-6 text-muted-foreground" />
+                  <h2 className="text-2xl font-bold">{subsidiary?.name}</h2>
                 </div>
+                <p className="text-muted-foreground mt-1">
+                  {subsidiary?.city}, {subsidiary?.country}
+                </p>
               </div>
-            )}
+              <div className="text-right">
+                <p className="text-sm text-muted-foreground">Contact Details</p>
+                <p className="font-medium">{subsidiary?.email}</p>
+                <p className="text-sm">{subsidiary?.phoneNumber}</p>
+                <p className="text-sm mt-1">Tax ID: {subsidiary?.taxId}</p>
+              </div>
+            </div>
           </div>
-          <div className="text-right">
-            <p className="text-sm text-muted-foreground">Contact</p>
-            {subsidiary && (
-              <>
-                <p className="font-medium">{subsidiary.email}</p>
-                <p className="text-sm">{subsidiary.phoneNumber}</p>
-              </>
-            )}
+        </div>
+      </Card>
+
+      {/* User Info */}
+      <Card className="p-4">
+        <div className="flex items-center gap-2">
+          <User className="h-5 w-5 text-muted-foreground" />
+          <div>
+            <p className="text-sm text-muted-foreground">Logged in as</p>
+            <p className="font-medium">
+              {user?.username} <span className="text-muted-foreground">({user?.role})</span>
+            </p>
           </div>
         </div>
       </Card>
