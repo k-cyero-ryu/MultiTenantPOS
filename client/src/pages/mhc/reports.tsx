@@ -143,17 +143,27 @@ export default function Reports() {
       
       // Function to get the absolute URL for a logo
       const getLogoUrl = (logoPath: string) => {
-        // If logo path already starts with http, it's already a full URL
-        if (logoPath && logoPath.startsWith('http')) return logoPath;
+        console.log("Getting logo URL for path:", logoPath);
         
         // If logo path is empty or invalid, use a default image
-        if (!logoPath || logoPath === 'null' || logoPath === '') {
-          return `${window.location.origin}/default-logo.png`;
+        if (!logoPath || logoPath === 'null' || logoPath === '' || logoPath === 'undefined') {
+          console.log("Using default logo path");
+          return `${window.location.origin}/default-logo.svg`;
         }
         
-        // Otherwise, it's a relative path that needs to be converted to an absolute URL
-        // We assume the path starts with /uploads or similar
-        return `${window.location.origin}${logoPath}`;
+        // If logo path already starts with http, it's already a full URL
+        if (logoPath.startsWith('http')) {
+          console.log("Using full URL for logo");
+          return logoPath;
+        }
+        
+        // Make sure the path starts with a slash
+        const normalizedPath = logoPath.startsWith('/') ? logoPath : `/${logoPath}`;
+        
+        // Convert to absolute URL
+        const fullUrl = `${window.location.origin}${normalizedPath}`;
+        console.log("Final logo URL:", fullUrl);
+        return fullUrl;
       };
 
       // Determine if we're generating a subsidiary-specific report
@@ -161,15 +171,40 @@ export default function Reports() {
       const reportHeaderTitle = isSubsidiaryReport 
         ? `${selectedSubsidiaryData.name} ${t('reports.subsidiaryReport')}`
         : `${t('reports.corporateReport')}`;
+      
+      // For debugging purpose, log the subsidiary data
+      console.log("Subsidiary data:", selectedSubsidiaryData);
+      
+      // Check for logo availability and properly format it
+      let logoHTML = '';
+      if (isSubsidiaryReport) {
+        // For subsidiary reports, either use their logo or a default
+        if (selectedSubsidiaryData.logo && 
+            selectedSubsidiaryData.logo !== 'null' && 
+            selectedSubsidiaryData.logo !== '') {
+          // Use the subsidiary's actual logo
+          logoHTML = `<img src="${getLogoUrl(selectedSubsidiaryData.logo)}" 
+                          alt="${selectedSubsidiaryData.name} logo" 
+                          style="max-height: 60px; max-width: 120px; margin-right: 15px;">`;
+        } else {
+          // Use default logo for subsidiaries without a logo
+          logoHTML = `<img src="${window.location.origin}/default-logo.svg" 
+                          alt="${selectedSubsidiaryData.name} logo" 
+                          style="max-height: 60px; max-width: 120px; margin-right: 15px;">`;
+        }
+      } else {
+        // For MHC reports, always use a default logo
+        logoHTML = `<img src="${window.location.origin}/default-logo.svg" 
+                        alt="Main Head Company logo" 
+                        style="max-height: 60px; max-width: 120px; margin-right: 15px;">`;
+      }
           
       // Build the HTML content for the PDF with conditional logo
       pdfContainer.innerHTML = `
         <div style="font-family: Arial, sans-serif; margin-bottom: 30px;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
             <div style="display: flex; align-items: center;">
-              ${isSubsidiaryReport && selectedSubsidiaryData.logo ? 
-                `<img src="${getLogoUrl(selectedSubsidiaryData.logo)}" alt="${selectedSubsidiaryData.name} logo" style="max-height: 60px; max-width: 120px; margin-right: 15px;">` : 
-                ''}
+              ${logoHTML}
               <div style="font-size: 22px; font-weight: bold; color: #333333;">
                 ${isSubsidiaryReport ? selectedSubsidiaryData.name : 'Main Head Company'}
               </div>
