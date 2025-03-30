@@ -663,9 +663,32 @@ export function registerRoutes(app: Express): Server {
       const engineMatch = fileContent.match(/engine:\s*['"]([^'"]+)['"]/);
       const engine = engineMatch ? engineMatch[1] : 'postgresql';
       
+      // Extract PostgreSQL configuration
+      const pgHostMatch = fileContent.match(/postgresql:[\s\S]*?host:[\s\S]*?['"]([^'"]+)['"]/);
+      const pgPortMatch = fileContent.match(/postgresql:[\s\S]*?port:[\s\S]*?parseInt\([^'"]*['"]([^'"]+)['"]/);
+      const pgDatabaseMatch = fileContent.match(/postgresql:[\s\S]*?database:[\s\S]*?['"]([^'"]+)['"]/);
+      const pgUserMatch = fileContent.match(/postgresql:[\s\S]*?user:[\s\S]*?['"]([^'"]+)['"]/);
+      
+      // Extract MySQL configuration
+      const mysqlHostMatch = fileContent.match(/mysql:[\s\S]*?host:[\s\S]*?['"]([^'"]+)['"]/);
+      const mysqlPortMatch = fileContent.match(/mysql:[\s\S]*?port:[\s\S]*?parseInt\([^'"]*['"]([^'"]+)['"]/);
+      const mysqlDatabaseMatch = fileContent.match(/mysql:[\s\S]*?database:[\s\S]*?['"]([^'"]+)['"]/);
+      const mysqlUserMatch = fileContent.match(/mysql:[\s\S]*?user:[\s\S]*?['"]([^'"]+)['"]/);
+      
       const dbConfig = {
         engine: engine,
-        // We don't expose sensitive connection details
+        postgresql: {
+          host: pgHostMatch ? pgHostMatch[1] : 'localhost',
+          port: pgPortMatch ? pgPortMatch[1] : '5432',
+          database: pgDatabaseMatch ? pgDatabaseMatch[1] : 'postgres',
+          user: pgUserMatch ? pgUserMatch[1] : 'postgres',
+        },
+        mysql: {
+          host: mysqlHostMatch ? mysqlHostMatch[1] : 'localhost',
+          port: mysqlPortMatch ? mysqlPortMatch[1] : '3306',
+          database: mysqlDatabaseMatch ? mysqlDatabaseMatch[1] : 'subsidiary_management',
+          user: mysqlUserMatch ? mysqlUserMatch[1] : 'root',
+        }
       };
       res.json(dbConfig);
     } catch (error: any) {
@@ -675,7 +698,7 @@ export function registerRoutes(app: Express): Server {
 
   app.post("/api/config/database", requireMHCAdmin, (req, res) => {
     try {
-      const { engine } = req.body;
+      const { engine, postgresql, mysql } = req.body;
       
       // Validate engine type
       if (engine !== 'postgresql' && engine !== 'mysql') {
@@ -694,11 +717,73 @@ export function registerRoutes(app: Express): Server {
         `engine: '${engine}'`
       );
       
+      // Update PostgreSQL configuration if provided
+      if (postgresql) {
+        if (postgresql.host) {
+          fileContent = fileContent.replace(
+            /postgresql:[\s\S]*?host:[\s\S]*?['"]([^'"]+)['"]/,
+            `postgresql: {\n    host: '${postgresql.host}'`
+          );
+        }
+        
+        if (postgresql.port) {
+          fileContent = fileContent.replace(
+            /postgresql:[\s\S]*?port:[\s\S]*?parseInt\([^'"]*['"]([^'"]+)['"]/,
+            `postgresql: {\n    host: ${fileContent.match(/postgresql:[\s\S]*?host:[\s\S]*?['"]([^'"]+)['"]/)[1]},\n    port: parseInt(process.env.PGPORT || '${postgresql.port}'`
+          );
+        }
+        
+        if (postgresql.database) {
+          fileContent = fileContent.replace(
+            /postgresql:[\s\S]*?database:[\s\S]*?['"]([^'"]+)['"]/,
+            `postgresql: {\n    host: ${fileContent.match(/postgresql:[\s\S]*?host:[\s\S]*?['"]([^'"]+)['"]/)[1]},\n    port: parseInt(process.env.PGPORT || '${fileContent.match(/postgresql:[\s\S]*?port:[\s\S]*?parseInt\([^'"]*['"]([^'"]+)['"]/)[1]}'),\n    user: ${fileContent.match(/postgresql:[\s\S]*?user:[\s\S]*?['"]([^'"]+)['"]/)[1]},\n    database: '${postgresql.database}'`
+          );
+        }
+        
+        if (postgresql.user) {
+          fileContent = fileContent.replace(
+            /postgresql:[\s\S]*?user:[\s\S]*?['"]([^'"]+)['"]/,
+            `postgresql: {\n    host: ${fileContent.match(/postgresql:[\s\S]*?host:[\s\S]*?['"]([^'"]+)['"]/)[1]},\n    port: parseInt(process.env.PGPORT || '${fileContent.match(/postgresql:[\s\S]*?port:[\s\S]*?parseInt\([^'"]*['"]([^'"]+)['"]/)[1]}'),\n    user: '${postgresql.user}'`
+          );
+        }
+      }
+      
+      // Update MySQL configuration if provided
+      if (mysql) {
+        if (mysql.host) {
+          fileContent = fileContent.replace(
+            /mysql:[\s\S]*?host:[\s\S]*?['"]([^'"]+)['"]/,
+            `mysql: {\n    host: '${mysql.host}'`
+          );
+        }
+        
+        if (mysql.port) {
+          fileContent = fileContent.replace(
+            /mysql:[\s\S]*?port:[\s\S]*?parseInt\([^'"]*['"]([^'"]+)['"]/,
+            `mysql: {\n    host: ${fileContent.match(/mysql:[\s\S]*?host:[\s\S]*?['"]([^'"]+)['"]/)[1]},\n    port: parseInt(process.env.MYSQL_PORT || '${mysql.port}'`
+          );
+        }
+        
+        if (mysql.database) {
+          fileContent = fileContent.replace(
+            /mysql:[\s\S]*?database:[\s\S]*?['"]([^'"]+)['"]/,
+            `mysql: {\n    host: ${fileContent.match(/mysql:[\s\S]*?host:[\s\S]*?['"]([^'"]+)['"]/)[1]},\n    port: parseInt(process.env.MYSQL_PORT || '${fileContent.match(/mysql:[\s\S]*?port:[\s\S]*?parseInt\([^'"]*['"]([^'"]+)['"]/)[1]}'),\n    user: ${fileContent.match(/mysql:[\s\S]*?user:[\s\S]*?['"]([^'"]+)['"]/)[1]},\n    database: '${mysql.database}'`
+          );
+        }
+        
+        if (mysql.user) {
+          fileContent = fileContent.replace(
+            /mysql:[\s\S]*?user:[\s\S]*?['"]([^'"]+)['"]/,
+            `mysql: {\n    host: ${fileContent.match(/mysql:[\s\S]*?host:[\s\S]*?['"]([^'"]+)['"]/)[1]},\n    port: parseInt(process.env.MYSQL_PORT || '${fileContent.match(/mysql:[\s\S]*?port:[\s\S]*?parseInt\([^'"]*['"]([^'"]+)['"]/)[1]}'),\n    user: '${mysql.user}'`
+          );
+        }
+      }
+      
       // Write the updated content back to the file
       fs.writeFileSync(configPath, fileContent);
       
       // Log the change for diagnostics
-      console.log(`Database engine updated to ${engine}`);
+      console.log(`Database configuration updated to engine: ${engine}`);
       
       res.status(200).json({ 
         message: "Database configuration updated successfully", 
