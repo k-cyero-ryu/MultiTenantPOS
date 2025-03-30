@@ -230,6 +230,36 @@ export default function Reports() {
     enabled: timeRange !== 'custom' || (startDate !== undefined && endDate !== undefined),
   });
 
+  // Function to translate column headers
+  const translateHeader = (header: string): string => {
+    // Map of common English headers to translation keys
+    const headerTranslationMap: Record<string, string> = {
+      "Date": "reports.date",
+      "Subsidiary": "reports.subsidiary",
+      "Amount": "reports.amount",
+      "Price": "reports.price",
+      "Quantity": "reports.quantity",
+      "Total": "reports.total",
+      "ProductName": "reports.productName",
+      "ProductId": "inventory.productId",
+      "Description": "reports.description",
+      "Username": "users.username",
+      "Action": "activityLogs.action",
+      "Resource": "activityLogs.resource",
+      "Category": "inventory.category",
+      "InStock": "inventory.inStock"
+    };
+    
+    // Attempt to find a translation key for this header
+    const translationKey = headerTranslationMap[header] || 
+                          headerTranslationMap[header.replace(/\s+/g, '')] ||
+                          `reports.${header.toLowerCase()}`;
+    
+    // Try to translate, fallback to original header if no translation exists
+    const translated = t(translationKey);
+    return translated !== translationKey ? translated : header;
+  };
+  
   // React-PDF Document component
   const MyDocument = ({ 
     reportData, 
@@ -267,16 +297,17 @@ export default function Reports() {
     const columnWidths: Record<string, string> = {};
     
     headers.forEach(header => {
-      if (header.toLowerCase().includes("date")) {
+      const lowerHeader = header.toLowerCase();
+      if (lowerHeader.includes("date")) {
         columnWidths[header] = "15%";
       } else if (["id", "quantity", "price", "amount", "number", "count"].some(
-        term => header.toLowerCase().includes(term)
+        term => lowerHeader.includes(term)
       )) {
         columnWidths[header] = "10%";
-      } else if (header.toLowerCase().includes("subsidiary")) {
+      } else if (lowerHeader.includes("subsidiary")) {
         columnWidths[header] = "25%";
-      } else if (header.toLowerCase().includes("name") || 
-                  header.toLowerCase().includes("description")) {
+      } else if (lowerHeader.includes("name") || 
+                  lowerHeader.includes("description")) {
         columnWidths[header] = "20%";
       } else {
         columnWidths[header] = "auto";
@@ -327,7 +358,7 @@ export default function Reports() {
             <View style={styles.tableHeaderRow}>
               {headers.map((header, index) => (
                 <View key={index} style={{ width: columnWidths[header] }}>
-                  <Text style={styles.tableHeaderCell}>{header}</Text>
+                  <Text style={styles.tableHeaderCell}>{translateHeader(header)}</Text>
                 </View>
               ))}
             </View>
@@ -473,7 +504,7 @@ export default function Reports() {
       console.error('Error handling report:', error);
     }
   };
-
+  
   // Function to format preview data
   const renderPreview = () => {
     if (isLoading) return <div className="text-center p-4">{t('reports.loading')}</div>;
@@ -485,7 +516,7 @@ export default function Reports() {
           <tr className="border-b">
             {Object.keys(previewData[0] || {}).map((header) => (
               <th key={header} className="p-2 text-left text-sm font-medium text-muted-foreground">
-                {header}
+                {translateHeader(header)}
               </th>
             ))}
           </tr>
@@ -493,7 +524,7 @@ export default function Reports() {
         <tbody>
           {previewData.slice(0, 5).map((row: Record<string, any>, i: number) => (
             <tr key={i} className="border-b">
-              {Object.values(row).map((value: any, j: number) => (
+              {Object.entries(row).map(([key, value], j: number) => (
                 <td key={j} className="p-2 text-sm">
                   {typeof value === 'object' ? JSON.stringify(value) : String(value)}
                 </td>
