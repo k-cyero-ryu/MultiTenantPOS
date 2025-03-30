@@ -269,7 +269,9 @@
     "generating": "Génération...",
     "download": "Télécharger",
     "subsidiary": "Filiale",
-    "allSubsidiaries": "Toutes les Filiales"
+    "allSubsidiaries": "Toutes les Filiales",
+    "subsidiaryReport": "Rapport de Filiale",
+    "corporateReport": "Rapport Corporatif"
   },
   "analytics": {
     "title": "Analyses",

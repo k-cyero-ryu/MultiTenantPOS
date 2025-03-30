@@ -79,7 +79,7 @@ export default function InventoryPage() {
       form.reset({
         sku: editItem.sku,
         name: editItem.name,
-        description: editItem.description,
+        description: editItem.description || '',
         category: editItem.category,
         costPrice: editItem.costPrice,
         salePrice: editItem.salePrice,
@@ -91,10 +91,15 @@ export default function InventoryPage() {
 
   const createMutation = useMutation({
     mutationFn: async (data: ReturnType<typeof form.getValues>) => {
-      const res = await apiRequest("POST", `/api/subsidiaries/${subsidiaryId}/inventory`, {
-        ...data,
-        subsidiaryId
-      });
+      const res = await apiRequest(
+        "POST", 
+        `/api/subsidiaries/${subsidiaryId}/inventory`,
+        // Cast to any to resolve type mismatch between ReturnType<typeof form.getValues> and expected API body
+        {
+          ...data,
+          subsidiaryId
+        } as any
+      );
       return res.json();
     },
     onSuccess: () => {
@@ -110,7 +115,11 @@ export default function InventoryPage() {
       const res = await apiRequest(
         "PATCH",
         `/api/subsidiaries/${subsidiaryId}/inventory/${id}`,
-        data
+        // Cast to any to resolve type mismatch between form data and expected API body
+        {
+          ...data,
+          subsidiaryId
+        } as any
       );
       return res.json();
     },

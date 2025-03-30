@@ -242,7 +242,17 @@
     "reportPreview": "Report Preview",
     "previewFirstRows": "Preview of the first 5 rows",
     "loading": "Loading...",
-    "noData": "No data available"
+    "noData": "No data available",
+    "format": "Format",
+    "pdf": "PDF",
+    "excel": "Excel",
+    "download": "Download",
+    "subsidiary": "Subsidiary",
+    "allSubsidiaries": "All Subsidiaries",
+    "subsidiaryReport": "Subsidiary Report",
+    "corporateReport": "Corporate Report",
+    "csv": "CSV",
+    "dateRange": "Date Range"
   },
   "tour": {
     "next": "Next",

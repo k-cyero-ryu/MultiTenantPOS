@@ -74,11 +74,12 @@ export default function SalesPage() {
       const res = await apiRequest(
         "POST",
         `/api/subsidiaries/${subsidiaryId}/sales`,
+        // Cast to any to resolve type mismatch
         {
           ...data,
           subsidiaryId,
           timestamp: new Date(),
-        }
+        } as any
       );
 
       if (!res.ok) {

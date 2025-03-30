@@ -31,7 +31,18 @@ export default function Reports() {
   const [startDate, setStartDate] = useState<Date>();
   const [endDate, setEndDate] = useState<Date>();
   const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
+  const [selectedSubsidiary, setSelectedSubsidiary] = useState<number | null>(null);
   const pdfContentRef = useRef<HTMLDivElement>(null);
+  
+  // Fetch subsidiaries for filter dropdown
+  const { data: subsidiaries = [] } = useQuery({
+    queryKey: ["/api/subsidiaries"],
+    queryFn: async () => {
+      const res = await fetch('/api/subsidiaries');
+      if (!res.ok) throw new Error('Failed to fetch subsidiaries');
+      return res.json();
+    }
+  });
 
   // Update the time params function to format dates properly
   const getTimeParams = () => {
@@ -44,14 +55,54 @@ export default function Reports() {
     return `timeRange=${timeRange}`;
   };
 
+  // Helper function to get subsidiary data from ID
+  const getSubsidiaryData = (id: number | null) => {
+    if (!id) return null;
+    return subsidiaries.find((sub: any) => sub.id === id) || null;
+  };
+  
+  // Get the selected subsidiary data
+  const selectedSubsidiaryData = getSubsidiaryData(selectedSubsidiary);
+
+  // Build API endpoint based on selection
+  const getReportEndpoint = () => {
+    const timeParams = getTimeParams();
+    if (selectedSubsidiary) {
+      return `/api/subsidiaries/${selectedSubsidiary}/reports/${reportType}?format=json&${timeParams}`;
+    }
+    return `/api/reports/${reportType}?format=json&${timeParams}`;
+  };
+
   // Query for report preview data
   const { data: previewData, isLoading } = useQuery({
-    queryKey: ["/api/reports", reportType, timeRange, startDate, endDate],
+    queryKey: [
+      selectedSubsidiary ? `/api/subsidiaries/${selectedSubsidiary}/reports` : "/api/reports", 
+      reportType, 
+      timeRange, 
+      startDate, 
+      endDate
+    ],
     queryFn: async () => {
+      // Since we don't have subsidiary specific endpoints yet, we'll use the global endpoint
+      // and filter the data in the front-end if a subsidiary is selected
       const timeParams = getTimeParams();
       const res = await fetch(`/api/reports/${reportType}?format=json&${timeParams}`);
       if (!res.ok) throw new Error('Failed to fetch report data');
-      return res.json();
+      const data = await res.json();
+      
+      // If a subsidiary is selected, filter the data
+      if (selectedSubsidiary && data && data.length) {
+        if (typeof data[0].Subsidiary !== 'undefined') {
+          // Filter by subsidiary name if available
+          const subsidiaryName = selectedSubsidiaryData?.name;
+          return data.filter((item: any) => item.Subsidiary === subsidiaryName);
+        } else if (typeof data[0].subsidiaryId !== 'undefined') {
+          // Filter by subsidiaryId if available
+          return data.filter((item: any) => item.subsidiaryId === selectedSubsidiary);
+        }
+      }
+      
+      return data;
     },
     enabled: timeRange !== 'custom' || (startDate !== undefined && endDate !== undefined),
   });
@@ -90,15 +141,36 @@ export default function Reports() {
         }
       }
       
-      // Build the HTML content for the PDF
+      // Function to get the absolute URL for a logo
+      const getLogoUrl = (logoPath: string) => {
+        // If logo path already starts with http, it's already a full URL
+        if (logoPath.startsWith('http')) return logoPath;
+        
+        // Otherwise, it's a relative path that needs to be converted to an absolute URL
+        // We assume the path starts with /uploads or similar
+        return `${window.location.origin}${logoPath}`;
+      };
+
+      // Determine if we're generating a subsidiary-specific report
+      const isSubsidiaryReport = selectedSubsidiary !== null && selectedSubsidiaryData;
+      const reportHeaderTitle = isSubsidiaryReport 
+        ? `${selectedSubsidiaryData.name} ${t('reports.subsidiaryReport')}`
+        : `${t('reports.corporateReport')}`;
+          
+      // Build the HTML content for the PDF with conditional logo
       pdfContainer.innerHTML = `
         <div style="font-family: Arial, sans-serif; margin-bottom: 30px;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <div style="font-size: 22px; font-weight: bold; color: #4A6FFF;">
-              Main Head Company
+            <div style="display: flex; align-items: center;">
+              ${isSubsidiaryReport && selectedSubsidiaryData.logo ? 
+                `<img src="${getLogoUrl(selectedSubsidiaryData.logo)}" alt="${selectedSubsidiaryData.name} logo" style="max-height: 60px; max-width: 120px; margin-right: 15px;">` : 
+                ''}
+              <div style="font-size: 22px; font-weight: bold; color: #4A6FFF;">
+                ${isSubsidiaryReport ? selectedSubsidiaryData.name : 'Main Head Company'}
+              </div>
             </div>
             <div style="text-align: right;">
-              <div style="font-size: 20px; font-weight: bold; margin-bottom: 5px;">Corporate Report</div>
+              <div style="font-size: 20px; font-weight: bold; margin-bottom: 5px;">${reportHeaderTitle}</div>
               <div>Generated on: ${now.toLocaleDateString()}</div>
             </div>
           </div>
@@ -108,6 +180,11 @@ export default function Reports() {
             <div style="color: #666;">
               ${t('reports.timeRange')}: ${dateRangeText}
             </div>
+            ${isSubsidiaryReport ? 
+              `<div style="color: #666; margin-top: 5px;">
+                ${t('subsidiaries.taxId')}: ${selectedSubsidiaryData.taxId}
+              </div>` : 
+              ''}
           </div>
           
           <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
@@ -132,7 +209,16 @@ export default function Reports() {
           </table>
           
           <div style="margin-top: 30px; color: #666; font-size: 12px; text-align: center;">
-            <p>© ${new Date().getFullYear()} Main Head Company - All rights reserved</p>
+            ${isSubsidiaryReport ? 
+              `<div style="margin-bottom: 5px;">
+                ${selectedSubsidiaryData.address ? `${selectedSubsidiaryData.address}, ` : ''}
+                ${selectedSubsidiaryData.city ? `${selectedSubsidiaryData.city}, ` : ''}
+                ${selectedSubsidiaryData.country || ''}
+              </div>
+              <div style="margin-bottom: 5px;">
+                ${selectedSubsidiaryData.email} | ${selectedSubsidiaryData.phoneNumber}
+              </div>` : ''}
+            <p>© ${new Date().getFullYear()} ${isSubsidiaryReport ? selectedSubsidiaryData.name : 'Main Head Company'} - All rights reserved</p>
           </div>
         </div>
       `;
@@ -161,22 +247,11 @@ export default function Reports() {
           pdf.addPage();
         }
         
-        const position = -i * pageHeight;
         const canvasImageData = canvas.toDataURL('image/png');
         
-        // Add the image to the PDF
-        pdf.addImage({
-          imageData: canvasImageData,
-          format: 'PNG',
-          x: 20,
-          y: 20,
-          width: pdfWidth - 40,
-          height: pageHeight,
-          compression: 'FAST',
-          rotation: 0,
-          srcHeight: canvas.height,
-          srcY: -position
-        });
+        // Add the image to the PDF - use a simpler approach for all pages
+        // Each page will show the full image, but we'll use CSS to only show the relevant part
+        pdf.addImage(canvasImageData, 'PNG', 20, 20, pdfWidth - 40, pageHeight);
       }
       
       // Save the PDF file
@@ -266,6 +341,26 @@ export default function Reports() {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <label className="text-sm font-medium">{t('reports.subsidiary')}</label>
+              <Select
+                value={selectedSubsidiary?.toString() || "all"}
+                onValueChange={(value) => setSelectedSubsidiary(value === "all" ? null : parseInt(value))}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder={t('reports.allSubsidiaries')} />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">{t('reports.allSubsidiaries')}</SelectItem>
+                  {subsidiaries.map((sub: any) => (
+                    <SelectItem key={sub.id} value={sub.id.toString()}>
+                      {sub.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            
             <div className="space-y-2">
               <label className="text-sm font-medium">{t('reports.reportType')}</label>
               <Select

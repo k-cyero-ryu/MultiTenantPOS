@@ -269,7 +269,9 @@
     "generating": "Gerando...",
     "download": "Baixar",
     "subsidiary": "Subsidiária",
-    "allSubsidiaries": "Todas as Subsidiárias"
+    "allSubsidiaries": "Todas as Subsidiárias",
+    "subsidiaryReport": "Relatório de Subsidiária",
+    "corporateReport": "Relatório Corporativo"
   },
   "analytics": {
     "title": "Análises",
