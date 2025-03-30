@@ -14,7 +14,14 @@
     "sales": "Vendas",
     "reports": "Relatórios",
     "activityLogs": "Registros de Atividade",
-    "logout": "Sair"
+    "logout": "Sair",
+    "mainHeadCompany": "Empresa Principal",
+    "subsidiaryPortal": "Portal de Subsidiárias",
+    "company": "Empresa",
+    "unknown": "Desconhecido",
+    "status": "Status",
+    "active": "Ativo",
+    "salesReport": "Relatório de Vendas"
   },
   "auth": {
     "signIn": "Entrar",

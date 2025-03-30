@@ -14,7 +14,14 @@
     "sales": "Ventas",
     "reports": "Informes",
     "activityLogs": "Registros de Actividad",
-    "logout": "Cerrar Sesión"
+    "logout": "Cerrar Sesión",
+    "mainHeadCompany": "Empresa Principal",
+    "subsidiaryPortal": "Portal de Filiales",
+    "company": "Empresa",
+    "unknown": "Desconocido",
+    "status": "Estado",
+    "active": "Activo",
+    "salesReport": "Informe de Ventas"
   },
   "auth": {
     "signIn": "Iniciar Sesión",

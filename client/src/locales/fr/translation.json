@@ -14,7 +14,14 @@
     "sales": "Ventes",
     "reports": "Rapports",
     "activityLogs": "Journaux d'Activité",
-    "logout": "Déconnexion"
+    "logout": "Déconnexion",
+    "mainHeadCompany": "Entreprise Principale",
+    "subsidiaryPortal": "Portail des Filiales",
+    "company": "Entreprise",
+    "unknown": "Inconnu",
+    "status": "Statut",
+    "active": "Actif",
+    "salesReport": "Rapport des Ventes"
   },
   "auth": {
     "signIn": "Se Connecter",
