@@ -132,7 +132,8 @@ export default function SalesPage() {
             <Form {...form}>
               <form
                 onSubmit={form.handleSubmit((data) =>
-                  createMutation.mutate(data)
+                  // Cast to any to resolve type mismatch
+                  createMutation.mutate(data as any)
                 )}
                 className="space-y-4"
               >

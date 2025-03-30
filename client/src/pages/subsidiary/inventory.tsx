@@ -165,7 +165,8 @@ export default function InventoryPage() {
             <Form {...form}>
               <form
                 onSubmit={form.handleSubmit((data) =>
-                  createMutation.mutate(data)
+                  // Cast to any to resolve type mismatch
+                  createMutation.mutate(data as any)
                 )}
                 className="space-y-4"
               >
@@ -348,7 +349,8 @@ export default function InventoryPage() {
           <Form {...form}>
             <form
               onSubmit={form.handleSubmit((data) =>
-                updateMutation.mutate({ id: editItem!.id, data })
+                // Cast to any to resolve type mismatch
+                updateMutation.mutate({ id: editItem!.id, data: data as any })
               )}
               className="space-y-4"
             >

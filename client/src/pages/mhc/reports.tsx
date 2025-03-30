@@ -144,7 +144,12 @@ export default function Reports() {
       // Function to get the absolute URL for a logo
       const getLogoUrl = (logoPath: string) => {
         // If logo path already starts with http, it's already a full URL
-        if (logoPath.startsWith('http')) return logoPath;
+        if (logoPath && logoPath.startsWith('http')) return logoPath;
+        
+        // If logo path is empty or invalid, use a default image
+        if (!logoPath || logoPath === 'null' || logoPath === '') {
+          return `${window.location.origin}/default-logo.png`;
+        }
         
         // Otherwise, it's a relative path that needs to be converted to an absolute URL
         // We assume the path starts with /uploads or similar
@@ -165,7 +170,7 @@ export default function Reports() {
               ${isSubsidiaryReport && selectedSubsidiaryData.logo ? 
                 `<img src="${getLogoUrl(selectedSubsidiaryData.logo)}" alt="${selectedSubsidiaryData.name} logo" style="max-height: 60px; max-width: 120px; margin-right: 15px;">` : 
                 ''}
-              <div style="font-size: 22px; font-weight: bold; color: #4A6FFF;">
+              <div style="font-size: 22px; font-weight: bold; color: #333333;">
                 ${isSubsidiaryReport ? selectedSubsidiaryData.name : 'Main Head Company'}
               </div>
             </div>
@@ -187,11 +192,11 @@ export default function Reports() {
               ''}
           </div>
           
-          <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+          <table style="width: 100%; border-collapse: collapse; margin-top: 20px; table-layout: fixed;">
             <thead>
               <tr style="background-color: #f5f5f5;">
                 ${Object.keys(previewData[0] || {}).map(header => 
-                  `<th style="border: 1px solid #ddd; padding: 12px; text-align: left;">${header}</th>`
+                  `<th style="border: 1px solid #ddd; padding: 8px; text-align: left; font-weight: bold; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${header}</th>`
                 ).join('')}
               </tr>
             </thead>
@@ -199,7 +204,7 @@ export default function Reports() {
               ${previewData.map((row: Record<string, any>) => 
                 `<tr>
                   ${Object.values(row).map((value: any) => 
-                    `<td style="border: 1px solid #ddd; padding: 12px; text-align: left;">
+                    `<td style="border: 1px solid #ddd; padding: 8px; text-align: left; overflow: hidden; text-overflow: ellipsis;">
                       ${typeof value === 'object' ? JSON.stringify(value) : value}
                     </td>`
                   ).join('')}
@@ -223,8 +228,8 @@ export default function Reports() {
         </div>
       `;
       
-      // Create a PDF document with jsPDF
-      const pdf = new jsPDF('p', 'pt', 'a4');
+      // Create a PDF document with jsPDF in landscape mode ('l' = landscape)
+      const pdf = new jsPDF('l', 'pt', 'a4');
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = pdf.internal.pageSize.getHeight();
       
