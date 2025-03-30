@@ -255,9 +255,19 @@ export default function Reports() {
                           headerTranslationMap[header.replace(/\s+/g, '')] ||
                           `reports.${header.toLowerCase()}`;
     
-    // Try to translate, fallback to original header if no translation exists
-    const translated = t(translationKey);
-    return translated !== translationKey ? translated : header;
+    // Try to translate using a namespace lookup approach
+    // This checks if the translation exists by trying to use the key directly
+    // If i18next has a translation, it will return it; otherwise it returns the key itself
+    const result = t(translationKey, { lng: "en" });
+    
+    // Check if the result is the same as our input key - this indicates missing translation
+    if (result === translationKey || result === translationKey.split('.').pop()) {
+      // No translation found, return the original header with proper capitalization
+      return header.charAt(0).toUpperCase() + header.slice(1);
+    }
+    
+    // Return the translated value
+    return t(translationKey);
   };
   
   // React-PDF Document component
