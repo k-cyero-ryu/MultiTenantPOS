@@ -23,6 +23,19 @@
     "active": "Active",
     "salesReport": "Sales Report"
   },
+  "activityLogs": {
+    "title": "Activity Logs",
+    "viewDescription": "View system-wide activity logs across all subsidiaries",
+    "logViewer": "Activity Log Viewer",
+    "filterDescription": "Filter and view activity logs",
+    "timeRange": "Time Range",
+    "noLogsFound": "No activity logs found for the selected time range",
+    "timestamp": "Timestamp",
+    "action": "Action",
+    "details": "Details",
+    "user": "User",
+    "subsidiary": "Subsidiary"
+  },
   "auth": {
     "signIn": "Sign In",
     "signUp": "Sign Up",

@@ -15,9 +15,10 @@ interface DatePickerProps {
   onSelect: (date: Date | undefined) => void;
   minDate?: Date;
   maxDate?: Date;
+  placeholderText?: string;
 }
 
-export function DatePicker({ selected, onSelect, minDate, maxDate }: DatePickerProps) {
+export function DatePicker({ selected, onSelect, minDate, maxDate, placeholderText = "Pick a date" }: DatePickerProps) {
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -29,7 +30,7 @@ export function DatePicker({ selected, onSelect, minDate, maxDate }: DatePickerP
           )}
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
-          {selected ? format(selected, "PPP") : <span>Pick a date</span>}
+          {selected ? format(selected, "PPP") : <span>{placeholderText}</span>}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0" align="start">

@@ -18,8 +18,10 @@ import { DatePicker } from "@/components/ui/date-picker";
 import { format } from "date-fns";
 import { useState } from "react";
 import { ActivityLog } from "@shared/schema";
+import { useTranslation } from "react-i18next";
 
 export default function ActivityLogs() {
+  const { t } = useTranslation();
   const [timeRange, setTimeRange] = useState<"week" | "month" | "year" | "custom">("month");
   const [startDate, setStartDate] = useState<Date>();
   const [endDate, setEndDate] = useState<Date>();
@@ -61,22 +63,22 @@ export default function ActivityLogs() {
   return (
     <div className="space-y-8 p-8">
       <div>
-        <h1 className="text-3xl font-bold mb-2">Activity Logs</h1>
+        <h1 className="text-3xl font-bold mb-2">{t('activityLogs.title')}</h1>
         <p className="text-muted-foreground">
-          View system-wide activity logs across all subsidiaries
+          {t('activityLogs.viewDescription')}
         </p>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Activity Log Viewer</CardTitle>
+          <CardTitle>{t('activityLogs.logViewer')}</CardTitle>
           <CardDescription>
-            Filter and view activity logs
+            {t('activityLogs.filterDescription')}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
-            <label className="text-sm font-medium">Time Range</label>
+            <label className="text-sm font-medium">{t('activityLogs.timeRange')}</label>
             <Select
               value={timeRange}
               onValueChange={(value: "week" | "month" | "year" | "custom") => {
@@ -91,10 +93,10 @@ export default function ActivityLogs() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="week">Last Week</SelectItem>
-                <SelectItem value="month">Last Month</SelectItem>
-                <SelectItem value="year">Last Year</SelectItem>
-                <SelectItem value="custom">Custom Range</SelectItem>
+                <SelectItem value="week">{t('reports.lastWeek')}</SelectItem>
+                <SelectItem value="month">{t('reports.lastMonth')}</SelectItem>
+                <SelectItem value="year">{t('reports.lastYear')}</SelectItem>
+                <SelectItem value="custom">{t('reports.customRange')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -102,22 +104,22 @@ export default function ActivityLogs() {
           {timeRange === 'custom' && (
             <div className="space-y-4">
               <div className="space-y-2">
-                <label className="text-sm font-medium">Start Date</label>
+                <label className="text-sm font-medium">{t('reports.startDate')}</label>
                 <DatePicker
                   selected={startDate}
                   onSelect={setStartDate}
                   maxDate={endDate || new Date()}
-                  placeholderText="Select start date"
+                  placeholderText={t('reports.selectStartDate')}
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-sm font-medium">End Date</label>
+                <label className="text-sm font-medium">{t('reports.endDate')}</label>
                 <DatePicker
                   selected={endDate}
                   onSelect={setEndDate}
                   minDate={startDate}
                   maxDate={new Date()}
-                  placeholderText="Select end date"
+                  placeholderText={t('reports.selectEndDate')}
                 />
               </div>
             </div>
@@ -126,14 +128,14 @@ export default function ActivityLogs() {
           <ScrollArea className="h-[500px] w-full rounded-md border">
             <div className="p-4">
               {isLoading ? (
-                <div className="text-center py-4">Loading logs...</div>
+                <div className="text-center py-4">{t('common.loading')}</div>
               ) : filteredLogs.length === 0 ? (
                 <div className="text-center py-4 text-muted-foreground">
-                  No activity logs found for the selected time range
+                  {t('activityLogs.noLogsFound')}
                 </div>
               ) : (
                 <div className="space-y-4">
-                  {filteredLogs.map((log, index) => (
+                  {filteredLogs.map((log) => (
                     <div
                       key={log.id}
                       className="flex flex-col space-y-2 p-4 rounded-lg border bg-card"

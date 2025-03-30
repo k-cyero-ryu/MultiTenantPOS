@@ -23,6 +23,19 @@
     "active": "Actif",
     "salesReport": "Rapport des Ventes"
   },
+  "activityLogs": {
+    "title": "Journaux d'Activité",
+    "viewDescription": "Consulter les journaux d'activité de l'ensemble du système à travers toutes les filiales",
+    "logViewer": "Visualiseur de Journaux d'Activité",
+    "filterDescription": "Filtrer et consulter les journaux d'activité",
+    "timeRange": "Période",
+    "noLogsFound": "Aucun journal d'activité trouvé pour la période sélectionnée",
+    "timestamp": "Horodatage",
+    "action": "Action",
+    "details": "Détails",
+    "user": "Utilisateur",
+    "subsidiary": "Filiale"
+  },
   "auth": {
     "signIn": "Se Connecter",
     "signUp": "S'inscrire",

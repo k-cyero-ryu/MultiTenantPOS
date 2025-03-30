@@ -23,6 +23,19 @@
     "active": "Activo",
     "salesReport": "Informe de Ventas"
   },
+  "activityLogs": {
+    "title": "Registros de Actividad",
+    "viewDescription": "Ver registros de actividad de todo el sistema en todas las filiales",
+    "logViewer": "Visualizador de Registros de Actividad",
+    "filterDescription": "Filtrar y ver registros de actividad",
+    "timeRange": "Rango de Tiempo",
+    "noLogsFound": "No se encontraron registros de actividad para el rango de tiempo seleccionado",
+    "timestamp": "Marca de Tiempo",
+    "action": "Acción",
+    "details": "Detalles",
+    "user": "Usuario",
+    "subsidiary": "Filial"
+  },
   "auth": {
     "signIn": "Iniciar Sesión",
     "signUp": "Registrarse",
