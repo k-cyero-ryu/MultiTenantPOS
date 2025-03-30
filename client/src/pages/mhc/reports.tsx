@@ -181,34 +181,45 @@ export default function Reports() {
         if (selectedSubsidiaryData.logo && 
             selectedSubsidiaryData.logo !== 'null' && 
             selectedSubsidiaryData.logo !== '') {
-          // Use the subsidiary's actual logo
-          logoHTML = `<img src="${getLogoUrl(selectedSubsidiaryData.logo)}" 
+          // Use the subsidiary's actual logo with consistent container for sizing
+          logoHTML = `<div style="width: 70px; height: 70px; display: flex; justify-content: center; align-items: center; margin-right: 15px;">
+                        <img src="${getLogoUrl(selectedSubsidiaryData.logo)}" 
                           alt="${selectedSubsidiaryData.name} logo" 
-                          style="height: 60px; object-fit: contain; margin-right: 15px;">`;
+                          style="max-height: 60px; max-width: 70px; width: auto; height: auto; object-fit: contain;">
+                      </div>`;
         } else {
           // Use default logo for subsidiaries without a logo
-          logoHTML = `<img src="${window.location.origin}/default-logo.svg" 
+          logoHTML = `<div style="width: 70px; height: 70px; display: flex; justify-content: center; align-items: center; margin-right: 15px;">
+                        <img src="${window.location.origin}/default-logo.svg" 
                           alt="${selectedSubsidiaryData.name} logo" 
-                          style="height: 60px; object-fit: contain; margin-right: 15px;">`;
+                          style="max-height: 60px; max-width: 70px; width: auto; height: auto; object-fit: contain;">
+                      </div>`;
         }
       } else {
         // For MHC reports, always use a default logo
-        logoHTML = `<img src="${window.location.origin}/default-logo.svg" 
+        logoHTML = `<div style="width: 70px; height: 70px; display: flex; justify-content: center; align-items: center; margin-right: 15px;">
+                      <img src="${window.location.origin}/default-logo.svg" 
                         alt="Main Head Company logo" 
-                        style="height: 60px; object-fit: contain; margin-right: 15px;">`;
+                        style="max-height: 60px; max-width: 70px; width: auto; height: auto; object-fit: contain;">
+                    </div>`;
       }
           
+      // Set the container width to match the PDF aspect ratio (landscape A4)
+      pdfContainer.style.width = "1120px"; // Approximating A4 landscape width
+      pdfContainer.style.padding = "20px";
+      pdfContainer.style.boxSizing = "border-box";
+      
       // Build the HTML content for the PDF with conditional logo
       pdfContainer.innerHTML = `
-        <div style="font-family: Arial, sans-serif; margin-bottom: 30px;">
+        <div style="font-family: Arial, sans-serif; margin-bottom: 30px; width: 100%;">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <div style="display: flex; align-items: center;">
+            <div style="display: flex; align-items: center; min-width: 50%;">
               ${logoHTML}
-              <div style="font-size: 22px; font-weight: bold; color: #333333;">
+              <div style="font-size: 22px; font-weight: bold; color: #333333; white-space: normal;">
                 ${isSubsidiaryReport ? selectedSubsidiaryData.name : 'Main Head Company'}
               </div>
             </div>
-            <div style="text-align: right;">
+            <div style="text-align: right; min-width: 30%;">
               <div style="font-size: 20px; font-weight: bold; margin-bottom: 5px;">${reportHeaderTitle}</div>
               <div>Generated on: ${now.toLocaleDateString()}</div>
             </div>
@@ -238,10 +249,11 @@ export default function Reports() {
                     term => header.toLowerCase().includes(term)
                   )) {
                     width = "100px"; // Numeric columns
+                  } else if (header.toLowerCase().includes("subsidiary")) {
+                    width = "250px"; // Subsidiary column needs more space
                   } else if (header.toLowerCase().includes("name") || 
-                             header.toLowerCase().includes("description") ||
-                             header.toLowerCase().includes("subsidiary")) {
-                    width = "180px"; // Name/description columns
+                             header.toLowerCase().includes("description")) {
+                    width = "200px"; // Name/description columns
                   }
                   
                   return `<th style="border: 1px solid #ddd; padding: 10px; text-align: left; font-weight: bold; 
@@ -322,39 +334,51 @@ export default function Reports() {
         }
       });
       
-      // Calculate the number of pages needed
-      const contentHeight = canvas.height;
-      const pageHeight = pdfHeight - 40; // Add some margin
-      const pageCount = Math.ceil(contentHeight / pageHeight);
+      // For multiple page support, we need to divide the content up
+      // Let's split the container into sections that fit on a page
       
-      // Convert the canvas to image data once
+      // Convert the canvas to image data
       const canvasImageData = canvas.toDataURL('image/png', 1.0);
       
-      // Add canvas to PDF page by page with proper clipping
-      const scaleFactor = 2; // This should match the scale used in html2canvas
-      const scaledPageHeight = pageHeight * scaleFactor;
+      // For multiple pages, it's simpler in this case to just add the whole content
+      // Since we're using a fixed layout PDF in landscape mode, most reports will fit on one page
+      pdf.addImage(
+        canvasImageData,    // image data
+        'PNG',              // image format
+        20,                 // x position on PDF
+        20,                 // y position on PDF
+        pdfWidth - 40,      // width on PDF
+        pdfHeight - 40,     // height on PDF
+        undefined,          // alias (not needed)
+        'FAST'              // compression
+      );
       
-      for (let i = 0; i < pageCount; i++) {
-        if (i > 0) {
+      // If the content is very long, add more pages as needed
+      const contentHeight = canvas.height / 2; // Divide by 2 because of our scale factor
+      const contentWidth = canvas.width / 2;
+      const pageContentHeight = pdfHeight - 40;
+      
+      if (contentHeight > pageContentHeight) {
+        const totalPages = Math.ceil(contentHeight / pageContentHeight);
+        
+        for (let i = 1; i < totalPages; i++) {
+          // Add a new page for each additional content section
           pdf.addPage();
+          
+          // Calculate vertical positioning to show the content continuation
+          const yOffset = -i * pageContentHeight + 20;
+          
+          pdf.addImage(
+            canvasImageData,
+            'PNG',
+            20,
+            yOffset, 
+            pdfWidth - 40,
+            pdfHeight * 2, // Make it tall enough to show content 
+            undefined,
+            'FAST'
+          );
         }
-        
-        // Calculate the position to slice from the canvas for this page
-        const sourceY = i * scaledPageHeight;
-        
-        // Add the image to the PDF, showing only the relevant part for this page
-        pdf.addImage(
-          canvasImageData, 
-          'PNG', 
-          20, // x position on the PDF
-          20, // y position on the PDF
-          pdfWidth - 40, // width on the PDF
-          pageHeight, // height on the PDF
-          null, // Image alias (not needed)
-          'FAST', // Compression
-          0, // Rotation
-          sourceY / scaleFactor // Source y-position (adjusted for scale)
-        );
       }
       
       // Save the PDF file
