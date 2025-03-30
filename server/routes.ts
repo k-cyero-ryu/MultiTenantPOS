@@ -276,10 +276,8 @@ export function registerRoutes(app: Express): Server {
     "/api/subsidiaries/:subsidiaryId/users",
     requireSubsidiaryAccess,
     async (req, res) => {
-      if (req.user?.role !== "subsidiary_admin") {
-        return res.status(403).json({ message: "Only subsidiary admins can view users" });
-      }
-
+      // Allow any user with subsidiary access to view users 
+      // This includes MHC admins, subsidiary admins, and staff members of the subsidiary
       const subsidiaryId = parseInt(req.params.subsidiaryId);
       const users = await storage.listUsersBySubsidiary(subsidiaryId);
       res.json(users);
