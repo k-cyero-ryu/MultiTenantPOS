@@ -187,6 +187,8 @@
   "users": {
     "title": "Utilisateurs",
     "addNew": "Ajouter un Nouvel Utilisateur",
+    "addUser": "Ajouter Utilisateur",
+    "addNewUser": "Ajouter un Nouvel Utilisateur",
     "edit": "Modifier l'Utilisateur",
     "editUser": "Modifier l'Utilisateur",
     "username": "Nom d'Utilisateur",
@@ -204,10 +206,15 @@
     "createSuccess": "Utilisateur créé avec succès",
     "createFailed": "Échec de la création de l'utilisateur",
     "manage": "Gérer les utilisateurs et administrateurs du système",
+    "subsidiaryManage": "Gérer les utilisateurs de votre filiale",
     "actions": "Actions",
     "newPasswordOptional": "Nouveau Mot de Passe (optionnel)",
     "confirmNewPassword": "Confirmer le Nouveau Mot de Passe",
-    "deleteWarning": "Cela supprimera définitivement l'utilisateur \"{username}\". Cette action ne peut pas être annulée."
+    "deleteWarning": "Cela supprimera définitivement l'utilisateur \"{username}\". Cette action ne peut pas être annulée.",
+    "updateSuccess": "Utilisateur mis à jour avec succès",
+    "updateFailed": "Échec de la mise à jour de l'utilisateur",
+    "deleteSuccess": "Utilisateur supprimé avec succès",
+    "deleteFailed": "Échec de la suppression de l'utilisateur"
   },
   "sales": {
     "title": "Ventes",

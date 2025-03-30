@@ -187,6 +187,8 @@
   "users": {
     "title": "Usuários",
     "addNew": "Adicionar Novo Usuário",
+    "addUser": "Adicionar Usuário",
+    "addNewUser": "Adicionar Novo Usuário",
     "edit": "Editar Usuário",
     "editUser": "Editar Usuário",
     "username": "Nome de Usuário",
@@ -204,10 +206,15 @@
     "createSuccess": "Usuário criado com sucesso",
     "createFailed": "Falha ao criar usuário",
     "manage": "Gerenciar usuários e administradores do sistema",
+    "subsidiaryManage": "Gerenciar usuários da sua subsidiária",
     "actions": "Ações",
     "newPasswordOptional": "Nova Senha (opcional)",
     "confirmNewPassword": "Confirmar Nova Senha",
-    "deleteWarning": "Isso excluirá permanentemente o usuário \"{username}\". Esta ação não pode ser desfeita."
+    "deleteWarning": "Isso excluirá permanentemente o usuário \"{username}\". Esta ação não pode ser desfeita.",
+    "updateSuccess": "Usuário atualizado com sucesso",
+    "updateFailed": "Falha ao atualizar usuário",
+    "deleteSuccess": "Usuário excluído com sucesso",
+    "deleteFailed": "Falha ao excluir usuário"
   },
   "sales": {
     "title": "Vendas",
