@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/select";
 import { useState } from "react";
 import type { Sale } from "@shared/schema";
+import { useTranslation } from "react-i18next";
 
 interface SalesChartProps {
   sales: Sale[];
@@ -26,6 +27,7 @@ interface SalesChartProps {
 }
 
 export function SalesChart({ sales, title = "Sales Analytics" }: SalesChartProps) {
+  const { t } = useTranslation();
   const [viewType, setViewType] = useState<"daily" | "monthly">("daily");
   const [chartType, setChartType] = useState<"area" | "bar">("area");
 
@@ -66,8 +68,8 @@ export function SalesChart({ sales, title = "Sales Analytics" }: SalesChartProps
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="daily">Daily</SelectItem>
-              <SelectItem value="monthly">Monthly</SelectItem>
+              <SelectItem value="daily">{t('sales.daily')}</SelectItem>
+              <SelectItem value="monthly">{t('sales.monthly')}</SelectItem>
             </SelectContent>
           </Select>
           <Select value={chartType} onValueChange={(value: "area" | "bar") => setChartType(value)}>
@@ -75,8 +77,8 @@ export function SalesChart({ sales, title = "Sales Analytics" }: SalesChartProps
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="area">Area Chart</SelectItem>
-              <SelectItem value="bar">Bar Chart</SelectItem>
+              <SelectItem value="area">{t('sales.areaChart')}</SelectItem>
+              <SelectItem value="bar">{t('sales.barChart')}</SelectItem>
             </SelectContent>
           </Select>
         </div>

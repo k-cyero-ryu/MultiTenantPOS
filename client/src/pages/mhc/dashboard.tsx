@@ -8,13 +8,15 @@ import {
   TrendingUp,
   User,
 } from "lucide-react";
-import type { Subsidiary, Sale, User as UserType } from "@shared/schema";
+import type { Subsidiary, Sale, User as UserType, Inventory } from "@shared/schema";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { TourStep } from "@/components/tour-step";
 import { useTour } from "@/providers/tour-provider";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { SalesChart } from "@/components/analytics/sales-chart";
+import { InventoryAnalysis } from "@/components/analytics/inventory-analysis";
 
 export default function MHCDashboard() {
   const { user } = useAuth();
@@ -35,6 +37,10 @@ export default function MHCDashboard() {
 
   const { data: allUsers = [] } = useQuery<UserType[]>({
     queryKey: ["/api/users"],
+  });
+  
+  const { data: inventoryItems = [] } = useQuery<Inventory[]>({
+    queryKey: ["/api/inventory"],
   });
 
   useEffect(() => {
@@ -159,6 +165,16 @@ export default function MHCDashboard() {
         </TourStep>
       </div>
       
+      {/* Sales Analytics Chart */}
+      <div className="mt-8">
+        <SalesChart sales={sales} title={t('common.salesReport')} />
+      </div>
+
+      {/* Inventory Analysis */}
+      <div className="mt-8">
+        <InventoryAnalysis inventory={inventoryItems} />
+      </div>
+
       <TourStep stepId="settings">
         <Card className="p-6">
           <div className="flex items-center justify-between">

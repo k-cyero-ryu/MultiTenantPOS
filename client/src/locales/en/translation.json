@@ -21,7 +21,8 @@
     "unknown": "Unknown",
     "status": "Status",
     "active": "Active",
-    "salesReport": "Sales Report"
+    "salesReport": "Sales Report",
+    "product": "Product"
   },
   "activityLogs": {
     "title": "Activity Logs",
@@ -134,7 +135,13 @@
     "inStock": "In Stock",
     "lowStock": "Low Stock",
     "outOfStock": "Out of Stock",
-    "report": "Inventory Report"
+    "report": "Inventory Report",
+    "valueDistribution": "Inventory Value Distribution",
+    "valueBreakdown": "Breakdown of inventory value by product (based on sales prices)",
+    "lowStockAlert": "Low Stock Alert",
+    "lowStockDesc": "Items with stock level below {{threshold}} units",
+    "stock": "Stock",
+    "noLowStock": "No low stock items"
   },
   "users": {
     "title": "Users",
@@ -153,6 +160,12 @@
     "createFailed": "Failed to create user",
     "manage": "Manage system users and administrators",
     "actions": "Actions"
+  },
+  "sales": {
+    "daily": "Daily",
+    "monthly": "Monthly",
+    "areaChart": "Area Chart",
+    "barChart": "Bar Chart" 
   },
   "reports": {
     "title": "Reports",

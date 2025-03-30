@@ -15,12 +15,15 @@ import {
 } from "@/components/ui/table";
 import { Progress } from "@/components/ui/progress";
 import type { Inventory } from "@shared/schema";
+import { useTranslation } from "react-i18next";
 
 interface InventoryAnalysisProps {
   inventory: Inventory[];
 }
 
 export function InventoryAnalysis({ inventory }: InventoryAnalysisProps) {
+  const { t } = useTranslation();
+  
   // Calculate inventory metrics using sale price
   const totalValue = inventory.reduce(
     (acc, item) => acc + item.quantity * item.salePrice,
@@ -40,9 +43,9 @@ export function InventoryAnalysis({ inventory }: InventoryAnalysisProps) {
     <div className="grid gap-4 md:grid-cols-2">
       <Card>
         <CardHeader>
-          <CardTitle>Inventory Value Distribution</CardTitle>
+          <CardTitle>{t('inventory.valueDistribution')}</CardTitle>
           <CardDescription>
-            Breakdown of inventory value by product (based on sales prices)
+            {t('inventory.valueBreakdown')}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -64,18 +67,18 @@ export function InventoryAnalysis({ inventory }: InventoryAnalysisProps) {
 
       <Card>
         <CardHeader>
-          <CardTitle>Low Stock Alert</CardTitle>
+          <CardTitle>{t('inventory.lowStockAlert')}</CardTitle>
           <CardDescription>
-            Items with stock level below {lowStockThreshold} units
+            {t('inventory.lowStockDesc', { threshold: lowStockThreshold })}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Product</TableHead>
-                <TableHead>Stock</TableHead>
-                <TableHead>Status</TableHead>
+                <TableHead>{t('common.product')}</TableHead>
+                <TableHead>{t('inventory.stock')}</TableHead>
+                <TableHead>{t('common.status')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -85,14 +88,14 @@ export function InventoryAnalysis({ inventory }: InventoryAnalysisProps) {
                     <TableCell className="font-medium">{item.name}</TableCell>
                     <TableCell>{item.quantity}</TableCell>
                     <TableCell>
-                      <span className="text-destructive">Low Stock</span>
+                      <span className="text-destructive">{t('inventory.lowStock')}</span>
                     </TableCell>
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
                   <TableCell colSpan={3} className="text-center text-muted-foreground">
-                    No low stock items
+                    {t('inventory.noLowStock')}
                   </TableCell>
                 </TableRow>
               )}
