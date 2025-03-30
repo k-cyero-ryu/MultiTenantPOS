@@ -15,10 +15,12 @@ import {
 import { Card } from "@/components/ui/card";
 import { SalesChart } from "@/components/analytics/sales-chart";
 import { InventoryAnalysis } from "@/components/analytics/inventory-analysis";
+import { useTranslation } from "react-i18next";
 
 export default function SubsidiaryDashboard() {
   const { user } = useAuth();
   const subsidiaryId = user?.subsidiaryId;
+  const { t } = useTranslation();
 
   const { data: subsidiary } = useQuery<Subsidiary>({
     queryKey: [`/api/subsidiaries/${subsidiaryId}`],
@@ -79,10 +81,10 @@ export default function SubsidiaryDashboard() {
                 </p>
               </div>
               <div className="text-right">
-                <p className="text-sm text-muted-foreground">Contact Details</p>
+                <p className="text-sm text-muted-foreground">{t('subsidiaries.contactInfo')}</p>
                 <p className="font-medium">{subsidiary?.email}</p>
                 <p className="text-sm">{subsidiary?.phoneNumber}</p>
-                <p className="text-sm mt-1">Tax ID: {subsidiary?.taxId}</p>
+                <p className="text-sm mt-1">{t('subsidiaries.taxId')}: {subsidiary?.taxId}</p>
               </div>
             </div>
           </div>
@@ -94,41 +96,41 @@ export default function SubsidiaryDashboard() {
         <div className="flex items-center gap-2">
           <User className="h-5 w-5 text-muted-foreground" />
           <div>
-            <p className="text-sm text-muted-foreground">Logged in as</p>
+            <p className="text-sm text-muted-foreground">{t('common.loggedInAs')}</p>
             <p className="font-medium">
-              {user?.username} <span className="text-muted-foreground">({user?.role})</span>
+              {user?.username} <span className="text-muted-foreground">({t(`roles.${user?.role}`)})</span>
             </p>
           </div>
         </div>
       </Card>
 
       <div>
-        <h1 className="text-3xl font-bold mb-2">Dashboard</h1>
+        <h1 className="text-3xl font-bold mb-2">{t('common.dashboard')}</h1>
         <p className="text-muted-foreground">
-          Overview of your subsidiary performance
+          {t('subsidiary.dashboardDescription')}
         </p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <StatsCard
-          title="Total Stock"
+          title={t('inventory.totalStock')}
           value={totalStock}
           icon={Package}
-          description="Items in inventory"
+          description={t('inventory.itemsInInventory')}
         />
         <StatsCard
-          title="Inventory Value"
+          title={t('inventory.inventoryValue')}
           value={`$${totalValue.toFixed(2)}`}
           icon={CreditCard}
-          description="Based on sales prices"
+          description={t('inventory.basedOnSalesPrices')}
         />
         <StatsCard
-          title="Products"
+          title={t('inventory.products')}
           value={inventory.length}
           icon={BarChart3}
         />
         <StatsCard
-          title="Total Sales"
+          title={t('sales.totalSales')}
           value={`$${totalSales.toFixed(2)}`}
           icon={TrendingUp}
         />
@@ -136,12 +138,12 @@ export default function SubsidiaryDashboard() {
 
       {/* Enhanced Analytics Section */}
       <div className="space-y-6">
-        <h2 className="text-2xl font-bold">Analytics Dashboard</h2>
+        <h2 className="text-2xl font-bold">{t('analytics.title')}</h2>
 
         {/* Sales Analytics */}
         <SalesChart
           sales={sales}
-          title="Sales Performance Analytics"
+          title={t('analytics.salesPerformance')}
         />
 
         {/* Inventory Analytics */}

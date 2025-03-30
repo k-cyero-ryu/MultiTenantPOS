@@ -43,10 +43,12 @@ import {
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useState } from "react";
 import { Pencil, Trash2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export default function UsersPage() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
@@ -113,13 +115,13 @@ export default function UsersPage() {
       queryClient.invalidateQueries({
         queryKey: [`/api/subsidiaries/${subsidiaryId}/users`],
       });
-      toast({ title: "User created successfully" });
+      toast({ title: t('users.createSuccess') });
       setOpen(false);
       form.reset();
     },
     onError: (error: Error) => {
       toast({
-        title: "Failed to create user",
+        title: t('users.createFailed'),
         description: error.message,
         variant: "destructive",
       });
@@ -145,13 +147,13 @@ export default function UsersPage() {
       queryClient.invalidateQueries({
         queryKey: [`/api/subsidiaries/${subsidiaryId}/users`],
       });
-      toast({ title: "User updated successfully" });
+      toast({ title: t('users.updateSuccess') });
       setEditingUser(null);
       editForm.reset();
     },
     onError: (error: Error) => {
       toast({
-        title: "Failed to update user",
+        title: t('users.updateFailed'),
         description: error.message,
         variant: "destructive",
       });
@@ -174,12 +176,12 @@ export default function UsersPage() {
       queryClient.invalidateQueries({
         queryKey: [`/api/subsidiaries/${subsidiaryId}/users`],
       });
-      toast({ title: "User deleted successfully" });
+      toast({ title: t('users.deleteSuccess') });
       setUserToDelete(null);
     },
     onError: (error: Error) => {
       toast({
-        title: "Failed to delete user",
+        title: t('users.deleteFailed'),
         description: error.message,
         variant: "destructive",
       });
@@ -190,18 +192,18 @@ export default function UsersPage() {
     <div className="space-y-8 p-8">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold mb-2">Users</h1>
+          <h1 className="text-3xl font-bold mb-2">{t('users.title')}</h1>
           <p className="text-muted-foreground">
-            Manage staff users for your subsidiary
+            {t('users.subsidiaryManage')}
           </p>
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <Button>Add User</Button>
+            <Button>{t('users.addUser')}</Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Add New User</DialogTitle>
+              <DialogTitle>{t('users.addNewUser')}</DialogTitle>
             </DialogHeader>
             <Form {...form}>
               <form
@@ -213,7 +215,7 @@ export default function UsersPage() {
                   name="username"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Username</FormLabel>
+                      <FormLabel>{t('users.username')}</FormLabel>
                       <FormControl>
                         <Input {...field} />
                       </FormControl>
@@ -226,7 +228,7 @@ export default function UsersPage() {
                   name="password"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Password</FormLabel>
+                      <FormLabel>{t('users.password')}</FormLabel>
                       <FormControl>
                         <Input type="password" {...field} />
                       </FormControl>
@@ -239,7 +241,7 @@ export default function UsersPage() {
                   name="confirmPassword"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Confirm Password</FormLabel>
+                      <FormLabel>{t('users.confirmPassword')}</FormLabel>
                       <FormControl>
                         <Input type="password" {...field} />
                       </FormControl>
@@ -252,7 +254,7 @@ export default function UsersPage() {
                   className="w-full"
                   disabled={createMutation.isPending}
                 >
-                  Create User
+                  {t('users.createUser')}
                 </Button>
               </form>
             </Form>
@@ -264,16 +266,16 @@ export default function UsersPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Username</TableHead>
-              <TableHead>Role</TableHead>
-              <TableHead className="w-[100px]">Actions</TableHead>
+              <TableHead>{t('users.username')}</TableHead>
+              <TableHead>{t('users.role')}</TableHead>
+              <TableHead className="w-[100px]">{t('common.actions')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {users.map((user) => (
               <TableRow key={user.id}>
                 <TableCell className="font-medium">{user.username}</TableCell>
-                <TableCell>{user.role}</TableCell>
+                <TableCell>{t(`roles.${user.role}`)}</TableCell>
                 <TableCell>
                   <div className="flex items-center gap-2">
                     <Button
@@ -307,7 +309,7 @@ export default function UsersPage() {
       <Dialog open={!!editingUser} onOpenChange={() => setEditingUser(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Edit User</DialogTitle>
+            <DialogTitle>{t('users.editUser')}</DialogTitle>
           </DialogHeader>
           <Form {...editForm}>
             <form
@@ -327,7 +329,7 @@ export default function UsersPage() {
                 name="username"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Username</FormLabel>
+                    <FormLabel>{t('users.username')}</FormLabel>
                     <FormControl>
                       <Input {...field} />
                     </FormControl>
@@ -340,7 +342,7 @@ export default function UsersPage() {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>New Password (optional)</FormLabel>
+                    <FormLabel>{t('users.newPasswordOptional')}</FormLabel>
                     <FormControl>
                       <Input type="password" {...field} />
                     </FormControl>
@@ -353,7 +355,7 @@ export default function UsersPage() {
                 name="confirmPassword"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Confirm New Password</FormLabel>
+                    <FormLabel>{t('users.confirmNewPassword')}</FormLabel>
                     <FormControl>
                       <Input type="password" {...field} />
                     </FormControl>
@@ -366,7 +368,7 @@ export default function UsersPage() {
                 className="w-full"
                 disabled={updateMutation.isPending}
               >
-                Update User
+                {t('users.updateUser')}
               </Button>
             </form>
           </Form>
@@ -377,19 +379,18 @@ export default function UsersPage() {
       <AlertDialog open={!!userToDelete} onOpenChange={() => setUserToDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogTitle>{t('common.areYouSure')}</AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete the user "{userToDelete?.username}". This
-              action cannot be undone.
+              {t('users.deleteWarning', { username: userToDelete?.username })}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => userToDelete && deleteMutation.mutate(userToDelete.id)}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              Delete
+              {t('common.delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
