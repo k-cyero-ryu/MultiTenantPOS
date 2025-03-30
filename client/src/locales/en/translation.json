@@ -22,7 +22,11 @@
     "status": "Status",
     "active": "Active",
     "salesReport": "Sales Report",
-    "product": "Product"
+    "product": "Product",
+    "loggedInAs": "Logged in as",
+    "areYouSure": "Are you sure?",
+    "delete": "Delete",
+    "actions": "Actions"
   },
   "activityLogs": {
     "title": "Activity Logs",
@@ -122,6 +126,9 @@
     "activeStatus": "Active",
     "inactiveStatus": "Inactive"
   },
+  "subsidiary": {
+    "dashboardDescription": "View your subsidiary performance metrics and analytics"
+  },
   "inventory": {
     "title": "Inventory",
     "addNew": "Add New Item",
@@ -141,14 +148,21 @@
     "lowStockAlert": "Low Stock Alert",
     "lowStockDesc": "Items with stock level below {{threshold}} units",
     "stock": "Stock",
-    "noLowStock": "No low stock items"
+    "noLowStock": "No low stock items",
+    "totalStock": "Total Stock",
+    "inventoryValue": "Inventory Value",
+    "products": "Products",
+    "itemsInInventory": "Items in inventory",
+    "basedOnSalesPrices": "Based on sales prices"
   },
   "users": {
     "title": "Users",
     "addNew": "Add New User",
     "edit": "Edit User",
+    "editUser": "Edit User",
     "username": "Username",
     "password": "Password",
+    "confirmPassword": "Confirm Password",
     "role": "Role",
     "administrator": "Administrator",
     "subsidiaryAdmin": "Subsidiary Administrator",
@@ -156,16 +170,22 @@
     "user": "Regular User",
     "addAdminFor": "Add Admin User for {{name}}",
     "createAdminUser": "Create Admin User",
+    "createUser": "Create User", 
+    "updateUser": "Update User",
     "createSuccess": "User created successfully",
     "createFailed": "Failed to create user",
     "manage": "Manage system users and administrators",
-    "actions": "Actions"
+    "actions": "Actions",
+    "newPasswordOptional": "New Password (optional)",
+    "confirmNewPassword": "Confirm New Password",
+    "deleteWarning": "This will permanently delete the user \"{username}\". This action cannot be undone."
   },
   "sales": {
     "daily": "Daily",
     "monthly": "Monthly",
     "areaChart": "Area Chart",
-    "barChart": "Bar Chart" 
+    "barChart": "Bar Chart",
+    "totalSales": "Total Sales"
   },
   "reports": {
     "title": "Reports",
@@ -210,5 +230,14 @@
     "usersContent": "Keep track of all users and subsidiary admins.",
     "settingsTitle": "Database Settings",
     "settingsContent": "Configure database settings in the Settings page. You can switch between PostgreSQL and MySQL engines."
+  },
+  "analytics": {
+    "title": "Analytics",
+    "salesPerformance": "Sales Performance"
+  },
+  "roles": {
+    "mhc_admin": "MHC Administrator",
+    "subsidiary_admin": "Subsidiary Administrator",
+    "user": "Regular User"
   }
 }
