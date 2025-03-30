@@ -37,23 +37,23 @@ export function Sidebar({ className }: SidebarProps) {
   const isSubsidiaryAdmin = user?.role === "subsidiary_admin";
 
   const links = isMHCAdmin ? [
-    { href: "/", icon: LayoutDashboard, label: t('navigation.dashboard') },
-    { href: "/subsidiaries", icon: Building2, label: t('navigation.subsidiaries') },
-    { href: "/users", icon: Users, label: t('navigation.users') },
-    { href: "/reports", icon: FileText, label: t('navigation.reports') },
-    { href: "/activity-logs", icon: Activity, label: t('navigation.activityLogs') },
-    { href: "/settings", icon: Settings, label: t('navigation.settings') },
+    { href: "/", icon: LayoutDashboard, label: t('common.dashboard') },
+    { href: "/subsidiaries", icon: Building2, label: t('common.subsidiaries') },
+    { href: "/users", icon: Users, label: t('common.users') },
+    { href: "/reports", icon: FileText, label: t('common.reports') },
+    { href: "/activity-logs", icon: Activity, label: t('common.activityLogs') },
+    { href: "/settings", icon: Settings, label: t('common.settings') },
   ] : [
-    { href: "/", icon: LayoutDashboard, label: t('navigation.dashboard') },
-    { href: "/inventory", icon: Package, label: t('navigation.inventory') },
-    { href: "/sales", icon: ShoppingCart, label: t('navigation.sales') },
-    ...(isSubsidiaryAdmin ? [{ href: "/users", icon: Users, label: t('navigation.users') }] : []),
+    { href: "/", icon: LayoutDashboard, label: t('common.dashboard') },
+    { href: "/inventory", icon: Package, label: t('common.inventory') },
+    { href: "/sales", icon: ShoppingCart, label: t('common.sales') },
+    ...(isSubsidiaryAdmin ? [{ href: "/users", icon: Users, label: t('common.users') }] : []),
   ];
 
   const SidebarContent = () => (
     <div className="flex h-full flex-col gap-4">
       <div className="flex h-14 items-center border-b px-4 font-semibold">
-        {isMHCAdmin ? "Main Head Company" : "Subsidiary Portal"}
+        {isMHCAdmin ? t('common.mainHeadCompany') : t('common.subsidiaryPortal')}
       </div>
       <ScrollArea className="flex-1 px-2">
         <div className="space-y-2">

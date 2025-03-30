@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { TourTooltip } from "@/components/ui/tour-tooltip";
 import { useTour } from "@/providers/tour-provider";
 import { LucideChevronLeft, LucideChevronRight } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface TourStepProps {
   stepId: string;
@@ -10,6 +11,7 @@ interface TourStepProps {
 
 export function TourStep({ stepId, children }: TourStepProps) {
   const { currentStep, steps, showTour, nextStep, previousStep, endTour } = useTour();
+  const { t } = useTranslation();
   const step = steps.find(s => s.id === stepId);
   const isCurrentStep = currentStep === stepId;
 
@@ -36,14 +38,14 @@ export function TourStep({ stepId, children }: TourStepProps) {
                 disabled={steps.indexOf(step) === 0}
               >
                 <LucideChevronLeft className="mr-1 h-4 w-4" />
-                Previous
+                {t('tour.previous')}
               </Button>
               <Button
                 variant="secondary"
                 size="sm"
                 onClick={nextStep}
               >
-                {steps.indexOf(step) === steps.length - 1 ? "Finish" : "Next"}
+                {steps.indexOf(step) === steps.length - 1 ? t('tour.finish') : t('tour.next')}
                 {steps.indexOf(step) !== steps.length - 1 && (
                   <LucideChevronRight className="ml-1 h-4 w-4" />
                 )}
@@ -54,7 +56,7 @@ export function TourStep({ stepId, children }: TourStepProps) {
               size="sm"
               onClick={endTour}
             >
-              Skip Tour
+              {t('tour.skip')}
             </Button>
           </div>
         </div>

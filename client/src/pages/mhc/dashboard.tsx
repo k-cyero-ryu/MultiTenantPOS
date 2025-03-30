@@ -14,10 +14,12 @@ import { Button } from "@/components/ui/button";
 import { TourStep } from "@/components/tour-step";
 import { useTour } from "@/providers/tour-provider";
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 
 export default function MHCDashboard() {
   const { user } = useAuth();
   const { setSteps, startTour } = useTour();
+  const { t } = useTranslation();
 
   const { data: subsidiaries = [] } = useQuery<Subsidiary[]>({
     queryKey: ["/api/subsidiaries"],
@@ -39,42 +41,42 @@ export default function MHCDashboard() {
     setSteps([
       {
         id: "welcome",
-        title: "Welcome to MHC Dashboard",
-        content: "Let's take a quick tour of your dashboard features.",
+        title: t('tour.welcomeTitle', 'Welcome to MHC Dashboard'),
+        content: t('tour.welcomeContent', 'Let\'s take a quick tour of your dashboard features.'),
         position: "bottom"
       },
       {
         id: "profile",
-        title: "Your Profile",
-        content: "View your user information and role here.",
+        title: t('tour.profileTitle', 'Your Profile'),
+        content: t('tour.profileContent', 'View your user information and role here.'),
         position: "bottom"
       },
       {
         id: "subsidiaries",
-        title: "Subsidiary Overview",
-        content: "Monitor all your subsidiary companies at a glance.",
+        title: t('tour.subsidiariesTitle', 'Subsidiary Overview'),
+        content: t('tour.subsidiariesContent', 'Monitor all your subsidiary companies at a glance.'),
         position: "bottom"
       },
       {
         id: "sales",
-        title: "Sales Performance",
-        content: "Track total sales across all subsidiaries.",
+        title: t('tour.salesTitle', 'Sales Performance'),
+        content: t('tour.salesContent', 'Track total sales across all subsidiaries.'),
         position: "right"
       },
       {
         id: "users",
-        title: "User Management",
-        content: "Keep track of all users and subsidiary admins.",
+        title: t('tour.usersTitle', 'User Management'),
+        content: t('tour.usersContent', 'Keep track of all users and subsidiary admins.'),
         position: "left"
       },
       {
         id: "settings",
-        title: "Database Settings",
-        content: "Configure database settings in the Settings page. You can switch between PostgreSQL and MySQL engines.",
+        title: t('tour.settingsTitle', 'Database Settings'),
+        content: t('tour.settingsContent', 'Configure database settings in the Settings page. You can switch between PostgreSQL and MySQL engines.'),
         position: "bottom"
       }
     ]);
-  }, [setSteps]);
+  }, [setSteps, t]);
 
   const totalSales = sales.reduce(
     (acc, sale) => acc + sale.quantity * sale.salePrice,
@@ -90,12 +92,12 @@ export default function MHCDashboard() {
       <TourStep stepId="welcome">
         <div className="flex justify-between items-center">
           <div>
-            <h1 className="text-3xl font-bold mb-2">MHC Dashboard</h1>
+            <h1 className="text-3xl font-bold mb-2">{t('common.mainHeadCompany')} {t('common.dashboard')}</h1>
             <p className="text-muted-foreground">
-              Overview of all subsidiary companies performance
+              {t('dashboard.overview')}
             </p>
           </div>
-          <Button onClick={startTour}>Start Tour</Button>
+          <Button onClick={startTour}>{t('tour.start')}</Button>
         </div>
       </TourStep>
 
@@ -108,7 +110,7 @@ export default function MHCDashboard() {
                 {user?.username} ({user?.role})
               </h3>
               <p className="text-sm text-muted-foreground">
-                Main Head Company Administrator
+                {t('common.mainHeadCompany')} {t('users.administrator')}
               </p>
             </div>
           </div>
@@ -119,12 +121,12 @@ export default function MHCDashboard() {
         <TourStep stepId="subsidiaries">
           <div className="grid gap-4 md:col-span-2">
             <StatsCard
-              title="Total Subsidiaries"
+              title={t('dashboard.totalSubsidiaries')}
               value={subsidiaries.length}
               icon={Building2}
             />
             <StatsCard
-              title="Active Subsidiaries"
+              title={t('subsidiaries.active')}
               value={activeSubsidiaries}
               description={`${((activeSubsidiaries / subsidiaries.length) * 100).toFixed(1)}% active rate`}
               icon={Users}
@@ -134,7 +136,7 @@ export default function MHCDashboard() {
 
         <TourStep stepId="sales">
           <StatsCard
-            title="Total Sales"
+            title={t('dashboard.totalSales')}
             value={`$${totalSales.toFixed(2)}`}
             icon={TrendingUp}
           />
@@ -143,13 +145,13 @@ export default function MHCDashboard() {
         <TourStep stepId="users">
           <div className="grid gap-4">
             <StatsCard
-              title="Total Users"
+              title={t('dashboard.totalUsers')}
               value={totalUsers}
               description={`${subsidiaryAdmins} subsidiary admins`}
               icon={User}
             />
             <StatsCard
-              title="Total Products"
+              title={t('dashboard.totalInventory')}
               value={inventoryStats.totalProducts}
               icon={PackageOpen}
             />
@@ -161,13 +163,13 @@ export default function MHCDashboard() {
         <Card className="p-6">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-lg font-semibold">Database Configuration</h3>
+              <h3 className="text-lg font-semibold">{t('settings.databaseConfig')}</h3>
               <p className="text-sm text-muted-foreground">
-                Configure database engine settings to switch between PostgreSQL and MySQL
+                {t('settings.configureDB')}
               </p>
             </div>
             <Button variant="outline" onClick={() => window.location.href = "/settings"}>
-              Open Settings
+              {t('common.settings')}
             </Button>
           </div>
         </Card>

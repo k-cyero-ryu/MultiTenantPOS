@@ -14,7 +14,9 @@
     "sales": "Sales",
     "reports": "Reports",
     "activityLogs": "Activity Logs",
-    "logout": "Logout"
+    "logout": "Logout",
+    "mainHeadCompany": "Main Head Company",
+    "subsidiaryPortal": "Subsidiary Portal"
   },
   "auth": {
     "signIn": "Sign In",
@@ -84,7 +86,8 @@
     "city": "City",
     "contactInfo": "Contact Information",
     "phone": "Phone",
-    "email": "Email"
+    "email": "Email",
+    "active": "Active Subsidiaries"
   },
   "inventory": {
     "title": "Inventory",
@@ -100,10 +103,33 @@
     "lowStock": "Low Stock",
     "outOfStock": "Out of Stock"
   },
+  "users": {
+    "title": "Users",
+    "addNew": "Add New User",
+    "edit": "Edit User",
+    "username": "Username",
+    "role": "Role",
+    "administrator": "Administrator",
+    "subsidiaryAdmin": "Subsidiary Administrator",
+    "user": "Regular User"
+  },
   "tour": {
     "next": "Next",
     "previous": "Previous",
     "skip": "Skip Tour",
-    "finish": "Finish"
+    "finish": "Finish",
+    "start": "Start Tour",
+    "welcomeTitle": "Welcome to MHC Dashboard",
+    "welcomeContent": "Let's take a quick tour of your dashboard features.",
+    "profileTitle": "Your Profile",
+    "profileContent": "View your user information and role here.",
+    "subsidiariesTitle": "Subsidiary Overview",
+    "subsidiariesContent": "Monitor all your subsidiary companies at a glance.",
+    "salesTitle": "Sales Performance",
+    "salesContent": "Track total sales across all subsidiaries.",
+    "usersTitle": "User Management",
+    "usersContent": "Keep track of all users and subsidiary admins.",
+    "settingsTitle": "Database Settings",
+    "settingsContent": "Configure database settings in the Settings page. You can switch between PostgreSQL and MySQL engines."
   }
 }
