@@ -203,36 +203,42 @@ export default function Reports() {
       pdfContainer.style.padding = "10px"; // Minimal padding to maximize usable space
       pdfContainer.style.boxSizing = "border-box";
       
-      // Build the HTML content for the PDF with absolute maximum data space efficiency
+      // Build the HTML content for the PDF with balanced readability and space efficiency
       pdfContainer.innerHTML = `
         <div style="font-family: Arial, sans-serif; width: 100%;">
-          <!-- Micro-header - ultra minimal header with single line height -->
+          <!-- Balanced header - optimal readability with 3-column layout -->
           <div style="display: flex; justify-content: space-between; align-items: center; 
-              padding-bottom: 2px; border-bottom: 1px solid #eee; margin-bottom: 3px; height: 40px; max-height: 40px;">
-            <!-- Logo: minimal size -->
-            <div style="flex: 0 0 50px; height: 40px; display: flex; align-items: center;">
+              padding-bottom: 4px; border-bottom: 1px solid #ddd; margin-bottom: 10px; max-height: 60px;">
+            <!-- Left column: Logo -->
+            <div style="flex: 0 0 80px; display: flex; align-items: center; justify-content: flex-start;">
               ${logoHTML}
             </div>
             
-            <!-- Center: compact single line report info -->
-            <div style="flex: 1; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 10px;">
-              <span style="font-size: 13px; font-weight: bold;">
-                ${reportTitle} ${t('reports.title')} 
-                <span style="color: #666; font-weight: normal; font-size: 11px;">
-                  (${t('reports.timeRange')}: ${dateRangeText}${isSubsidiaryReport ? ` | ${t('subsidiaries.taxId')}: ${selectedSubsidiaryData.taxId}` : ''})
-                </span>
-              </span>
+            <!-- Center column: Report title and date range -->
+            <div style="flex: 1; text-align: center; padding: 0 10px;">
+              <div style="font-size: 16px; font-weight: bold; margin-bottom: 3px;">
+                ${reportTitle} ${t('reports.title')}
+              </div>
+              <div style="color: #555; font-size: 12px;">
+                ${t('reports.timeRange')}: ${dateRangeText}
+              </div>
             </div>
             
-            <!-- Right: company + date in single line -->
-            <div style="flex: 0 0 180px; text-align: right; white-space: nowrap; font-size: 11px;">
-              <span style="font-weight: bold;">${isSubsidiaryReport ? selectedSubsidiaryData.name : 'Main Head Company'}</span>
-              <span style="color: #666; margin-left: 5px; font-size: 10px;">${now.toLocaleDateString()}</span>
+            <!-- Right column: Company name, Tax ID and generation date -->
+            <div style="flex: 0 0 200px; text-align: right;">
+              <div style="font-size: 14px; font-weight: bold; margin-bottom: 2px;">
+                ${isSubsidiaryReport ? selectedSubsidiaryData.name : 'Main Head Company'}
+              </div>
+              <div style="color: #666; font-size: 11px;">
+                ${isSubsidiaryReport ? `${t('subsidiaries.taxId')}: ${selectedSubsidiaryData.taxId}` : ''}
+                ${isSubsidiaryReport ? '<br>' : ''}
+                Generated: ${now.toLocaleDateString()}
+              </div>
             </div>
           </div>
           
-          <!-- Maximum data area table - minimal margin and padding -->
-          <table style="width: 100%; border-collapse: collapse; margin-top: 2px; table-layout: auto;">
+          <!-- Data table - optimized for maximum data display with readable font sizes -->
+          <table style="width: 100%; border-collapse: collapse; table-layout: auto;">
             <thead>
               <tr style="background-color: #f5f5f5;">
                 ${Object.keys(previewData[0] || {}).map((header, index) => {
@@ -252,7 +258,7 @@ export default function Reports() {
                   }
                   
                   return `<th style="border: 1px solid #ddd; padding: 4px 6px; text-align: left; font-weight: bold; 
-                    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: ${width}; font-size: 11px;">${header}</th>`;
+                    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: ${width}; font-size: 12px;">${header}</th>`;
                 }).join('')}
               </tr>
             </thead>
@@ -261,7 +267,7 @@ export default function Reports() {
                 `<tr>
                   ${Object.entries(row).map(([key, value]) => {
                     // Special formatting based on content type
-                    let cellStyle = "border: 1px solid #ddd; padding: 3px 6px; text-align: left; font-size: 11px;";
+                    let cellStyle = "border: 1px solid #ddd; padding: 4px 6px; text-align: left; font-size: 12px;";
                     
                     // Determine if this is a numeric value
                     if (typeof value === 'number' || 
@@ -290,10 +296,10 @@ export default function Reports() {
             </tbody>
           </table>
           
-          <!-- Micro-footer - single line design -->
-          <div style="margin-top: 5px; border-top: 1px solid #eee; padding-top: 3px; 
-              color: #666; font-size: 9px; display: flex; justify-content: space-between; 
-              align-items: center; height: 20px; overflow: hidden; text-overflow: ellipsis;">
+          <!-- Compact footer - single line for address and copyright -->
+          <div style="margin-top: 8px; border-top: 1px solid #ddd; padding-top: 5px; 
+              color: #666; font-size: 10px; display: flex; justify-content: space-between; 
+              align-items: center;">
             ${isSubsidiaryReport ? 
             `<div style="text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
               ${selectedSubsidiaryData.address ? `${selectedSubsidiaryData.address}, ` : ''}
