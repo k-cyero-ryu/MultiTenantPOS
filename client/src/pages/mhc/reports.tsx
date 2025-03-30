@@ -21,8 +21,131 @@ import { format } from "date-fns";
 import { useState, useRef } from "react";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
-import jsPDF from "jspdf";
-import html2canvas from "html2canvas";
+import { 
+  Document, Page, Text, View, StyleSheet, PDFDownloadLink,
+  Font, Image, pdf, BlobProvider
+} from '@react-pdf/renderer';
+
+// Define styles for PDF document
+const styles = StyleSheet.create({
+  page: {
+    flexDirection: 'column',
+    backgroundColor: '#ffffff',
+    padding: 10,
+    fontFamily: 'Helvetica'
+  },
+  header: {
+    flexDirection: 'row',
+    borderBottomWidth: 1,
+    borderBottomColor: '#dddddd',
+    borderBottomStyle: 'solid',
+    paddingBottom: 5,
+    marginBottom: 10,
+    height: 60
+  },
+  logoSection: {
+    width: 80,
+    justifyContent: 'center',
+    alignItems: 'flex-start'
+  },
+  logoImage: {
+    width: 60,
+    height: 60,
+    objectFit: 'contain'
+  },
+  titleSection: {
+    flex: 1,
+    textAlign: 'center',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 10
+  },
+  reportTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 3
+  },
+  dateRange: {
+    fontSize: 10,
+    color: '#555555'
+  },
+  companySection: {
+    width: 200,
+    textAlign: 'right',
+    justifyContent: 'center',
+    alignItems: 'flex-end'
+  },
+  companyName: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    marginBottom: 2
+  },
+  companyDetails: {
+    fontSize: 9,
+    color: '#666666'
+  },
+  table: {
+    display: 'flex',
+    width: 'auto',
+    borderWidth: 1,
+    borderColor: '#dddddd',
+    borderStyle: 'solid',
+    marginTop: 10
+  },
+  tableRow: {
+    flexDirection: 'row',
+    borderBottomWidth: 1,
+    borderBottomColor: '#dddddd',
+    borderBottomStyle: 'solid',
+    alignItems: 'center',
+    minHeight: 24
+  },
+  tableHeaderRow: {
+    backgroundColor: '#f5f5f5',
+    flexDirection: 'row',
+    borderBottomWidth: 1,
+    borderBottomColor: '#dddddd',
+    borderBottomStyle: 'solid',
+    alignItems: 'center',
+    minHeight: 26
+  },
+  tableHeaderCell: {
+    fontSize: 11,
+    fontWeight: 'bold',
+    padding: 4,
+    textAlign: 'left',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis'
+  },
+  tableCell: {
+    fontSize: 10,
+    padding: 4,
+    textAlign: 'left'
+  },
+  tableCellNumber: {
+    fontSize: 10,
+    padding: 4,
+    textAlign: 'right'
+  },
+  footer: {
+    marginTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: '#dddddd',
+    borderTopStyle: 'solid',
+    paddingTop: 5,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    fontSize: 9,
+    color: '#666666'
+  },
+  footerLeft: {
+    textAlign: 'left',
+    maxWidth: '70%'
+  },
+  footerRight: {
+    textAlign: 'right'
+  }
+});
 
 export default function Reports() {
   const { t } = useTranslation();
@@ -107,22 +230,168 @@ export default function Reports() {
     enabled: timeRange !== 'custom' || (startDate !== undefined && endDate !== undefined),
   });
 
+  // React-PDF Document component
+  const MyDocument = ({ 
+    reportData, 
+    reportTitle, 
+    dateRangeText, 
+    isSubsidiaryReport,
+    selectedSubsidiaryData,
+    t
+  }: {
+    reportData: Record<string, any>[];
+    reportTitle: string;
+    dateRangeText: string;
+    isSubsidiaryReport: boolean;
+    selectedSubsidiaryData: any;
+    t: (key: string) => string;
+  }) => {
+    // Function to get the logo URL, matching the approach in subsidiaries page
+    const getLogoUrl = (logoPath: string) => {
+      // If logo path is empty or invalid, use a default image
+      if (!logoPath || logoPath === 'null' || logoPath === '' || logoPath === 'undefined') {
+        return `/default-logo.svg`;
+      }
+      
+      // Replace '/uploads/' with '/' as done in the subsidiaries page
+      return logoPath.replace('/uploads/', '/');
+    };
+
+    // Determine logo path
+    const logoPath = isSubsidiaryReport && selectedSubsidiaryData?.logo 
+      ? getLogoUrl(selectedSubsidiaryData.logo)
+      : '/default-logo.svg';
+
+    // Get column headers and calculate widths
+    const headers = Object.keys(reportData[0] || {});
+    const columnWidths: Record<string, string> = {};
+    
+    headers.forEach(header => {
+      if (header.toLowerCase().includes("date")) {
+        columnWidths[header] = "15%";
+      } else if (["id", "quantity", "price", "amount", "number", "count"].some(
+        term => header.toLowerCase().includes(term)
+      )) {
+        columnWidths[header] = "10%";
+      } else if (header.toLowerCase().includes("subsidiary")) {
+        columnWidths[header] = "25%";
+      } else if (header.toLowerCase().includes("name") || 
+                  header.toLowerCase().includes("description")) {
+        columnWidths[header] = "20%";
+      } else {
+        columnWidths[header] = "auto";
+      }
+    });
+
+    const now = new Date();
+    
+    return (
+      <Document>
+        <Page size="A4" orientation="landscape" style={styles.page}>
+          {/* Header */}
+          <View style={styles.header}>
+            {/* Logo section */}
+            <View style={styles.logoSection}>
+              <Image src={logoPath} style={styles.logoImage} />
+            </View>
+            
+            {/* Title section */}
+            <View style={styles.titleSection}>
+              <Text style={styles.reportTitle}>
+                {reportTitle} {t('reports.title')}
+              </Text>
+              <Text style={styles.dateRange}>
+                {t('reports.timeRange')}: {dateRangeText}
+              </Text>
+            </View>
+            
+            {/* Company section */}
+            <View style={styles.companySection}>
+              <Text style={styles.companyName}>
+                {isSubsidiaryReport ? selectedSubsidiaryData.name : 'Main Head Company'}
+              </Text>
+              {isSubsidiaryReport && (
+                <Text style={styles.companyDetails}>
+                  {t('subsidiaries.taxId')}: {selectedSubsidiaryData.taxId}
+                </Text>
+              )}
+              <Text style={styles.companyDetails}>
+                Generated: {now.toLocaleDateString()}
+              </Text>
+            </View>
+          </View>
+          
+          {/* Table */}
+          <View style={styles.table}>
+            {/* Table header */}
+            <View style={styles.tableHeaderRow}>
+              {headers.map((header, index) => (
+                <View key={index} style={{ width: columnWidths[header] }}>
+                  <Text style={styles.tableHeaderCell}>{header}</Text>
+                </View>
+              ))}
+            </View>
+            
+            {/* Table rows */}
+            {reportData.map((row, rowIndex) => (
+              <View key={rowIndex} style={styles.tableRow}>
+                {Object.entries(row).map(([key, value], cellIndex) => {
+                  // Determine if this is a numeric value
+                  const isNumeric = typeof value === 'number' || 
+                    (typeof value === 'string' && !isNaN(parseFloat(value)) && 
+                      ["id", "quantity", "price", "amount"].some(term => key.toLowerCase().includes(term)));
+                  
+                  // Format the cell content
+                  let displayValue = typeof value === 'object' ? JSON.stringify(value) : String(value);
+                  
+                  // Truncate very long text
+                  if (typeof value === 'string' && value.length > 50) {
+                    displayValue = value.substring(0, 50) + '...';
+                  }
+                  
+                  return (
+                    <View key={cellIndex} style={{ width: columnWidths[key] }}>
+                      <Text style={isNumeric ? styles.tableCellNumber : styles.tableCell}>
+                        {displayValue}
+                      </Text>
+                    </View>
+                  );
+                })}
+              </View>
+            ))}
+          </View>
+          
+          {/* Footer */}
+          <View style={styles.footer}>
+            {isSubsidiaryReport ? (
+              <Text style={styles.footerLeft}>
+                {selectedSubsidiaryData.address ? `${selectedSubsidiaryData.address}, ` : ''}
+                {selectedSubsidiaryData.city ? `${selectedSubsidiaryData.city}, ` : ''}
+                {selectedSubsidiaryData.country || ''}
+                {selectedSubsidiaryData.email ? ` | ${selectedSubsidiaryData.email}` : ''}
+                {selectedSubsidiaryData.phoneNumber ? ` | ${selectedSubsidiaryData.phoneNumber}` : ''}
+              </Text>
+            ) : (
+              <Text style={styles.footerLeft}></Text>
+            )}
+            <Text style={styles.footerRight}>
+              © {new Date().getFullYear()} {isSubsidiaryReport ? selectedSubsidiaryData.name : 'Main Head Company'}
+            </Text>
+          </View>
+        </Page>
+      </Document>
+    );
+  };
+  
+  // PDF generation function using @react-pdf/renderer
   const generatePDF = async () => {
     if (!previewData || !previewData.length) return;
     
     try {
       setIsGeneratingPDF(true);
       
-      // Create a temporary hidden div with the content for the PDF
-      const pdfContainer = document.createElement('div');
-      pdfContainer.style.width = '100%';
-      pdfContainer.style.padding = '20px';
-      pdfContainer.style.position = 'absolute';
-      pdfContainer.style.left = '-9999px';
-      document.body.appendChild(pdfContainer);
-      
+      // Format report title and date range
       const reportTitle = reportType.charAt(0).toUpperCase() + reportType.slice(1);
-      const now = new Date();
       let dateRangeText = '';
       
       if (timeRange === 'custom' && startDate && endDate) {
@@ -141,258 +410,37 @@ export default function Reports() {
         }
       }
       
-      // Function to get the logo URL, matching the approach in subsidiaries page
-      const getLogoUrl = (logoPath: string) => {
-        console.log("Getting logo URL for path:", logoPath);
-        
-        // If logo path is empty or invalid, use a default image
-        if (!logoPath || logoPath === 'null' || logoPath === '' || logoPath === 'undefined') {
-          console.log("Using default logo path");
-          return `${window.location.origin}/default-logo.svg`;
-        }
-        
-        // Replace '/uploads/' with '/' as done in the subsidiaries page
-        const processedPath = logoPath.replace('/uploads/', '/');
-        
-        // If path doesn't start with http or /, add the origin
-        if (!processedPath.startsWith('http') && !processedPath.startsWith('/')) {
-          return `${window.location.origin}/${processedPath}`;
-        } else if (processedPath.startsWith('/')) {
-          return `${window.location.origin}${processedPath}`;
-        }
-        
-        // If it starts with http, it's already a full URL
-        return processedPath;
-      };
-
       // Determine if we're generating a subsidiary-specific report
       const isSubsidiaryReport = selectedSubsidiary !== null && selectedSubsidiaryData;
-      const reportHeaderTitle = isSubsidiaryReport 
-        ? `${selectedSubsidiaryData.name} ${t('reports.subsidiaryReport')}`
-        : `${t('reports.corporateReport')}`;
       
-      // For debugging purpose, log the subsidiary data
-      console.log("Subsidiary data:", selectedSubsidiaryData);
-      
-      // Check for logo availability and properly format it
-      let logoHTML = '';
-      if (isSubsidiaryReport) {
-        // For subsidiary reports, either use their logo or a default
-        if (selectedSubsidiaryData.logo && 
-            selectedSubsidiaryData.logo !== 'null' && 
-            selectedSubsidiaryData.logo !== '') {
-          // Use the subsidiary's actual logo with proper sizing
-          logoHTML = `<img src="${getLogoUrl(selectedSubsidiaryData.logo)}" 
-                          alt="${selectedSubsidiaryData.name} logo" 
-                          style="max-height: 60px; max-width: 60px; width: auto; height: auto; object-fit: contain;">`;
-        } else {
-          // Use default logo for subsidiaries without a logo
-          logoHTML = `<img src="${window.location.origin}/default-logo.svg" 
-                          alt="${selectedSubsidiaryData.name} logo" 
-                          style="max-height: 60px; max-width: 60px; width: auto; height: auto; object-fit: contain;">`;
-        }
-      } else {
-        // For MHC reports, always use a default logo
-        logoHTML = `<img src="${window.location.origin}/default-logo.svg" 
-                        alt="Main Head Company logo" 
-                        style="max-height: 60px; max-width: 60px; width: auto; height: auto; object-fit: contain;">`;
-      }
-          
-      // Set the container width to match the PDF aspect ratio (landscape A4) with minimal padding
-      pdfContainer.style.width = "1120px"; // Approximating A4 landscape width
-      pdfContainer.style.padding = "10px"; // Minimal padding to maximize usable space
-      pdfContainer.style.boxSizing = "border-box";
-      
-      // Build the HTML content for the PDF with balanced readability and space efficiency
-      pdfContainer.innerHTML = `
-        <div style="font-family: Arial, sans-serif; width: 100%;">
-          <!-- Balanced header - optimal readability with 3-column layout -->
-          <div style="display: flex; justify-content: space-between; align-items: center; 
-              padding-bottom: 4px; border-bottom: 1px solid #ddd; margin-bottom: 10px; max-height: 60px;">
-            <!-- Left column: Logo -->
-            <div style="flex: 0 0 80px; display: flex; align-items: center; justify-content: flex-start;">
-              ${logoHTML}
-            </div>
-            
-            <!-- Center column: Report title and date range -->
-            <div style="flex: 1; text-align: center; padding: 0 10px;">
-              <div style="font-size: 16px; font-weight: bold; margin-bottom: 3px;">
-                ${reportTitle} ${t('reports.title')}
-              </div>
-              <div style="color: #555; font-size: 12px;">
-                ${t('reports.timeRange')}: ${dateRangeText}
-              </div>
-            </div>
-            
-            <!-- Right column: Company name, Tax ID and generation date -->
-            <div style="flex: 0 0 200px; text-align: right;">
-              <div style="font-size: 14px; font-weight: bold; margin-bottom: 2px;">
-                ${isSubsidiaryReport ? selectedSubsidiaryData.name : 'Main Head Company'}
-              </div>
-              <div style="color: #666; font-size: 11px;">
-                ${isSubsidiaryReport ? `${t('subsidiaries.taxId')}: ${selectedSubsidiaryData.taxId}` : ''}
-                ${isSubsidiaryReport ? '<br>' : ''}
-                Generated: ${now.toLocaleDateString()}
-              </div>
-            </div>
-          </div>
-          
-          <!-- Data table - optimized for maximum data display with readable font sizes -->
-          <table style="width: 100%; border-collapse: collapse; table-layout: auto;">
-            <thead>
-              <tr style="background-color: #f5f5f5;">
-                ${Object.keys(previewData[0] || {}).map((header, index) => {
-                  // Determine column widths based on column type
-                  let width = "auto";
-                  if (header.toLowerCase().includes("date")) {
-                    width = "120px"; // Date columns
-                  } else if (["id", "quantity", "price", "amount", "number", "count"].some(
-                    term => header.toLowerCase().includes(term)
-                  )) {
-                    width = "100px"; // Numeric columns
-                  } else if (header.toLowerCase().includes("subsidiary")) {
-                    width = "250px"; // Subsidiary column needs more space
-                  } else if (header.toLowerCase().includes("name") || 
-                             header.toLowerCase().includes("description")) {
-                    width = "200px"; // Name/description columns
-                  }
-                  
-                  return `<th style="border: 1px solid #ddd; padding: 4px 6px; text-align: left; font-weight: bold; 
-                    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: ${width}; font-size: 12px;">${header}</th>`;
-                }).join('')}
-              </tr>
-            </thead>
-            <tbody>
-              ${previewData.map((row: Record<string, any>) => 
-                `<tr>
-                  ${Object.entries(row).map(([key, value]) => {
-                    // Special formatting based on content type
-                    let cellStyle = "border: 1px solid #ddd; padding: 4px 6px; text-align: left; font-size: 12px;";
-                    
-                    // Determine if this is a numeric value
-                    if (typeof value === 'number' || 
-                        (typeof value === 'string' && !isNaN(parseFloat(value)) && 
-                         ["id", "quantity", "price", "amount"].some(term => key.toLowerCase().includes(term)))) {
-                      cellStyle += " text-align: right;"; // Right-align numbers
-                    }
-                    
-                    // Determine if this is a date
-                    if (key.toLowerCase().includes("date")) {
-                      cellStyle += " white-space: nowrap;"; // No wrapping for dates
-                    }
-                    
-                    // Format the cell content
-                    let displayValue = typeof value === 'object' ? JSON.stringify(value) : String(value);
-                    
-                    // Truncate very long text
-                    if (typeof value === 'string' && value.length > 50) {
-                      displayValue = value.substring(0, 50) + '...';
-                    }
-                    
-                    return `<td style="${cellStyle}">${displayValue}</td>`;
-                  }).join('')}
-                </tr>`
-              ).join('')}
-            </tbody>
-          </table>
-          
-          <!-- Compact footer - single line for address and copyright -->
-          <div style="margin-top: 8px; border-top: 1px solid #ddd; padding-top: 5px; 
-              color: #666; font-size: 10px; display: flex; justify-content: space-between; 
-              align-items: center;">
-            ${isSubsidiaryReport ? 
-            `<div style="text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-              ${selectedSubsidiaryData.address ? `${selectedSubsidiaryData.address}, ` : ''}
-              ${selectedSubsidiaryData.city ? `${selectedSubsidiaryData.city}, ` : ''}
-              ${selectedSubsidiaryData.country || ''}
-              ${selectedSubsidiaryData.email ? ` | ${selectedSubsidiaryData.email}` : ''}
-              ${selectedSubsidiaryData.phoneNumber ? ` | ${selectedSubsidiaryData.phoneNumber}` : ''}
-            </div>` : 
-            '<div></div>'}
-            <div style="text-align: right; white-space: nowrap;">
-              © ${new Date().getFullYear()} ${isSubsidiaryReport ? selectedSubsidiaryData.name : 'Main Head Company'}
-            </div>
-          </div>
-        </div>
-      `;
-      
-      // Create a PDF document with jsPDF in landscape mode ('l' = landscape)
-      const pdf = new jsPDF('l', 'pt', 'a4');
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
-      
-      // Convert HTML to canvas with improved scale for better quality
-      const canvas = await html2canvas(pdfContainer, {
-        scale: 2, // Higher scale for better image quality
-        useCORS: true,
-        allowTaint: true,
-        logging: false,
-        imageTimeout: 0, // No timeout for images
-        onclone: (clonedDoc) => {
-          // Apply any additional styling to the cloned document
-          const style = clonedDoc.createElement('style');
-          style.innerHTML = `
-            img { image-rendering: high-quality; }
-            table { margin: 0 auto; width: 98%; }
-            td, th { max-width: 300px; }
-          `;
-          clonedDoc.head.appendChild(style);
-        }
-      });
-      
-      // For multiple page support, we need to divide the content up
-      // Let's split the container into sections that fit on a page
-      
-      // Convert the canvas to image data
-      const canvasImageData = canvas.toDataURL('image/png', 1.0);
-      
-      // For multiple pages, it's simpler in this case to just add the whole content
-      // Since we're using a fixed layout PDF in landscape mode, most reports will fit on one page
-      // Use minimal margins (10pt instead of 20pt) to maximize content area
-      pdf.addImage(
-        canvasImageData,    // image data
-        'PNG',              // image format
-        10,                 // x position on PDF (minimal margin)
-        10,                 // y position on PDF (minimal margin)
-        pdfWidth - 20,      // width on PDF (minimal margin)
-        pdfHeight - 20,     // height on PDF (minimal margin)
-        undefined,          // alias (not needed)
-        'FAST'              // compression
+      // Generate PDF using React-PDF
+      const pdfDoc = (
+        <MyDocument
+          reportData={previewData}
+          reportTitle={reportTitle}
+          dateRangeText={dateRangeText}
+          isSubsidiaryReport={isSubsidiaryReport}
+          selectedSubsidiaryData={selectedSubsidiaryData}
+          t={t}
+        />
       );
       
-      // If the content is very long, add more pages as needed
-      const contentHeight = canvas.height / 2; // Divide by 2 because of our scale factor
-      const contentWidth = canvas.width / 2;
-      const pageContentHeight = pdfHeight - 20; // Using minimal margins
+      // Create blob from the PDF document
+      const blob = await pdf(pdfDoc).toBlob();
       
-      if (contentHeight > pageContentHeight) {
-        const totalPages = Math.ceil(contentHeight / pageContentHeight);
-        
-        for (let i = 1; i < totalPages; i++) {
-          // Add a new page for each additional content section
-          pdf.addPage();
-          
-          // Calculate vertical positioning to show the content continuation
-          const yOffset = -i * pageContentHeight + 10; // Using minimal margins
-          
-          pdf.addImage(
-            canvasImageData,
-            'PNG',
-            10, // Minimal margin
-            yOffset, 
-            pdfWidth - 20, // Minimal margin
-            pdfHeight * 2, // Make it tall enough to show content 
-            undefined,
-            'FAST'
-          );
-        }
-      }
+      // Create a URL for the blob
+      const url = URL.createObjectURL(blob);
       
-      // Save the PDF file
-      pdf.save(`${reportType}-report.pdf`);
+      // Create a link and trigger download
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${reportTitle}-${reportType}-report.pdf`;
+      document.body.appendChild(link);
+      link.click();
       
       // Clean up
-      document.body.removeChild(pdfContainer);
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
       setIsGeneratingPDF(false);
       
     } catch (error) {
@@ -429,7 +477,7 @@ export default function Reports() {
   // Function to format preview data
   const renderPreview = () => {
     if (isLoading) return <div className="text-center p-4">{t('reports.loading')}</div>;
-    if (!previewData) return <div className="text-center p-4">{t('reports.noData')}</div>;
+    if (!previewData || !previewData.length) return <div className="text-center p-4">{t('reports.noData')}</div>;
 
     return (
       <table className="w-full">
