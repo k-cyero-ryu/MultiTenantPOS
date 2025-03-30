@@ -209,35 +209,40 @@ export default function Reports() {
       pdfContainer.style.padding = "20px";
       pdfContainer.style.boxSizing = "border-box";
       
-      // Build the HTML content for the PDF with conditional logo
+      // Build the HTML content for the PDF with conditional logo - more compact layout
       pdfContainer.innerHTML = `
-        <div style="font-family: Arial, sans-serif; margin-bottom: 30px; width: 100%;">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <div style="font-family: Arial, sans-serif; width: 100%;">
+          <!-- Compact header with logo and title in one row -->
+          <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px solid #eee;">
             <div style="display: flex; align-items: center; min-width: 50%;">
               ${logoHTML}
-              <div style="font-size: 22px; font-weight: bold; color: #333333; white-space: normal;">
-                ${isSubsidiaryReport ? selectedSubsidiaryData.name : 'Main Head Company'}
+              <div>
+                <div style="font-size: 20px; font-weight: bold; color: #333333; white-space: normal; margin-bottom: 0;">
+                  ${isSubsidiaryReport ? selectedSubsidiaryData.name : 'Main Head Company'}
+                </div>
+                ${isSubsidiaryReport ? 
+                  `<div style="color: #666; font-size: 12px;">
+                    ${t('subsidiaries.taxId')}: ${selectedSubsidiaryData.taxId}
+                  </div>` : 
+                  ''}
               </div>
             </div>
             <div style="text-align: right; min-width: 30%;">
-              <div style="font-size: 20px; font-weight: bold; margin-bottom: 5px;">${reportHeaderTitle}</div>
-              <div>Generated on: ${now.toLocaleDateString()}</div>
+              <div style="font-size: 18px; font-weight: bold;">${reportHeaderTitle}</div>
+              <div style="font-size: 12px;">Generated on: ${now.toLocaleDateString()}</div>
             </div>
           </div>
           
-          <div style="text-align: center; margin: 20px 0; border-bottom: 1px solid #eee; padding-bottom: 15px;">
-            <h1 style="font-size: 24px; margin-bottom: 5px;">${reportTitle} ${t('reports.title')}</h1>
-            <div style="color: #666;">
+          <!-- Report title and time range in one row -->
+          <div style="display: flex; justify-content: space-between; align-items: center; margin: 8px 0 12px 0;">
+            <div style="font-size: 18px; font-weight: bold;">${reportTitle} ${t('reports.title')}</div>
+            <div style="color: #666; font-size: 14px;">
               ${t('reports.timeRange')}: ${dateRangeText}
             </div>
-            ${isSubsidiaryReport ? 
-              `<div style="color: #666; margin-top: 5px;">
-                ${t('subsidiaries.taxId')}: ${selectedSubsidiaryData.taxId}
-              </div>` : 
-              ''}
           </div>
           
-          <table style="width: 100%; border-collapse: collapse; margin-top: 20px; table-layout: auto;">
+          <!-- More compact table with less padding -->
+          <table style="width: 100%; border-collapse: collapse; margin-top: 10px; table-layout: auto;">
             <thead>
               <tr style="background-color: #f5f5f5;">
                 ${Object.keys(previewData[0] || {}).map((header, index) => {
@@ -256,8 +261,8 @@ export default function Reports() {
                     width = "200px"; // Name/description columns
                   }
                   
-                  return `<th style="border: 1px solid #ddd; padding: 10px; text-align: left; font-weight: bold; 
-                    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: ${width};">${header}</th>`;
+                  return `<th style="border: 1px solid #ddd; padding: 6px 8px; text-align: left; font-weight: bold; 
+                    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: ${width}; font-size: 12px;">${header}</th>`;
                 }).join('')}
               </tr>
             </thead>
@@ -266,7 +271,7 @@ export default function Reports() {
                 `<tr>
                   ${Object.entries(row).map(([key, value]) => {
                     // Special formatting based on content type
-                    let cellStyle = "border: 1px solid #ddd; padding: 10px; text-align: left;";
+                    let cellStyle = "border: 1px solid #ddd; padding: 5px 8px; text-align: left; font-size: 12px;";
                     
                     // Determine if this is a numeric value
                     if (typeof value === 'number' || 
@@ -295,17 +300,20 @@ export default function Reports() {
             </tbody>
           </table>
           
-          <div style="margin-top: 30px; color: #666; font-size: 12px; text-align: center;">
+          <!-- More compact footer with horizontal layout -->
+          <div style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px; color: #666; font-size: 11px; display: flex; justify-content: space-between; align-items: center;">
             ${isSubsidiaryReport ? 
-              `<div style="margin-bottom: 5px;">
-                ${selectedSubsidiaryData.address ? `${selectedSubsidiaryData.address}, ` : ''}
-                ${selectedSubsidiaryData.city ? `${selectedSubsidiaryData.city}, ` : ''}
-                ${selectedSubsidiaryData.country || ''}
-              </div>
-              <div style="margin-bottom: 5px;">
-                ${selectedSubsidiaryData.email} | ${selectedSubsidiaryData.phoneNumber}
-              </div>` : ''}
-            <p>© ${new Date().getFullYear()} ${isSubsidiaryReport ? selectedSubsidiaryData.name : 'Main Head Company'} - All rights reserved</p>
+            `<div style="text-align: left;">
+              ${selectedSubsidiaryData.address ? `${selectedSubsidiaryData.address}, ` : ''}
+              ${selectedSubsidiaryData.city ? `${selectedSubsidiaryData.city}, ` : ''}
+              ${selectedSubsidiaryData.country || ''}
+              ${selectedSubsidiaryData.email ? ` | ${selectedSubsidiaryData.email}` : ''}
+              ${selectedSubsidiaryData.phoneNumber ? ` | ${selectedSubsidiaryData.phoneNumber}` : ''}
+            </div>` : 
+            '<div></div>'}
+            <div style="text-align: right;">
+              © ${new Date().getFullYear()} ${isSubsidiaryReport ? selectedSubsidiaryData.name : 'Main Head Company'} - All rights reserved
+            </div>
           </div>
         </div>
       `;
