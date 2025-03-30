@@ -16,7 +16,12 @@
     "activityLogs": "Activity Logs",
     "logout": "Logout",
     "mainHeadCompany": "Main Head Company",
-    "subsidiaryPortal": "Subsidiary Portal"
+    "subsidiaryPortal": "Subsidiary Portal",
+    "company": "Company",
+    "unknown": "Unknown",
+    "status": "Status",
+    "active": "Active",
+    "salesReport": "Sales Report"
   },
   "auth": {
     "signIn": "Sign In",
@@ -88,6 +93,7 @@
     "phone": "Phone",
     "email": "Email",
     "active": "Active Subsidiaries",
+    "activeRate": "active rate",
     "manage": "Manage your subsidiary companies",
     "createSubsidiary": "Create Subsidiary",
     "createSuccess": "Subsidiary created successfully",
@@ -114,7 +120,8 @@
     "status": "Status",
     "inStock": "In Stock",
     "lowStock": "Low Stock",
-    "outOfStock": "Out of Stock"
+    "outOfStock": "Out of Stock",
+    "report": "Inventory Report"
   },
   "users": {
     "title": "Users",
@@ -125,11 +132,39 @@
     "role": "Role",
     "administrator": "Administrator",
     "subsidiaryAdmin": "Subsidiary Administrator",
+    "subsidiaryAdmins": "subsidiary admins",
     "user": "Regular User",
     "addAdminFor": "Add Admin User for {{name}}",
     "createAdminUser": "Create Admin User",
     "createSuccess": "User created successfully",
-    "createFailed": "Failed to create user"
+    "createFailed": "Failed to create user",
+    "manage": "Manage system users and administrators",
+    "actions": "Actions"
+  },
+  "reports": {
+    "title": "Reports",
+    "generateAndDownload": "Generate and download detailed reports",
+    "generateReport": "Generate Report",
+    "selectTypeAndRange": "Select report type and time range",
+    "reportType": "Report Type",
+    "salesReport": "Sales Report",
+    "inventoryReport": "Inventory Report",
+    "activityReport": "Activity Report",
+    "timeRange": "Time Range",
+    "lastWeek": "Last Week",
+    "lastMonth": "Last Month",
+    "lastYear": "Last Year",
+    "customRange": "Custom Range",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "selectStartDate": "Select start date",
+    "selectEndDate": "Select end date",
+    "exportCSV": "Export CSV",
+    "viewReport": "View Report",
+    "reportPreview": "Report Preview",
+    "previewFirstRows": "Preview of the first 5 rows",
+    "loading": "Loading...",
+    "noData": "No data available"
   },
   "tour": {
     "next": "Next",

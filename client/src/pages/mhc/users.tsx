@@ -18,8 +18,10 @@ import { Button } from "@/components/ui/button";
 import type { User, Subsidiary } from "@shared/schema";
 import { useState } from "react";
 import { Badge } from "@/components/ui/badge";
+import { useTranslation } from "react-i18next";
 
 export default function Users() {
+  const { t } = useTranslation();
   const { data: users = [] } = useQuery<User[]>({
     queryKey: ["/api/users"],
   });
@@ -30,17 +32,17 @@ export default function Users() {
 
   // Function to get subsidiary name
   const getSubsidiaryName = (subsidiaryId: number | null) => {
-    if (!subsidiaryId) return "MHC";
+    if (!subsidiaryId) return t('common.mainHeadCompany');
     const subsidiary = subsidiaries.find(s => s.id === subsidiaryId);
-    return subsidiary?.name || "Unknown";
+    return subsidiary?.name || t('common.unknown');
   };
 
   return (
     <div className="space-y-8 p-8">
       <div>
-        <h1 className="text-3xl font-bold mb-2">User Management</h1>
+        <h1 className="text-3xl font-bold mb-2">{t('users.title')}</h1>
         <p className="text-muted-foreground">
-          Manage all users across the platform
+          {t('users.manage')}
         </p>
       </div>
 
@@ -48,10 +50,10 @@ export default function Users() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Username</TableHead>
-              <TableHead>Role</TableHead>
-              <TableHead>Company</TableHead>
-              <TableHead>Status</TableHead>
+              <TableHead>{t('users.username')}</TableHead>
+              <TableHead>{t('users.role')}</TableHead>
+              <TableHead>{t('common.company')}</TableHead>
+              <TableHead>{t('common.status')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -61,15 +63,15 @@ export default function Users() {
                 <TableCell>
                   <Badge variant={user.role === "mhc_admin" ? "default" : "secondary"}>
                     {user.role === "mhc_admin" 
-                      ? "MHC Admin" 
+                      ? `${t('common.mainHeadCompany')} ${t('users.administrator')}` 
                       : user.role === "subsidiary_admin" 
-                        ? "Subsidiary Admin" 
-                        : "Staff"}
+                        ? t('users.subsidiaryAdmin')
+                        : t('users.user')}
                   </Badge>
                 </TableCell>
                 <TableCell>{getSubsidiaryName(user.subsidiaryId)}</TableCell>
                 <TableCell>
-                  <Badge variant="outline">Active</Badge>
+                  <Badge variant="outline">{t('common.active')}</Badge>
                 </TableCell>
               </TableRow>
             ))}

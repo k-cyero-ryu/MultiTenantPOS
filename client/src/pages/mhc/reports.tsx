@@ -20,8 +20,10 @@ import { DatePicker } from "@/components/ui/date-picker";
 import { format } from "date-fns";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 export default function Reports() {
+  const { t } = useTranslation();
   const [timeRange, setTimeRange] = useState<"week" | "month" | "year" | "custom">("month");
   const [reportType, setReportType] = useState<"sales" | "inventory" | "activity">("sales");
   const [startDate, setStartDate] = useState<Date>();
@@ -80,8 +82,8 @@ export default function Reports() {
 
   // Function to format preview data
   const renderPreview = () => {
-    if (isLoading) return <div className="text-center p-4">Loading...</div>;
-    if (!previewData) return <div className="text-center p-4">No data available</div>;
+    if (isLoading) return <div className="text-center p-4">{t('reports.loading')}</div>;
+    if (!previewData) return <div className="text-center p-4">{t('reports.noData')}</div>;
 
     return (
       <table className="w-full">
@@ -95,9 +97,9 @@ export default function Reports() {
           </tr>
         </thead>
         <tbody>
-          {previewData.slice(0, 5).map((row, i) => (
+          {previewData.slice(0, 5).map((row: Record<string, any>, i: number) => (
             <tr key={i} className="border-b">
-              {Object.values(row).map((value: any, j) => (
+              {Object.values(row).map((value: any, j: number) => (
                 <td key={j} className="p-2 text-sm">
                   {typeof value === 'object' ? JSON.stringify(value) : String(value)}
                 </td>
@@ -112,23 +114,23 @@ export default function Reports() {
   return (
     <div className="space-y-8 p-8">
       <div>
-        <h1 className="text-3xl font-bold mb-2">Reports</h1>
+        <h1 className="text-3xl font-bold mb-2">{t('reports.title')}</h1>
         <p className="text-muted-foreground">
-          Generate and download detailed reports
+          {t('reports.generateAndDownload')}
         </p>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Generate Report</CardTitle>
+            <CardTitle>{t('reports.generateReport')}</CardTitle>
             <CardDescription>
-              Select report type and time range
+              {t('reports.selectTypeAndRange')}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <label className="text-sm font-medium">Report Type</label>
+              <label className="text-sm font-medium">{t('reports.reportType')}</label>
               <Select
                 value={reportType}
                 onValueChange={(value: "sales" | "inventory" | "activity") => setReportType(value)}
@@ -137,15 +139,15 @@ export default function Reports() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="sales">Sales Report</SelectItem>
-                  <SelectItem value="inventory">Inventory Report</SelectItem>
-                  <SelectItem value="activity">Activity Report</SelectItem>
+                  <SelectItem value="sales">{t('reports.salesReport')}</SelectItem>
+                  <SelectItem value="inventory">{t('inventory.report')}</SelectItem>
+                  <SelectItem value="activity">{t('reports.activityReport')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Time Range</label>
+              <label className="text-sm font-medium">{t('reports.timeRange')}</label>
               <Select
                 value={timeRange}
                 onValueChange={(value: "week" | "month" | "year" | "custom") => {
@@ -160,10 +162,10 @@ export default function Reports() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="week">Last Week</SelectItem>
-                  <SelectItem value="month">Last Month</SelectItem>
-                  <SelectItem value="year">Last Year</SelectItem>
-                  <SelectItem value="custom">Custom Range</SelectItem>
+                  <SelectItem value="week">{t('reports.lastWeek')}</SelectItem>
+                  <SelectItem value="month">{t('reports.lastMonth')}</SelectItem>
+                  <SelectItem value="year">{t('reports.lastYear')}</SelectItem>
+                  <SelectItem value="custom">{t('reports.customRange')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -171,22 +173,20 @@ export default function Reports() {
             {timeRange === 'custom' && (
               <div className="space-y-4">
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">Start Date</label>
+                  <label className="text-sm font-medium">{t('reports.startDate')}</label>
                   <DatePicker
                     selected={startDate}
                     onSelect={setStartDate}
                     maxDate={endDate || new Date()}
-                    placeholderText="Select start date"
                   />
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-medium">End Date</label>
+                  <label className="text-sm font-medium">{t('reports.endDate')}</label>
                   <DatePicker
                     selected={endDate}
                     onSelect={setEndDate}
                     minDate={startDate}
                     maxDate={new Date()}
-                    placeholderText="Select end date"
                   />
                 </div>
               </div>
@@ -200,7 +200,7 @@ export default function Reports() {
                 disabled={timeRange === 'custom' && (!startDate || !endDate)}
               >
                 <FileSpreadsheet className="w-4 h-4 mr-2" />
-                Export CSV
+                {t('reports.exportCSV')}
               </Button>
               <Button
                 onClick={() => downloadReport('pdf')}
@@ -208,7 +208,7 @@ export default function Reports() {
                 disabled={timeRange === 'custom' && (!startDate || !endDate)}
               >
                 <FileText className="w-4 h-4 mr-2" />
-                View Report
+                {t('reports.viewReport')}
               </Button>
             </div>
           </CardContent>
@@ -216,9 +216,9 @@ export default function Reports() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Report Preview</CardTitle>
+            <CardTitle>{t('reports.reportPreview')}</CardTitle>
             <CardDescription>
-              Preview of the first 5 rows
+              {t('reports.previewFirstRows')}
             </CardDescription>
           </CardHeader>
           <CardContent>

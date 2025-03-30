@@ -128,7 +128,7 @@ export default function MHCDashboard() {
             <StatsCard
               title={t('subsidiaries.active')}
               value={activeSubsidiaries}
-              description={`${((activeSubsidiaries / subsidiaries.length) * 100).toFixed(1)}% active rate`}
+              description={`${((activeSubsidiaries / subsidiaries.length) * 100).toFixed(1)}% ${t('subsidiaries.activeRate')}`}
               icon={Users}
             />
           </div>
@@ -147,7 +147,7 @@ export default function MHCDashboard() {
             <StatsCard
               title={t('dashboard.totalUsers')}
               value={totalUsers}
-              description={`${subsidiaryAdmins} subsidiary admins`}
+              description={`${subsidiaryAdmins} ${t('users.subsidiaryAdmins')}`}
               icon={User}
             />
             <StatsCard
