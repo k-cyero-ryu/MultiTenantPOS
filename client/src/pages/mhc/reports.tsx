@@ -181,27 +181,21 @@ export default function Reports() {
         if (selectedSubsidiaryData.logo && 
             selectedSubsidiaryData.logo !== 'null' && 
             selectedSubsidiaryData.logo !== '') {
-          // Use the subsidiary's actual logo with consistent container for sizing
-          logoHTML = `<div style="width: 70px; height: 70px; display: flex; justify-content: center; align-items: center; margin-right: 15px;">
-                        <img src="${getLogoUrl(selectedSubsidiaryData.logo)}" 
+          // Use the subsidiary's actual logo with proper sizing
+          logoHTML = `<img src="${getLogoUrl(selectedSubsidiaryData.logo)}" 
                           alt="${selectedSubsidiaryData.name} logo" 
-                          style="max-height: 60px; max-width: 70px; width: auto; height: auto; object-fit: contain;">
-                      </div>`;
+                          style="max-height: 60px; max-width: 60px; width: auto; height: auto; object-fit: contain;">`;
         } else {
           // Use default logo for subsidiaries without a logo
-          logoHTML = `<div style="width: 70px; height: 70px; display: flex; justify-content: center; align-items: center; margin-right: 15px;">
-                        <img src="${window.location.origin}/default-logo.svg" 
+          logoHTML = `<img src="${window.location.origin}/default-logo.svg" 
                           alt="${selectedSubsidiaryData.name} logo" 
-                          style="max-height: 60px; max-width: 70px; width: auto; height: auto; object-fit: contain;">
-                      </div>`;
+                          style="max-height: 60px; max-width: 60px; width: auto; height: auto; object-fit: contain;">`;
         }
       } else {
         // For MHC reports, always use a default logo
-        logoHTML = `<div style="width: 70px; height: 70px; display: flex; justify-content: center; align-items: center; margin-right: 15px;">
-                      <img src="${window.location.origin}/default-logo.svg" 
+        logoHTML = `<img src="${window.location.origin}/default-logo.svg" 
                         alt="Main Head Company logo" 
-                        style="max-height: 60px; max-width: 70px; width: auto; height: auto; object-fit: contain;">
-                    </div>`;
+                        style="max-height: 60px; max-width: 60px; width: auto; height: auto; object-fit: contain;">`;
       }
           
       // Set the container width to match the PDF aspect ratio (landscape A4)
@@ -209,35 +203,35 @@ export default function Reports() {
       pdfContainer.style.padding = "20px";
       pdfContainer.style.boxSizing = "border-box";
       
-      // Build the HTML content for the PDF with conditional logo - more compact layout
+      // Build the HTML content for the PDF with maximum space efficiency
       pdfContainer.innerHTML = `
         <div style="font-family: Arial, sans-serif; width: 100%;">
-          <!-- Compact header with logo and title in one row -->
-          <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 8px; border-bottom: 1px solid #eee;">
-            <div style="display: flex; align-items: center; min-width: 50%;">
+          <!-- Ultra-compact header with three columns in one single row -->
+          <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 6px; border-bottom: 1px solid #eee; margin-bottom: 10px;">
+            <!-- Left column: Logo only -->
+            <div style="flex: 0 0 70px;">
               ${logoHTML}
-              <div>
-                <div style="font-size: 20px; font-weight: bold; color: #333333; white-space: normal; margin-bottom: 0;">
-                  ${isSubsidiaryReport ? selectedSubsidiaryData.name : 'Main Head Company'}
-                </div>
-                ${isSubsidiaryReport ? 
-                  `<div style="color: #666; font-size: 12px;">
-                    ${t('subsidiaries.taxId')}: ${selectedSubsidiaryData.taxId}
-                  </div>` : 
-                  ''}
+            </div>
+            
+            <!-- Center column: Report title and date range -->
+            <div style="flex: 1; text-align: center;">
+              <div style="font-size: 16px; font-weight: bold; margin-bottom: 2px;">
+                ${reportTitle} ${t('reports.title')}
+                ${isSubsidiaryReport ? ` | ${t('subsidiaries.taxId')}: ${selectedSubsidiaryData.taxId}` : ''}
+              </div>
+              <div style="color: #666; font-size: 12px;">
+                ${t('reports.timeRange')}: ${dateRangeText}
               </div>
             </div>
-            <div style="text-align: right; min-width: 30%;">
-              <div style="font-size: 18px; font-weight: bold;">${reportHeaderTitle}</div>
-              <div style="font-size: 12px;">Generated on: ${now.toLocaleDateString()}</div>
-            </div>
-          </div>
-          
-          <!-- Report title and time range in one row -->
-          <div style="display: flex; justify-content: space-between; align-items: center; margin: 8px 0 12px 0;">
-            <div style="font-size: 18px; font-weight: bold;">${reportTitle} ${t('reports.title')}</div>
-            <div style="color: #666; font-size: 14px;">
-              ${t('reports.timeRange')}: ${dateRangeText}
+            
+            <!-- Right column: Company name and generation date -->
+            <div style="flex: 0 0 200px; text-align: right;">
+              <div style="font-size: 14px; font-weight: bold; margin-bottom: 2px;">
+                ${isSubsidiaryReport ? selectedSubsidiaryData.name : 'Main Head Company'}
+              </div>
+              <div style="font-size: 11px; color: #666;">
+                Generated on: ${now.toLocaleDateString()}
+              </div>
             </div>
           </div>
           
