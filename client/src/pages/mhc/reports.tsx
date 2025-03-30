@@ -141,7 +141,7 @@ export default function Reports() {
         }
       }
       
-      // Function to get the absolute URL for a logo
+      // Function to get the logo URL, matching the approach in subsidiaries page
       const getLogoUrl = (logoPath: string) => {
         console.log("Getting logo URL for path:", logoPath);
         
@@ -151,19 +151,18 @@ export default function Reports() {
           return `${window.location.origin}/default-logo.svg`;
         }
         
-        // If logo path already starts with http, it's already a full URL
-        if (logoPath.startsWith('http')) {
-          console.log("Using full URL for logo");
-          return logoPath;
+        // Replace '/uploads/' with '/' as done in the subsidiaries page
+        const processedPath = logoPath.replace('/uploads/', '/');
+        
+        // If path doesn't start with http or /, add the origin
+        if (!processedPath.startsWith('http') && !processedPath.startsWith('/')) {
+          return `${window.location.origin}/${processedPath}`;
+        } else if (processedPath.startsWith('/')) {
+          return `${window.location.origin}${processedPath}`;
         }
         
-        // Make sure the path starts with a slash
-        const normalizedPath = logoPath.startsWith('/') ? logoPath : `/${logoPath}`;
-        
-        // Convert to absolute URL
-        const fullUrl = `${window.location.origin}${normalizedPath}`;
-        console.log("Final logo URL:", fullUrl);
-        return fullUrl;
+        // If it starts with http, it's already a full URL
+        return processedPath;
       };
 
       // Determine if we're generating a subsidiary-specific report
