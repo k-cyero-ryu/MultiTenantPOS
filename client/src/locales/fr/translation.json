@@ -120,5 +120,43 @@
     "previous": "Précédent",
     "skip": "Ignorer la Visite",
     "finish": "Terminer"
+  },
+  "users": {
+    "title": "Utilisateurs",
+    "addNew": "Ajouter un Nouvel Utilisateur",
+    "edit": "Modifier l'Utilisateur",
+    "username": "Nom d'Utilisateur",
+    "password": "Mot de Passe",
+    "role": "Rôle",
+    "administrator": "Administrateur",
+    "subsidiaryAdmin": "Administrateur de Filiale",
+    "subsidiaryAdmins": "administrateurs de filiales",
+    "user": "Utilisateur Régulier",
+    "addAdminFor": "Ajouter un Administrateur pour {{name}}",
+    "createAdminUser": "Créer un Utilisateur Administrateur",
+    "createSuccess": "Utilisateur créé avec succès",
+    "createFailed": "Échec de la création de l'utilisateur",
+    "manage": "Gérer les utilisateurs et administrateurs du système",
+    "actions": "Actions"
+  },
+  "reports": {
+    "title": "Rapports",
+    "generateAndDownload": "Générer et télécharger des rapports détaillés",
+    "generateReport": "Générer un Rapport",
+    "selectTypeAndRange": "Sélectionner le type de rapport et la plage de temps",
+    "reportType": "Type de Rapport",
+    "salesReport": "Rapport des Ventes",
+    "inventoryReport": "Rapport d'Inventaire",
+    "dateRange": "Plage de Dates",
+    "startDate": "Date de Début",
+    "endDate": "Date de Fin",
+    "format": "Format",
+    "csv": "CSV",
+    "pdf": "PDF",
+    "excel": "Excel",
+    "generating": "Génération...",
+    "download": "Télécharger",
+    "subsidiary": "Filiale",
+    "allSubsidiaries": "Toutes les Filiales"
   }
 }

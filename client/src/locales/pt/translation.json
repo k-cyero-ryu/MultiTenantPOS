@@ -120,5 +120,43 @@
     "previous": "Anterior",
     "skip": "Pular Tour",
     "finish": "Finalizar"
+  },
+  "users": {
+    "title": "Usuários",
+    "addNew": "Adicionar Novo Usuário",
+    "edit": "Editar Usuário",
+    "username": "Nome de Usuário",
+    "password": "Senha",
+    "role": "Função",
+    "administrator": "Administrador",
+    "subsidiaryAdmin": "Administrador de Subsidiária",
+    "subsidiaryAdmins": "administradores de subsidiárias",
+    "user": "Usuário Regular",
+    "addAdminFor": "Adicionar Administrador para {{name}}",
+    "createAdminUser": "Criar Usuário Administrador",
+    "createSuccess": "Usuário criado com sucesso",
+    "createFailed": "Falha ao criar usuário",
+    "manage": "Gerenciar usuários e administradores do sistema",
+    "actions": "Ações"
+  },
+  "reports": {
+    "title": "Relatórios",
+    "generateAndDownload": "Gerar e baixar relatórios detalhados",
+    "generateReport": "Gerar Relatório",
+    "selectTypeAndRange": "Selecione o tipo de relatório e intervalo de tempo",
+    "reportType": "Tipo de Relatório",
+    "salesReport": "Relatório de Vendas",
+    "inventoryReport": "Relatório de Inventário",
+    "dateRange": "Intervalo de Datas",
+    "startDate": "Data de Início",
+    "endDate": "Data de Término",
+    "format": "Formato",
+    "csv": "CSV",
+    "pdf": "PDF",
+    "excel": "Excel",
+    "generating": "Gerando...",
+    "download": "Baixar",
+    "subsidiary": "Subsidiária",
+    "allSubsidiaries": "Todas as Subsidiárias"
   }
 }
