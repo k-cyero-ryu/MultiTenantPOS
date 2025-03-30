@@ -40,11 +40,13 @@ import {
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useState } from "react";
 import { format } from "date-fns";
+import { useTranslation } from "react-i18next";
 
 export default function SalesPage() {
   const { user } = useAuth();
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
+  const { t } = useTranslation();
 
   const subsidiaryId = user?.subsidiaryId;
 
@@ -81,7 +83,7 @@ export default function SalesPage() {
 
       if (!res.ok) {
         const error = await res.text();
-        throw new Error(error || "Failed to record sale");
+        throw new Error(error || t('sales.recordFailedDefault'));
       }
 
       return res.json();
@@ -89,13 +91,13 @@ export default function SalesPage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`/api/subsidiaries/${subsidiaryId}/sales`] });
       queryClient.invalidateQueries({ queryKey: [`/api/subsidiaries/${subsidiaryId}/inventory`] });
-      toast({ title: "Sale recorded successfully" });
+      toast({ title: t('sales.recordSuccess') });
       setOpen(false);
       form.reset();
     },
     onError: (error: Error) => {
       toast({ 
-        title: "Failed to record sale", 
+        title: t('sales.recordFailed'), 
         description: error.message,
         variant: "destructive"
       });
@@ -113,18 +115,18 @@ export default function SalesPage() {
     <div className="space-y-8 p-8">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold mb-2">Sales</h1>
+          <h1 className="text-3xl font-bold mb-2">{t('sales.title')}</h1>
           <p className="text-muted-foreground">
-            Record and view sales transactions
+            {t('sales.manage')}
           </p>
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <Button>Record Sale</Button>
+            <Button>{t('sales.recordSale')}</Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Record New Sale</DialogTitle>
+              <DialogTitle>{t('sales.recordNewSale')}</DialogTitle>
             </DialogHeader>
             <Form {...form}>
               <form
@@ -138,7 +140,7 @@ export default function SalesPage() {
                   name="itemId"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Item</FormLabel>
+                      <FormLabel>{t('sales.item')}</FormLabel>
                       <Select
                         onValueChange={(value) => {
                           field.onChange(parseInt(value));
@@ -147,7 +149,7 @@ export default function SalesPage() {
                       >
                         <FormControl>
                           <SelectTrigger>
-                            <SelectValue placeholder="Select an item" />
+                            <SelectValue placeholder={t('sales.selectItem')} />
                           </SelectTrigger>
                         </FormControl>
                         <SelectContent>
@@ -170,7 +172,7 @@ export default function SalesPage() {
                   name="quantity"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Quantity</FormLabel>
+                      <FormLabel>{t('sales.quantity')}</FormLabel>
                       <FormControl>
                         <Input
                           type="number"
@@ -190,7 +192,7 @@ export default function SalesPage() {
                   name="salePrice"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Sale Price</FormLabel>
+                      <FormLabel>{t('sales.salePrice')}</FormLabel>
                       <FormControl>
                         <Input
                           type="number"
@@ -210,7 +212,7 @@ export default function SalesPage() {
                   className="w-full"
                   disabled={createMutation.isPending}
                 >
-                  Record Sale
+                  {t('sales.recordSale')}
                 </Button>
               </form>
             </Form>
@@ -222,11 +224,11 @@ export default function SalesPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Date</TableHead>
-              <TableHead>Item</TableHead>
-              <TableHead>Quantity</TableHead>
-              <TableHead>Price</TableHead>
-              <TableHead>Total</TableHead>
+              <TableHead>{t('sales.date')}</TableHead>
+              <TableHead>{t('sales.item')}</TableHead>
+              <TableHead>{t('sales.quantity')}</TableHead>
+              <TableHead>{t('sales.price')}</TableHead>
+              <TableHead>{t('sales.total')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -238,7 +240,7 @@ export default function SalesPage() {
                     {format(new Date(sale.timestamp), "MMM d, yyyy")}
                   </TableCell>
                   <TableCell className="font-medium">
-                    {item?.name || "Unknown"}
+                    {item?.name || t('common.unknown')}
                   </TableCell>
                   <TableCell>{sale.quantity}</TableCell>
                   <TableCell>${sale.salePrice.toFixed(2)}</TableCell>
