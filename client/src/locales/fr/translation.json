@@ -153,7 +153,17 @@
     "inventoryValue": "Valeur d'Inventaire",
     "products": "Produits",
     "itemsInInventory": "Articles en inventaire",
-    "basedOnSalesPrices": "Basé sur les prix de vente"
+    "basedOnSalesPrices": "Basé sur les prix de vente",
+    "manage": "Gérer vos articles d'inventaire",
+    "costPrice": "Prix de Revient",
+    "salePrice": "Prix de Vente",
+    "create": "Créer Article",
+    "update": "Mettre à Jour l'Article",
+    "createSuccess": "Article d'inventaire créé avec succès",
+    "updateSuccess": "Article d'inventaire mis à jour",
+    "deleteSuccess": "Article d'inventaire supprimé",
+    "deleteWarning": "Cette action ne peut pas être annulée. Cela supprimera définitivement l'article d'inventaire.",
+    "sku": "SKU"
   },
   "tour": {
     "next": "Suivant",
