@@ -232,31 +232,65 @@ export default function Reports() {
 
   // Function to translate column headers
   const translateHeader = (header: string): string => {
-    // Map of common English headers to translation keys
-    const headerTranslationMap: Record<string, string> = {
+    // Create exact and normalized (case-insensitive) maps for headers
+    const headerTranslationMapExact: Record<string, string> = {
       "Date": "reports.date",
       "Subsidiary": "reports.subsidiary",
+      "Sold By": "reports.soldBy",
+      "Sale Price": "reports.salePrice",
       "Amount": "reports.amount",
       "Price": "reports.price",
       "Quantity": "reports.quantity",
       "Total": "reports.total",
-      "ProductName": "reports.productName",
-      "ProductId": "inventory.productId",
+      "Product Name": "reports.productName",
+      "Product ID": "reports.productId",
+      "ProductId": "reports.productId",
       "Description": "reports.description",
       "Username": "users.username",
       "Action": "activityLogs.action",
       "Resource": "activityLogs.resource",
       "Category": "inventory.category",
-      "InStock": "inventory.inStock"
+      "In Stock": "inventory.inStock",
+      // Add other exact matches here
+      "Filial": "reports.subsidiary", // Spanish
+      "Filiale": "reports.subsidiary" // French
     };
     
-    // Attempt to find a translation key for this header
-    const translationKey = headerTranslationMap[header] || 
-                          headerTranslationMap[header.replace(/\s+/g, '')] ||
-                          `reports.${header.toLowerCase()}`;
+    // For normalized case-insensitive matching (if exact match fails)
+    const headerNormalizedMap: Record<string, string> = {
+      "date": "reports.date",
+      "subsidiary": "reports.subsidiary",
+      "soldby": "reports.soldBy",
+      "saleprice": "reports.salePrice",
+      "amount": "reports.amount",
+      "price": "reports.price",
+      "quantity": "reports.quantity",
+      "total": "reports.total",
+      "productname": "reports.productName",
+      "productid": "reports.productId",
+      "description": "reports.description",
+      "username": "users.username",
+      "action": "activityLogs.action",
+      "resource": "activityLogs.resource",
+      "category": "inventory.category",
+      "instock": "inventory.inStock"
+    };
     
-    // Try to translate using a namespace lookup approach
-    // This checks if the translation exists by trying to use the key directly
+    // Try exact match first
+    if (headerTranslationMapExact[header]) {
+      return t(headerTranslationMapExact[header]);
+    }
+    
+    // Try normalized match (removing spaces and case-insensitive)
+    const normalizedHeader = header.toLowerCase().replace(/\s+/g, '');
+    if (headerNormalizedMap[normalizedHeader]) {
+      return t(headerNormalizedMap[normalizedHeader]);
+    }
+    
+    // Fallback to generic approach
+    const translationKey = `reports.${header.toLowerCase()}`;
+    
+    // Check if translation exists
     // If i18next has a translation, it will return it; otherwise it returns the key itself
     const result = t(translationKey, { lng: "en" });
     

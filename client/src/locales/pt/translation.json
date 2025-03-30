@@ -271,7 +271,17 @@
     "subsidiary": "Subsidiária",
     "allSubsidiaries": "Todas as Subsidiárias",
     "subsidiaryReport": "Relatório de Subsidiária",
-    "corporateReport": "Relatório Corporativo"
+    "corporateReport": "Relatório Corporativo",
+    "date": "Data",
+    "amount": "Quantidade",
+    "price": "Preço",
+    "total": "Total",
+    "quantity": "Quantidade",
+    "productName": "Nome do Produto",
+    "productId": "ID do Produto",
+    "description": "Descrição",
+    "salePrice": "Preço de Venda",
+    "soldBy": "Vendido Por"
   },
   "analytics": {
     "title": "Análises",

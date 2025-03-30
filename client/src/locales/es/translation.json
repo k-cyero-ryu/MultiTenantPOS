@@ -271,7 +271,17 @@
     "subsidiary": "Filial",
     "allSubsidiaries": "Todas las Filiales",
     "subsidiaryReport": "Informe de Filial",
-    "corporateReport": "Informe Corporativo"
+    "corporateReport": "Informe Corporativo",
+    "date": "Fecha",
+    "amount": "Cantidad",
+    "price": "Precio",
+    "total": "Total",
+    "quantity": "Cantidad",
+    "productName": "Nombre del Producto",
+    "productId": "ID del Producto",
+    "description": "Descripción",
+    "salePrice": "Precio de Venta",
+    "soldBy": "Vendido Por"
   },
   "analytics": {
     "title": "Análisis",
