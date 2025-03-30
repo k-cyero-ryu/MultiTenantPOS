@@ -21,7 +21,12 @@
     "unknown": "Desconhecido",
     "status": "Status",
     "active": "Ativo",
-    "salesReport": "Relatório de Vendas"
+    "salesReport": "Relatório de Vendas",
+    "product": "Produto",
+    "loggedInAs": "Logado como",
+    "areYouSure": "Tem certeza?",
+    "delete": "Excluir",
+    "actions": "Ações"
   },
   "activityLogs": {
     "title": "Registros de Atividade",
@@ -93,6 +98,9 @@
     "quickActions": "Ações Rápidas",
     "viewAll": "Ver Tudo"
   },
+  "subsidiary": {
+    "dashboardDescription": "Visualize as métricas de desempenho e análises da sua subsidiária"
+  },
   "subsidiaries": {
     "title": "Subsidiárias",
     "addNew": "Adicionar Nova Subsidiária",
@@ -133,20 +141,47 @@
     "status": "Status",
     "inStock": "Em Estoque",
     "lowStock": "Estoque Baixo",
-    "outOfStock": "Sem Estoque"
+    "outOfStock": "Sem Estoque",
+    "report": "Relatório de Inventário",
+    "valueDistribution": "Distribuição de Valor do Inventário",
+    "valueBreakdown": "Detalhamento do valor do inventário por produto (baseado nos preços de venda)",
+    "lowStockAlert": "Alerta de Estoque Baixo",
+    "lowStockDesc": "Itens com nível de estoque abaixo de {{threshold}} unidades",
+    "stock": "Estoque",
+    "noLowStock": "Sem itens com estoque baixo",
+    "totalStock": "Estoque Total",
+    "inventoryValue": "Valor do Inventário",
+    "products": "Produtos",
+    "itemsInInventory": "Itens no inventário",
+    "basedOnSalesPrices": "Baseado nos preços de venda"
   },
   "tour": {
     "next": "Próximo",
     "previous": "Anterior",
     "skip": "Pular Tour",
-    "finish": "Finalizar"
+    "finish": "Finalizar",
+    "start": "Iniciar Tour",
+    "welcomeTitle": "Bem-vindo ao Painel de Controle da Empresa Principal",
+    "welcomeContent": "Vamos fazer um rápido tour das funcionalidades do seu painel de controle.",
+    "profileTitle": "Seu Perfil",
+    "profileContent": "Veja suas informações de usuário e função aqui.",
+    "subsidiariesTitle": "Visão Geral das Subsidiárias",
+    "subsidiariesContent": "Monitore todas as suas empresas subsidiárias de relance.",
+    "salesTitle": "Desempenho de Vendas",
+    "salesContent": "Acompanhe as vendas totais em todas as subsidiárias.",
+    "usersTitle": "Gestão de Usuários",
+    "usersContent": "Mantenha controle de todos os usuários e administradores de subsidiárias.",
+    "settingsTitle": "Configurações de Banco de Dados",
+    "settingsContent": "Configure as configurações de banco de dados na página de Configurações. Você pode alternar entre os motores PostgreSQL e MySQL."
   },
   "users": {
     "title": "Usuários",
     "addNew": "Adicionar Novo Usuário",
     "edit": "Editar Usuário",
+    "editUser": "Editar Usuário",
     "username": "Nome de Usuário",
     "password": "Senha",
+    "confirmPassword": "Confirmar Senha",
     "role": "Função",
     "administrator": "Administrador",
     "subsidiaryAdmin": "Administrador de Subsidiária",
@@ -154,10 +189,22 @@
     "user": "Usuário Regular",
     "addAdminFor": "Adicionar Administrador para {{name}}",
     "createAdminUser": "Criar Usuário Administrador",
+    "createUser": "Criar Usuário",
+    "updateUser": "Atualizar Usuário",
     "createSuccess": "Usuário criado com sucesso",
     "createFailed": "Falha ao criar usuário",
     "manage": "Gerenciar usuários e administradores do sistema",
-    "actions": "Ações"
+    "actions": "Ações",
+    "newPasswordOptional": "Nova Senha (opcional)",
+    "confirmNewPassword": "Confirmar Nova Senha",
+    "deleteWarning": "Isso excluirá permanentemente o usuário \"{username}\". Esta ação não pode ser desfeita."
+  },
+  "sales": {
+    "daily": "Diário",
+    "monthly": "Mensal",
+    "areaChart": "Gráfico de Área",
+    "barChart": "Gráfico de Barras",
+    "totalSales": "Vendas Totais"
   },
   "reports": {
     "title": "Relatórios",
@@ -192,5 +239,14 @@
     "download": "Baixar",
     "subsidiary": "Subsidiária",
     "allSubsidiaries": "Todas as Subsidiárias"
+  },
+  "analytics": {
+    "title": "Análises",
+    "salesPerformance": "Desempenho de Vendas"
+  },
+  "roles": {
+    "mhc_admin": "Administrador da Empresa Principal",
+    "subsidiary_admin": "Administrador de Subsidiária",
+    "user": "Usuário Regular"
   }
 }

@@ -21,7 +21,12 @@
     "unknown": "Desconocido",
     "status": "Estado",
     "active": "Activo",
-    "salesReport": "Informe de Ventas"
+    "salesReport": "Informe de Ventas",
+    "product": "Producto",
+    "loggedInAs": "Conectado como",
+    "areYouSure": "¿Estás seguro?",
+    "delete": "Eliminar",
+    "actions": "Acciones"
   },
   "activityLogs": {
     "title": "Registros de Actividad",
@@ -93,6 +98,9 @@
     "quickActions": "Acciones Rápidas",
     "viewAll": "Ver Todo"
   },
+  "subsidiary": {
+    "dashboardDescription": "Ver las métricas de rendimiento y análisis de su filial"
+  },
   "subsidiaries": {
     "title": "Filiales",
     "addNew": "Añadir Nueva Filial",
@@ -133,20 +141,47 @@
     "status": "Estado",
     "inStock": "En Stock",
     "lowStock": "Stock Bajo",
-    "outOfStock": "Sin Stock"
+    "outOfStock": "Sin Stock",
+    "report": "Informe de Inventario",
+    "valueDistribution": "Distribución de Valor del Inventario",
+    "valueBreakdown": "Desglose del valor del inventario por producto (basado en precios de venta)",
+    "lowStockAlert": "Alerta de Stock Bajo",
+    "lowStockDesc": "Artículos con nivel de stock inferior a {{threshold}} unidades",
+    "stock": "Stock",
+    "noLowStock": "No hay artículos con stock bajo",
+    "totalStock": "Stock Total",
+    "inventoryValue": "Valor del Inventario",
+    "products": "Productos",
+    "itemsInInventory": "Artículos en inventario",
+    "basedOnSalesPrices": "Basado en precios de venta"
   },
   "tour": {
     "next": "Siguiente",
     "previous": "Anterior",
     "skip": "Saltar Recorrido",
-    "finish": "Finalizar"
+    "finish": "Finalizar",
+    "start": "Iniciar Recorrido",
+    "welcomeTitle": "Bienvenido al Panel de Control de la Empresa Principal",
+    "welcomeContent": "Vamos a hacer un recorrido rápido por las funciones de su panel de control.",
+    "profileTitle": "Su Perfil",
+    "profileContent": "Vea su información de usuario y rol aquí.",
+    "subsidiariesTitle": "Resumen de Filiales",
+    "subsidiariesContent": "Supervise todas sus empresas filiales de un vistazo.",
+    "salesTitle": "Rendimiento de Ventas",
+    "salesContent": "Seguimiento de las ventas totales en todas las filiales.",
+    "usersTitle": "Gestión de Usuarios",
+    "usersContent": "Realice un seguimiento de todos los usuarios y administradores de filiales.",
+    "settingsTitle": "Configuración de Base de Datos",
+    "settingsContent": "Configure los ajustes de la base de datos en la página de Configuración. Puede cambiar entre motores PostgreSQL y MySQL."
   },
   "users": {
     "title": "Usuarios",
     "addNew": "Añadir Nuevo Usuario",
     "edit": "Editar Usuario",
+    "editUser": "Editar Usuario",
     "username": "Nombre de Usuario",
     "password": "Contraseña",
+    "confirmPassword": "Confirmar Contraseña",
     "role": "Rol",
     "administrator": "Administrador",
     "subsidiaryAdmin": "Administrador de Filial",
@@ -154,10 +189,22 @@
     "user": "Usuario Regular",
     "addAdminFor": "Añadir Usuario Administrador para {{name}}",
     "createAdminUser": "Crear Usuario Administrador",
+    "createUser": "Crear Usuario",
+    "updateUser": "Actualizar Usuario",
     "createSuccess": "Usuario creado exitosamente",
     "createFailed": "Error al crear usuario",
     "manage": "Gestionar usuarios y administradores del sistema",
-    "actions": "Acciones"
+    "actions": "Acciones",
+    "newPasswordOptional": "Nueva Contraseña (opcional)",
+    "confirmNewPassword": "Confirmar Nueva Contraseña",
+    "deleteWarning": "Esto eliminará permanentemente el usuario \"{username}\". Esta acción no se puede deshacer."
+  },
+  "sales": {
+    "daily": "Diario",
+    "monthly": "Mensual",
+    "areaChart": "Gráfico de Área",
+    "barChart": "Gráfico de Barras",
+    "totalSales": "Ventas Totales"
   },
   "reports": {
     "title": "Informes",
@@ -192,5 +239,14 @@
     "download": "Descargar",
     "subsidiary": "Filial",
     "allSubsidiaries": "Todas las Filiales"
+  },
+  "analytics": {
+    "title": "Análisis",
+    "salesPerformance": "Rendimiento de Ventas"
+  },
+  "roles": {
+    "mhc_admin": "Administrador de Empresa Principal",
+    "subsidiary_admin": "Administrador de Filial",
+    "user": "Usuario Regular"
   }
 }

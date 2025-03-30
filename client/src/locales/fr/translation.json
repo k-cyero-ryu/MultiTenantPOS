@@ -21,7 +21,12 @@
     "unknown": "Inconnu",
     "status": "Statut",
     "active": "Actif",
-    "salesReport": "Rapport des Ventes"
+    "salesReport": "Rapport des Ventes",
+    "product": "Produit",
+    "loggedInAs": "Connecté en tant que",
+    "areYouSure": "Êtes-vous sûr?",
+    "delete": "Supprimer",
+    "actions": "Actions"
   },
   "activityLogs": {
     "title": "Journaux d'Activité",
@@ -93,6 +98,9 @@
     "quickActions": "Actions Rapides",
     "viewAll": "Voir Tout"
   },
+  "subsidiary": {
+    "dashboardDescription": "Voir les métriques de performance et les analyses de votre filiale"
+  },
   "subsidiaries": {
     "title": "Filiales",
     "addNew": "Ajouter une Nouvelle Filiale",
@@ -133,20 +141,47 @@
     "status": "Statut",
     "inStock": "En Stock",
     "lowStock": "Stock Faible",
-    "outOfStock": "Épuisé"
+    "outOfStock": "Épuisé",
+    "report": "Rapport d'Inventaire",
+    "valueDistribution": "Distribution de Valeur d'Inventaire",
+    "valueBreakdown": "Répartition de la valeur d'inventaire par produit (basée sur les prix de vente)",
+    "lowStockAlert": "Alerte de Stock Faible",
+    "lowStockDesc": "Articles avec un niveau de stock inférieur à {{threshold}} unités",
+    "stock": "Stock",
+    "noLowStock": "Aucun article à stock faible",
+    "totalStock": "Stock Total",
+    "inventoryValue": "Valeur d'Inventaire",
+    "products": "Produits",
+    "itemsInInventory": "Articles en inventaire",
+    "basedOnSalesPrices": "Basé sur les prix de vente"
   },
   "tour": {
     "next": "Suivant",
     "previous": "Précédent",
     "skip": "Ignorer la Visite",
-    "finish": "Terminer"
+    "finish": "Terminer",
+    "start": "Commencer la Visite",
+    "welcomeTitle": "Bienvenue au Tableau de Bord de l'Entreprise Principale",
+    "welcomeContent": "Faisons un tour rapide des fonctionnalités de votre tableau de bord.",
+    "profileTitle": "Votre Profil",
+    "profileContent": "Consultez vos informations utilisateur et votre rôle ici.",
+    "subsidiariesTitle": "Aperçu des Filiales",
+    "subsidiariesContent": "Surveillez toutes vos filiales en un coup d'œil.",
+    "salesTitle": "Performance des Ventes",
+    "salesContent": "Suivez les ventes totales de toutes les filiales.",
+    "usersTitle": "Gestion des Utilisateurs",
+    "usersContent": "Gardez une trace de tous les utilisateurs et administrateurs de filiales.",
+    "settingsTitle": "Paramètres de Base de Données",
+    "settingsContent": "Configurez les paramètres de la base de données dans la page Paramètres. Vous pouvez basculer entre les moteurs PostgreSQL et MySQL."
   },
   "users": {
     "title": "Utilisateurs",
     "addNew": "Ajouter un Nouvel Utilisateur",
     "edit": "Modifier l'Utilisateur",
+    "editUser": "Modifier l'Utilisateur",
     "username": "Nom d'Utilisateur",
     "password": "Mot de Passe",
+    "confirmPassword": "Confirmer le Mot de Passe",
     "role": "Rôle",
     "administrator": "Administrateur",
     "subsidiaryAdmin": "Administrateur de Filiale",
@@ -154,10 +189,22 @@
     "user": "Utilisateur Régulier",
     "addAdminFor": "Ajouter un Administrateur pour {{name}}",
     "createAdminUser": "Créer un Utilisateur Administrateur",
+    "createUser": "Créer un Utilisateur",
+    "updateUser": "Mettre à Jour l'Utilisateur",
     "createSuccess": "Utilisateur créé avec succès",
     "createFailed": "Échec de la création de l'utilisateur",
     "manage": "Gérer les utilisateurs et administrateurs du système",
-    "actions": "Actions"
+    "actions": "Actions",
+    "newPasswordOptional": "Nouveau Mot de Passe (optionnel)",
+    "confirmNewPassword": "Confirmer le Nouveau Mot de Passe",
+    "deleteWarning": "Cela supprimera définitivement l'utilisateur \"{username}\". Cette action ne peut pas être annulée."
+  },
+  "sales": {
+    "daily": "Quotidien",
+    "monthly": "Mensuel",
+    "areaChart": "Graphique d'Aire",
+    "barChart": "Graphique à Barres",
+    "totalSales": "Ventes Totales"
   },
   "reports": {
     "title": "Rapports",
@@ -192,5 +239,14 @@
     "download": "Télécharger",
     "subsidiary": "Filiale",
     "allSubsidiaries": "Toutes les Filiales"
+  },
+  "analytics": {
+    "title": "Analyses",
+    "salesPerformance": "Performance des Ventes"
+  },
+  "roles": {
+    "mhc_admin": "Administrateur d'Entreprise Principale",
+    "subsidiary_admin": "Administrateur de Filiale",
+    "user": "Utilisateur Régulier"
   }
 }
