@@ -84,7 +84,22 @@
     "city": "Cidade",
     "contactInfo": "Informações de Contato",
     "phone": "Telefone",
-    "email": "E-mail"
+    "email": "E-mail",
+    "active": "Subsidiárias Ativas",
+    "activeRate": "taxa de atividade",
+    "manage": "Gerencie suas empresas subsidiárias",
+    "createSubsidiary": "Criar Subsidiária",
+    "createSuccess": "Subsidiária criada com sucesso",
+    "statusUpdated": "Status da subsidiária atualizado",
+    "logo": "Logo",
+    "companyLogo": "Logo da Empresa",
+    "uploadImage": "Envie uma imagem PNG ou JPG para o logo da empresa",
+    "phoneNumber": "Número de Telefone",
+    "location": "Localização",
+    "status": "Status",
+    "actions": "Ações",
+    "activeStatus": "Ativo",
+    "inactiveStatus": "Inativo"
   },
   "inventory": {
     "title": "Inventário",

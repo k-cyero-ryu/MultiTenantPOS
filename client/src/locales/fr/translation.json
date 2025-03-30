@@ -84,7 +84,22 @@
     "city": "Ville",
     "contactInfo": "Informations de Contact",
     "phone": "Téléphone",
-    "email": "Email"
+    "email": "Email",
+    "active": "Filiales Actives",
+    "activeRate": "taux d'activité",
+    "manage": "Gérer vos entreprises filiales",
+    "createSubsidiary": "Créer une Filiale",
+    "createSuccess": "Filiale créée avec succès",
+    "statusUpdated": "Statut de la filiale mis à jour",
+    "logo": "Logo",
+    "companyLogo": "Logo de l'Entreprise",
+    "uploadImage": "Téléchargez une image PNG ou JPG pour le logo de l'entreprise",
+    "phoneNumber": "Numéro de Téléphone",
+    "location": "Emplacement",
+    "status": "Statut",
+    "actions": "Actions",
+    "activeStatus": "Actif",
+    "inactiveStatus": "Inactif"
   },
   "inventory": {
     "title": "Inventaire",

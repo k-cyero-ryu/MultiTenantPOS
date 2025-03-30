@@ -84,7 +84,22 @@
     "city": "Ciudad",
     "contactInfo": "Información de Contacto",
     "phone": "Teléfono",
-    "email": "Correo Electrónico"
+    "email": "Correo Electrónico",
+    "active": "Filiales Activas",
+    "activeRate": "tasa de actividad",
+    "manage": "Gestionar sus empresas filiales",
+    "createSubsidiary": "Crear Filial",
+    "createSuccess": "Filial creada exitosamente",
+    "statusUpdated": "Estado de filial actualizado",
+    "logo": "Logo",
+    "companyLogo": "Logo de la Empresa",
+    "uploadImage": "Suba una imagen PNG o JPG para el logo de la empresa",
+    "phoneNumber": "Número de Teléfono",
+    "location": "Ubicación",
+    "status": "Estado",
+    "actions": "Acciones",
+    "activeStatus": "Activo",
+    "inactiveStatus": "Inactivo"
   },
   "inventory": {
     "title": "Inventario",
