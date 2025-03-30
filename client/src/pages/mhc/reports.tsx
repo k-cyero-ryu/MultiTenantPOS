@@ -198,45 +198,41 @@ export default function Reports() {
                         style="max-height: 60px; max-width: 60px; width: auto; height: auto; object-fit: contain;">`;
       }
           
-      // Set the container width to match the PDF aspect ratio (landscape A4)
+      // Set the container width to match the PDF aspect ratio (landscape A4) with minimal padding
       pdfContainer.style.width = "1120px"; // Approximating A4 landscape width
-      pdfContainer.style.padding = "20px";
+      pdfContainer.style.padding = "10px"; // Minimal padding to maximize usable space
       pdfContainer.style.boxSizing = "border-box";
       
-      // Build the HTML content for the PDF with maximum space efficiency
+      // Build the HTML content for the PDF with absolute maximum data space efficiency
       pdfContainer.innerHTML = `
         <div style="font-family: Arial, sans-serif; width: 100%;">
-          <!-- Ultra-compact header with three columns in one single row -->
-          <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 6px; border-bottom: 1px solid #eee; margin-bottom: 10px;">
-            <!-- Left column: Logo only -->
-            <div style="flex: 0 0 70px;">
+          <!-- Micro-header - ultra minimal header with single line height -->
+          <div style="display: flex; justify-content: space-between; align-items: center; 
+              padding-bottom: 2px; border-bottom: 1px solid #eee; margin-bottom: 3px; height: 40px; max-height: 40px;">
+            <!-- Logo: minimal size -->
+            <div style="flex: 0 0 50px; height: 40px; display: flex; align-items: center;">
               ${logoHTML}
             </div>
             
-            <!-- Center column: Report title and date range -->
-            <div style="flex: 1; text-align: center;">
-              <div style="font-size: 16px; font-weight: bold; margin-bottom: 2px;">
-                ${reportTitle} ${t('reports.title')}
-                ${isSubsidiaryReport ? ` | ${t('subsidiaries.taxId')}: ${selectedSubsidiaryData.taxId}` : ''}
-              </div>
-              <div style="color: #666; font-size: 12px;">
-                ${t('reports.timeRange')}: ${dateRangeText}
-              </div>
+            <!-- Center: compact single line report info -->
+            <div style="flex: 1; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 10px;">
+              <span style="font-size: 13px; font-weight: bold;">
+                ${reportTitle} ${t('reports.title')} 
+                <span style="color: #666; font-weight: normal; font-size: 11px;">
+                  (${t('reports.timeRange')}: ${dateRangeText}${isSubsidiaryReport ? ` | ${t('subsidiaries.taxId')}: ${selectedSubsidiaryData.taxId}` : ''})
+                </span>
+              </span>
             </div>
             
-            <!-- Right column: Company name and generation date -->
-            <div style="flex: 0 0 200px; text-align: right;">
-              <div style="font-size: 14px; font-weight: bold; margin-bottom: 2px;">
-                ${isSubsidiaryReport ? selectedSubsidiaryData.name : 'Main Head Company'}
-              </div>
-              <div style="font-size: 11px; color: #666;">
-                Generated on: ${now.toLocaleDateString()}
-              </div>
+            <!-- Right: company + date in single line -->
+            <div style="flex: 0 0 180px; text-align: right; white-space: nowrap; font-size: 11px;">
+              <span style="font-weight: bold;">${isSubsidiaryReport ? selectedSubsidiaryData.name : 'Main Head Company'}</span>
+              <span style="color: #666; margin-left: 5px; font-size: 10px;">${now.toLocaleDateString()}</span>
             </div>
           </div>
           
-          <!-- More compact table with less padding -->
-          <table style="width: 100%; border-collapse: collapse; margin-top: 10px; table-layout: auto;">
+          <!-- Maximum data area table - minimal margin and padding -->
+          <table style="width: 100%; border-collapse: collapse; margin-top: 2px; table-layout: auto;">
             <thead>
               <tr style="background-color: #f5f5f5;">
                 ${Object.keys(previewData[0] || {}).map((header, index) => {
@@ -255,8 +251,8 @@ export default function Reports() {
                     width = "200px"; // Name/description columns
                   }
                   
-                  return `<th style="border: 1px solid #ddd; padding: 6px 8px; text-align: left; font-weight: bold; 
-                    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: ${width}; font-size: 12px;">${header}</th>`;
+                  return `<th style="border: 1px solid #ddd; padding: 4px 6px; text-align: left; font-weight: bold; 
+                    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: ${width}; font-size: 11px;">${header}</th>`;
                 }).join('')}
               </tr>
             </thead>
@@ -265,7 +261,7 @@ export default function Reports() {
                 `<tr>
                   ${Object.entries(row).map(([key, value]) => {
                     // Special formatting based on content type
-                    let cellStyle = "border: 1px solid #ddd; padding: 5px 8px; text-align: left; font-size: 12px;";
+                    let cellStyle = "border: 1px solid #ddd; padding: 3px 6px; text-align: left; font-size: 11px;";
                     
                     // Determine if this is a numeric value
                     if (typeof value === 'number' || 
@@ -294,10 +290,12 @@ export default function Reports() {
             </tbody>
           </table>
           
-          <!-- More compact footer with horizontal layout -->
-          <div style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px; color: #666; font-size: 11px; display: flex; justify-content: space-between; align-items: center;">
+          <!-- Micro-footer - single line design -->
+          <div style="margin-top: 5px; border-top: 1px solid #eee; padding-top: 3px; 
+              color: #666; font-size: 9px; display: flex; justify-content: space-between; 
+              align-items: center; height: 20px; overflow: hidden; text-overflow: ellipsis;">
             ${isSubsidiaryReport ? 
-            `<div style="text-align: left;">
+            `<div style="text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
               ${selectedSubsidiaryData.address ? `${selectedSubsidiaryData.address}, ` : ''}
               ${selectedSubsidiaryData.city ? `${selectedSubsidiaryData.city}, ` : ''}
               ${selectedSubsidiaryData.country || ''}
@@ -305,8 +303,8 @@ export default function Reports() {
               ${selectedSubsidiaryData.phoneNumber ? ` | ${selectedSubsidiaryData.phoneNumber}` : ''}
             </div>` : 
             '<div></div>'}
-            <div style="text-align: right;">
-              © ${new Date().getFullYear()} ${isSubsidiaryReport ? selectedSubsidiaryData.name : 'Main Head Company'} - All rights reserved
+            <div style="text-align: right; white-space: nowrap;">
+              © ${new Date().getFullYear()} ${isSubsidiaryReport ? selectedSubsidiaryData.name : 'Main Head Company'}
             </div>
           </div>
         </div>
@@ -344,13 +342,14 @@ export default function Reports() {
       
       // For multiple pages, it's simpler in this case to just add the whole content
       // Since we're using a fixed layout PDF in landscape mode, most reports will fit on one page
+      // Use minimal margins (10pt instead of 20pt) to maximize content area
       pdf.addImage(
         canvasImageData,    // image data
         'PNG',              // image format
-        20,                 // x position on PDF
-        20,                 // y position on PDF
-        pdfWidth - 40,      // width on PDF
-        pdfHeight - 40,     // height on PDF
+        10,                 // x position on PDF (minimal margin)
+        10,                 // y position on PDF (minimal margin)
+        pdfWidth - 20,      // width on PDF (minimal margin)
+        pdfHeight - 20,     // height on PDF (minimal margin)
         undefined,          // alias (not needed)
         'FAST'              // compression
       );
@@ -358,7 +357,7 @@ export default function Reports() {
       // If the content is very long, add more pages as needed
       const contentHeight = canvas.height / 2; // Divide by 2 because of our scale factor
       const contentWidth = canvas.width / 2;
-      const pageContentHeight = pdfHeight - 40;
+      const pageContentHeight = pdfHeight - 20; // Using minimal margins
       
       if (contentHeight > pageContentHeight) {
         const totalPages = Math.ceil(contentHeight / pageContentHeight);
@@ -368,14 +367,14 @@ export default function Reports() {
           pdf.addPage();
           
           // Calculate vertical positioning to show the content continuation
-          const yOffset = -i * pageContentHeight + 20;
+          const yOffset = -i * pageContentHeight + 10; // Using minimal margins
           
           pdf.addImage(
             canvasImageData,
             'PNG',
-            20,
+            10, // Minimal margin
             yOffset, 
-            pdfWidth - 40,
+            pdfWidth - 20, // Minimal margin
             pdfHeight * 2, // Make it tall enough to show content 
             undefined,
             'FAST'
