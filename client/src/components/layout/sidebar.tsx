@@ -13,11 +13,14 @@ import {
   Menu,
   FileText,
   Activity,
-  Settings
+  Settings,
+  Globe
 } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { LanguageSelector } from "@/components/language-selector";
+import { useTranslation } from "react-i18next";
 
 interface SidebarProps {
   className?: string;
@@ -28,22 +31,23 @@ export function Sidebar({ className }: SidebarProps) {
   const { user, logoutMutation } = useAuth();
   const isMobile = useIsMobile();
   const [open, setOpen] = useState(false);
+  const { t } = useTranslation();
 
   const isMHCAdmin = user?.role === "mhc_admin";
   const isSubsidiaryAdmin = user?.role === "subsidiary_admin";
 
   const links = isMHCAdmin ? [
-    { href: "/", icon: LayoutDashboard, label: "Dashboard" },
-    { href: "/subsidiaries", icon: Building2, label: "Subsidiaries" },
-    { href: "/users", icon: Users, label: "Users" },
-    { href: "/reports", icon: FileText, label: "Reports" },
-    { href: "/activity-logs", icon: Activity, label: "Activity Logs" },
-    { href: "/settings", icon: Settings, label: "Settings" },
+    { href: "/", icon: LayoutDashboard, label: t('navigation.dashboard') },
+    { href: "/subsidiaries", icon: Building2, label: t('navigation.subsidiaries') },
+    { href: "/users", icon: Users, label: t('navigation.users') },
+    { href: "/reports", icon: FileText, label: t('navigation.reports') },
+    { href: "/activity-logs", icon: Activity, label: t('navigation.activityLogs') },
+    { href: "/settings", icon: Settings, label: t('navigation.settings') },
   ] : [
-    { href: "/", icon: LayoutDashboard, label: "Dashboard" },
-    { href: "/inventory", icon: Package, label: "Inventory" },
-    { href: "/sales", icon: ShoppingCart, label: "Sales" },
-    ...(isSubsidiaryAdmin ? [{ href: "/users", icon: Users, label: "Users" }] : []),
+    { href: "/", icon: LayoutDashboard, label: t('navigation.dashboard') },
+    { href: "/inventory", icon: Package, label: t('navigation.inventory') },
+    { href: "/sales", icon: ShoppingCart, label: t('navigation.sales') },
+    ...(isSubsidiaryAdmin ? [{ href: "/users", icon: Users, label: t('navigation.users') }] : []),
   ];
 
   const SidebarContent = () => (
@@ -67,7 +71,10 @@ export function Sidebar({ className }: SidebarProps) {
           ))}
         </div>
       </ScrollArea>
-      <div className="border-t p-2">
+      <div className="border-t p-2 space-y-2">
+        <div className="px-2 py-1">
+          <LanguageSelector />
+        </div>
         <Button
           variant="ghost"
           className="w-full justify-start gap-2"
@@ -77,7 +84,7 @@ export function Sidebar({ className }: SidebarProps) {
           }}
         >
           <LogOut className="h-4 w-4" />
-          Logout
+          {t('common.logout')}
         </Button>
       </div>
     </div>

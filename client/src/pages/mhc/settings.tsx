@@ -6,7 +6,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
-import { LucideSettings, Database, Server } from "lucide-react";
+import { LucideSettings, Database, Server, Globe } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { LanguageSelectorFull } from "@/components/language-selector";
+import { getCurrentLanguage } from "@/i18n";
 
 interface DatabaseConfig {
   engine: string;
@@ -43,6 +46,8 @@ export default function SettingsPage() {
     }
   });
   const { toast } = useToast();
+  const { t } = useTranslation();
+  const currentLanguage = getCurrentLanguage();
 
   useEffect(() => {
     // Load current database engine configuration
@@ -126,14 +131,14 @@ export default function SettingsPage() {
       setIsSaving(false);
     }
   };
-
+ 
   return (
     <div className="space-y-8 p-8">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold mb-2">System Settings</h1>
+          <h1 className="text-3xl font-bold mb-2">{t('settings.systemSettings')}</h1>
           <p className="text-muted-foreground">
-            Configure application settings and preferences
+            {t('settings.configureApp')}
           </p>
         </div>
         <LucideSettings className="h-10 w-10 text-muted-foreground" />
@@ -141,22 +146,22 @@ export default function SettingsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Database Configuration</CardTitle>
+          <CardTitle>{t('settings.databaseConfig')}</CardTitle>
           <CardDescription>
-            Configure the database engine used by the application
+            {t('settings.configureDB')}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex items-center gap-4">
             <Database className="h-5 w-5 text-muted-foreground" />
             <div className="flex-1">
-              <p className="text-sm font-medium mb-2">Database Engine</p>
+              <p className="text-sm font-medium mb-2">{t('settings.dbEngine')}</p>
               <Select
                 value={dbEngine}
                 onValueChange={setDbEngine}
               >
                 <SelectTrigger className="w-[200px]">
-                  <SelectValue placeholder="Select engine" />
+                  <SelectValue placeholder={t('settings.selectLanguage')} />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="postgresql">PostgreSQL</SelectItem>
@@ -171,7 +176,7 @@ export default function SettingsPage() {
               onClick={handleSaveConfig} 
               disabled={isSaving}
             >
-              {isSaving ? "Saving..." : "Save Configuration"}
+              {isSaving ? t('settings.saving') : t('settings.saveConfig')}
             </Button>
           </div>
         </CardContent>
@@ -179,9 +184,9 @@ export default function SettingsPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Database Connection Settings</CardTitle>
+          <CardTitle>{t('settings.connectionSettings')}</CardTitle>
           <CardDescription>
-            Configure connection details for each database engine
+            {t('settings.configureConnDetails')}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -194,7 +199,7 @@ export default function SettingsPage() {
             <TabsContent value="postgresql" className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="pg-host">Host</Label>
+                  <Label htmlFor="pg-host">{t('settings.host')}</Label>
                   <Input 
                     id="pg-host" 
                     placeholder="localhost" 
@@ -204,7 +209,7 @@ export default function SettingsPage() {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="pg-port">Port</Label>
+                  <Label htmlFor="pg-port">{t('settings.port')}</Label>
                   <Input 
                     id="pg-port" 
                     placeholder="5432" 
@@ -214,7 +219,7 @@ export default function SettingsPage() {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="pg-database">Database Name</Label>
+                  <Label htmlFor="pg-database">{t('settings.databaseName')}</Label>
                   <Input 
                     id="pg-database" 
                     placeholder="postgres" 
@@ -224,7 +229,7 @@ export default function SettingsPage() {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="pg-user">Username</Label>
+                  <Label htmlFor="pg-user">{t('settings.username')}</Label>
                   <Input 
                     id="pg-user" 
                     placeholder="postgres" 
@@ -236,10 +241,10 @@ export default function SettingsPage() {
               
               <div className="bg-muted p-4 rounded-md text-sm">
                 <p className="font-medium flex items-center">
-                  <Server className="h-4 w-4 mr-2" /> Connection Information
+                  <Server className="h-4 w-4 mr-2" /> {t('settings.connectionStatus')}
                 </p>
                 <p className="text-xs text-muted-foreground mt-1">
-                  PostgreSQL password is read from environment variables for security reasons.
+                  {t('settings.securityNote')}
                 </p>
               </div>
             </TabsContent>
@@ -247,7 +252,7 @@ export default function SettingsPage() {
             <TabsContent value="mysql" className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="mysql-host">Host</Label>
+                  <Label htmlFor="mysql-host">{t('settings.host')}</Label>
                   <Input 
                     id="mysql-host" 
                     placeholder="localhost" 
@@ -257,7 +262,7 @@ export default function SettingsPage() {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="mysql-port">Port</Label>
+                  <Label htmlFor="mysql-port">{t('settings.port')}</Label>
                   <Input 
                     id="mysql-port" 
                     placeholder="3306" 
@@ -267,7 +272,7 @@ export default function SettingsPage() {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="mysql-database">Database Name</Label>
+                  <Label htmlFor="mysql-database">{t('settings.databaseName')}</Label>
                   <Input 
                     id="mysql-database" 
                     placeholder="subsidiary_management" 
@@ -277,7 +282,7 @@ export default function SettingsPage() {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="mysql-user">Username</Label>
+                  <Label htmlFor="mysql-user">{t('settings.username')}</Label>
                   <Input 
                     id="mysql-user" 
                     placeholder="root" 
@@ -289,10 +294,10 @@ export default function SettingsPage() {
               
               <div className="bg-muted p-4 rounded-md text-sm">
                 <p className="font-medium flex items-center">
-                  <Server className="h-4 w-4 mr-2" /> Connection Information
+                  <Server className="h-4 w-4 mr-2" /> {t('settings.connectionStatus')}
                 </p>
                 <p className="text-xs text-muted-foreground mt-1">
-                  MySQL password is read from environment variables for security reasons.
+                  {t('settings.securityNote')}
                 </p>
               </div>
             </TabsContent>
@@ -303,7 +308,7 @@ export default function SettingsPage() {
               onClick={handleSaveConfig} 
               disabled={isSaving}
             >
-              {isSaving ? "Saving..." : "Save Connection Settings"}
+              {isSaving ? t('settings.saving') : t('settings.saveConnSettings')}
             </Button>
           </div>
         </CardContent>
@@ -311,16 +316,40 @@ export default function SettingsPage() {
       
       <Card>
         <CardHeader>
-          <CardTitle>Database Connection Status</CardTitle>
+          <CardTitle>{t('settings.languageSettings')}</CardTitle>
           <CardDescription>
-            Current database connection information
+            {t('settings.configureLanguage')}
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center gap-4">
+            <Globe className="h-5 w-5 text-muted-foreground" />
+            <div className="flex-1">
+              <LanguageSelectorFull />
+            </div>
+          </div>
+          
+          <div className="rounded-md bg-muted p-4">
+            <p className="text-sm font-medium">{t('settings.activeEngine')}: <span className="font-semibold text-primary">{currentLanguage.toUpperCase()}</span></p>
+            <p className="text-xs text-muted-foreground mt-1">
+              {t('settings.english')}: English | {t('settings.spanish')}: Español | {t('settings.french')}: Français | {t('settings.portuguese')}: Português
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+      
+      <Card>
+        <CardHeader>
+          <CardTitle>{t('settings.connectionStatus')}</CardTitle>
+          <CardDescription>
+            {t('settings.currentInfo')}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="rounded-md bg-muted p-4">
-            <p className="text-sm font-medium">Active Engine: <span className="font-semibold text-primary">{dbEngine.toUpperCase()}</span></p>
+            <p className="text-sm font-medium">{t('settings.activeEngine')}: <span className="font-semibold text-primary">{dbEngine.toUpperCase()}</span></p>
             <p className="text-xs text-muted-foreground mt-1">
-              Changes to database engine require a server restart to take effect.
+              {t('settings.restartNote')}
             </p>
           </div>
         </CardContent>
