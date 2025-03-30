@@ -184,18 +184,18 @@ export default function Reports() {
           // Use the subsidiary's actual logo
           logoHTML = `<img src="${getLogoUrl(selectedSubsidiaryData.logo)}" 
                           alt="${selectedSubsidiaryData.name} logo" 
-                          style="max-height: 60px; max-width: 120px; margin-right: 15px;">`;
+                          style="height: 60px; object-fit: contain; margin-right: 15px;">`;
         } else {
           // Use default logo for subsidiaries without a logo
           logoHTML = `<img src="${window.location.origin}/default-logo.svg" 
                           alt="${selectedSubsidiaryData.name} logo" 
-                          style="max-height: 60px; max-width: 120px; margin-right: 15px;">`;
+                          style="height: 60px; object-fit: contain; margin-right: 15px;">`;
         }
       } else {
         // For MHC reports, always use a default logo
         logoHTML = `<img src="${window.location.origin}/default-logo.svg" 
                         alt="Main Head Company logo" 
-                        style="max-height: 60px; max-width: 120px; margin-right: 15px;">`;
+                        style="height: 60px; object-fit: contain; margin-right: 15px;">`;
       }
           
       // Build the HTML content for the PDF with conditional logo
@@ -226,22 +226,58 @@ export default function Reports() {
               ''}
           </div>
           
-          <table style="width: 100%; border-collapse: collapse; margin-top: 20px; table-layout: fixed;">
+          <table style="width: 100%; border-collapse: collapse; margin-top: 20px; table-layout: auto;">
             <thead>
               <tr style="background-color: #f5f5f5;">
-                ${Object.keys(previewData[0] || {}).map(header => 
-                  `<th style="border: 1px solid #ddd; padding: 8px; text-align: left; font-weight: bold; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${header}</th>`
-                ).join('')}
+                ${Object.keys(previewData[0] || {}).map((header, index) => {
+                  // Determine column widths based on column type
+                  let width = "auto";
+                  if (header.toLowerCase().includes("date")) {
+                    width = "120px"; // Date columns
+                  } else if (["id", "quantity", "price", "amount", "number", "count"].some(
+                    term => header.toLowerCase().includes(term)
+                  )) {
+                    width = "100px"; // Numeric columns
+                  } else if (header.toLowerCase().includes("name") || 
+                             header.toLowerCase().includes("description") ||
+                             header.toLowerCase().includes("subsidiary")) {
+                    width = "180px"; // Name/description columns
+                  }
+                  
+                  return `<th style="border: 1px solid #ddd; padding: 10px; text-align: left; font-weight: bold; 
+                    overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: ${width};">${header}</th>`;
+                }).join('')}
               </tr>
             </thead>
             <tbody>
               ${previewData.map((row: Record<string, any>) => 
                 `<tr>
-                  ${Object.values(row).map((value: any) => 
-                    `<td style="border: 1px solid #ddd; padding: 8px; text-align: left; overflow: hidden; text-overflow: ellipsis;">
-                      ${typeof value === 'object' ? JSON.stringify(value) : value}
-                    </td>`
-                  ).join('')}
+                  ${Object.entries(row).map(([key, value]) => {
+                    // Special formatting based on content type
+                    let cellStyle = "border: 1px solid #ddd; padding: 10px; text-align: left;";
+                    
+                    // Determine if this is a numeric value
+                    if (typeof value === 'number' || 
+                        (typeof value === 'string' && !isNaN(parseFloat(value)) && 
+                         ["id", "quantity", "price", "amount"].some(term => key.toLowerCase().includes(term)))) {
+                      cellStyle += " text-align: right;"; // Right-align numbers
+                    }
+                    
+                    // Determine if this is a date
+                    if (key.toLowerCase().includes("date")) {
+                      cellStyle += " white-space: nowrap;"; // No wrapping for dates
+                    }
+                    
+                    // Format the cell content
+                    let displayValue = typeof value === 'object' ? JSON.stringify(value) : String(value);
+                    
+                    // Truncate very long text
+                    if (typeof value === 'string' && value.length > 50) {
+                      displayValue = value.substring(0, 50) + '...';
+                    }
+                    
+                    return `<td style="${cellStyle}">${displayValue}</td>`;
+                  }).join('')}
                 </tr>`
               ).join('')}
             </tbody>
@@ -267,12 +303,23 @@ export default function Reports() {
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = pdf.internal.pageSize.getHeight();
       
-      // Convert HTML to canvas
+      // Convert HTML to canvas with improved scale for better quality
       const canvas = await html2canvas(pdfContainer, {
-        scale: 1,
+        scale: 2, // Higher scale for better image quality
         useCORS: true,
         allowTaint: true,
         logging: false,
+        imageTimeout: 0, // No timeout for images
+        onclone: (clonedDoc) => {
+          // Apply any additional styling to the cloned document
+          const style = clonedDoc.createElement('style');
+          style.innerHTML = `
+            img { image-rendering: high-quality; }
+            table { margin: 0 auto; width: 98%; }
+            td, th { max-width: 300px; }
+          `;
+          clonedDoc.head.appendChild(style);
+        }
       });
       
       // Calculate the number of pages needed
@@ -280,17 +327,34 @@ export default function Reports() {
       const pageHeight = pdfHeight - 40; // Add some margin
       const pageCount = Math.ceil(contentHeight / pageHeight);
       
-      // Add canvas to PDF page by page
+      // Convert the canvas to image data once
+      const canvasImageData = canvas.toDataURL('image/png', 1.0);
+      
+      // Add canvas to PDF page by page with proper clipping
+      const scaleFactor = 2; // This should match the scale used in html2canvas
+      const scaledPageHeight = pageHeight * scaleFactor;
+      
       for (let i = 0; i < pageCount; i++) {
         if (i > 0) {
           pdf.addPage();
         }
         
-        const canvasImageData = canvas.toDataURL('image/png');
+        // Calculate the position to slice from the canvas for this page
+        const sourceY = i * scaledPageHeight;
         
-        // Add the image to the PDF - use a simpler approach for all pages
-        // Each page will show the full image, but we'll use CSS to only show the relevant part
-        pdf.addImage(canvasImageData, 'PNG', 20, 20, pdfWidth - 40, pageHeight);
+        // Add the image to the PDF, showing only the relevant part for this page
+        pdf.addImage(
+          canvasImageData, 
+          'PNG', 
+          20, // x position on the PDF
+          20, // y position on the PDF
+          pdfWidth - 40, // width on the PDF
+          pageHeight, // height on the PDF
+          null, // Image alias (not needed)
+          'FAST', // Compression
+          0, // Rotation
+          sourceY / scaleFactor // Source y-position (adjusted for scale)
+        );
       }
       
       // Save the PDF file
