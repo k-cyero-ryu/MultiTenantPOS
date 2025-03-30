@@ -96,8 +96,8 @@ export default function UsersPage() {
   });
 
   const createMutation = useMutation({
-    mutationFn: async (data: ReturnType<typeof form.getValues>) => {
-      const { confirmPassword, ...userData } = data;
+    mutationFn: async (values: any) => {
+      const { confirmPassword, ...userData } = values;
       const res = await apiRequest(
         "POST",
         `/api/subsidiaries/${subsidiaryId}/users`,
@@ -207,7 +207,7 @@ export default function UsersPage() {
             </DialogHeader>
             <Form {...form}>
               <form
-                onSubmit={form.handleSubmit((data) => createMutation.mutate(data))}
+                onSubmit={form.handleSubmit((data: any) => createMutation.mutate(data))}
                 className="space-y-4"
               >
                 <FormField
@@ -313,7 +313,7 @@ export default function UsersPage() {
           </DialogHeader>
           <Form {...editForm}>
             <form
-              onSubmit={editForm.handleSubmit((data) => {
+              onSubmit={editForm.handleSubmit((data: any) => {
                 if (editingUser) {
                   const { confirmPassword, ...updates } = data;
                   updateMutation.mutate({

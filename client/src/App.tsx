@@ -16,6 +16,7 @@ import SubsidiaryDashboard from "@/pages/subsidiary/dashboard";
 import Inventory from "@/pages/subsidiary/inventory";
 import Sales from "@/pages/subsidiary/sales";
 import Users from "@/pages/mhc/users";
+import SubsidiaryUsers from "@/pages/subsidiary/users";
 import { Sidebar } from "@/components/layout/sidebar";
 import { useAuth } from "@/hooks/use-auth";
 
@@ -112,13 +113,13 @@ function Router() {
         )}
       />
 
-      {/* User Management Route - Only for subsidiary admins */}
+      {/* Subsidiary users management route - Only for subsidiary admins */}
       {isSubsidiaryAdmin && (
         <ProtectedRoute
           path="/users"
           component={() => (
             <AppLayout>
-              <Users />
+              <SubsidiaryUsers />
             </AppLayout>
           )}
         />
