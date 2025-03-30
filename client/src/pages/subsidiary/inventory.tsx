@@ -43,10 +43,12 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { useTranslation } from "react-i18next";
 
 export default function InventoryPage() {
   const { user } = useAuth();
   const { toast } = useToast();
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [editItem, setEditItem] = useState<Inventory | null>(null);
   const [deleteItem, setDeleteItem] = useState<Inventory | null>(null);
@@ -97,7 +99,7 @@ export default function InventoryPage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`/api/subsidiaries/${subsidiaryId}/inventory`] });
-      toast({ title: "Inventory item created successfully" });
+      toast({ title: t('inventory.createSuccess', 'Inventory item created successfully') });
       setOpen(false);
       form.reset();
     },
@@ -114,7 +116,7 @@ export default function InventoryPage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`/api/subsidiaries/${subsidiaryId}/inventory`] });
-      toast({ title: "Inventory item updated" });
+      toast({ title: t('inventory.updateSuccess', 'Inventory item updated') });
       setEditItem(null);
       form.reset();
     },
@@ -129,7 +131,7 @@ export default function InventoryPage() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [`/api/subsidiaries/${subsidiaryId}/inventory`] });
-      toast({ title: "Inventory item deleted" });
+      toast({ title: t('inventory.deleteSuccess', 'Inventory item deleted') });
       setDeleteItem(null);
     },
   });
@@ -138,18 +140,18 @@ export default function InventoryPage() {
     <div className="space-y-8 p-8">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold mb-2">Inventory</h1>
+          <h1 className="text-3xl font-bold mb-2">{t('inventory.title')}</h1>
           <p className="text-muted-foreground">
-            Manage your inventory items
+            {t('inventory.manage', 'Manage your inventory items')}
           </p>
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <Button>Add Item</Button>
+            <Button>{t('inventory.addNew')}</Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Add New Item</DialogTitle>
+              <DialogTitle>{t('inventory.addNew')}</DialogTitle>
             </DialogHeader>
             <Form {...form}>
               <form
@@ -163,7 +165,7 @@ export default function InventoryPage() {
                   name="sku"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>SKU</FormLabel>
+                      <FormLabel>{t('inventory.sku')}</FormLabel>
                       <FormControl>
                         <Input {...field} />
                       </FormControl>
@@ -176,7 +178,7 @@ export default function InventoryPage() {
                   name="name"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Name</FormLabel>
+                      <FormLabel>{t('inventory.name')}</FormLabel>
                       <FormControl>
                         <Input {...field} />
                       </FormControl>
@@ -189,7 +191,7 @@ export default function InventoryPage() {
                   name="description"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Description</FormLabel>
+                      <FormLabel>{t('inventory.description')}</FormLabel>
                       <FormControl>
                         <Input {...field} />
                       </FormControl>
@@ -202,7 +204,7 @@ export default function InventoryPage() {
                   name="category"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Category</FormLabel>
+                      <FormLabel>{t('inventory.category')}</FormLabel>
                       <FormControl>
                         <Input {...field} />
                       </FormControl>
@@ -215,7 +217,7 @@ export default function InventoryPage() {
                   name="costPrice"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Cost Price</FormLabel>
+                      <FormLabel>{t('inventory.costPrice', 'Cost Price')}</FormLabel>
                       <FormControl>
                         <Input
                           type="number"
@@ -235,7 +237,7 @@ export default function InventoryPage() {
                   name="salePrice"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Sale Price</FormLabel>
+                      <FormLabel>{t('inventory.salePrice', 'Sale Price')}</FormLabel>
                       <FormControl>
                         <Input
                           type="number"
@@ -255,7 +257,7 @@ export default function InventoryPage() {
                   name="quantity"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Quantity</FormLabel>
+                      <FormLabel>{t('inventory.quantity')}</FormLabel>
                       <FormControl>
                         <Input
                           type="number"
@@ -274,7 +276,7 @@ export default function InventoryPage() {
                   className="w-full"
                   disabled={createMutation.isPending}
                 >
-                  Create Item
+                  {t('inventory.create', 'Create Item')}
                 </Button>
               </form>
             </Form>
@@ -286,13 +288,13 @@ export default function InventoryPage() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>SKU</TableHead>
-              <TableHead>Name</TableHead>
-              <TableHead>Category</TableHead>
-              <TableHead>Cost Price</TableHead>
-              <TableHead>Sale Price</TableHead>
-              <TableHead>Quantity</TableHead>
-              <TableHead className="w-[100px]">Actions</TableHead>
+              <TableHead>{t('inventory.sku')}</TableHead>
+              <TableHead>{t('inventory.name')}</TableHead>
+              <TableHead>{t('inventory.category')}</TableHead>
+              <TableHead>{t('inventory.costPrice', 'Cost Price')}</TableHead>
+              <TableHead>{t('inventory.salePrice', 'Sale Price')}</TableHead>
+              <TableHead>{t('inventory.quantity')}</TableHead>
+              <TableHead className="w-[100px]">{t('common.actions')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -332,7 +334,7 @@ export default function InventoryPage() {
       <Dialog open={!!editItem} onOpenChange={() => setEditItem(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Edit Item</DialogTitle>
+            <DialogTitle>{t('inventory.edit')}</DialogTitle>
           </DialogHeader>
           <Form {...form}>
             <form
@@ -347,7 +349,7 @@ export default function InventoryPage() {
                 name="sku"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>SKU</FormLabel>
+                    <FormLabel>{t('inventory.sku')}</FormLabel>
                     <FormControl>
                       <Input {...field} />
                     </FormControl>
@@ -360,7 +362,7 @@ export default function InventoryPage() {
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Name</FormLabel>
+                    <FormLabel>{t('inventory.name')}</FormLabel>
                     <FormControl>
                       <Input {...field} />
                     </FormControl>
@@ -373,7 +375,7 @@ export default function InventoryPage() {
                 name="description"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Description</FormLabel>
+                    <FormLabel>{t('inventory.description')}</FormLabel>
                     <FormControl>
                       <Input {...field} />
                     </FormControl>
@@ -386,7 +388,7 @@ export default function InventoryPage() {
                 name="category"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Category</FormLabel>
+                    <FormLabel>{t('inventory.category')}</FormLabel>
                     <FormControl>
                       <Input {...field} />
                     </FormControl>
@@ -399,7 +401,7 @@ export default function InventoryPage() {
                 name="costPrice"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Cost Price</FormLabel>
+                    <FormLabel>{t('inventory.costPrice', 'Cost Price')}</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
@@ -419,7 +421,7 @@ export default function InventoryPage() {
                 name="salePrice"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Sale Price</FormLabel>
+                    <FormLabel>{t('inventory.salePrice', 'Sale Price')}</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
@@ -439,7 +441,7 @@ export default function InventoryPage() {
                 name="quantity"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Quantity</FormLabel>
+                    <FormLabel>{t('inventory.quantity')}</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
@@ -458,7 +460,7 @@ export default function InventoryPage() {
                 className="w-full"
                 disabled={updateMutation.isPending}
               >
-                Update Item
+                {t('inventory.update', 'Update Item')}
               </Button>
             </form>
           </Form>
@@ -472,18 +474,17 @@ export default function InventoryPage() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogTitle>{t('common.areYouSure')}</AlertDialogTitle>
             <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete the
-              inventory item.
+              {t('inventory.deleteWarning', 'This action cannot be undone. This will permanently delete the inventory item.')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogCancel>{t('common.cancel')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={() => deleteMutation.mutate(deleteItem!.id)}
             >
-              Delete
+              {t('common.delete')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

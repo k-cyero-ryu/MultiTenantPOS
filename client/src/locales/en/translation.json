@@ -153,7 +153,17 @@
     "inventoryValue": "Inventory Value",
     "products": "Products",
     "itemsInInventory": "Items in inventory",
-    "basedOnSalesPrices": "Based on sales prices"
+    "basedOnSalesPrices": "Based on sales prices",
+    "manage": "Manage your inventory items",
+    "costPrice": "Cost Price",
+    "salePrice": "Sale Price",
+    "create": "Create Item",
+    "update": "Update Item",
+    "createSuccess": "Inventory item created successfully",
+    "updateSuccess": "Inventory item updated",
+    "deleteSuccess": "Inventory item deleted",
+    "deleteWarning": "This action cannot be undone. This will permanently delete the inventory item.",
+    "sku": "SKU"
   },
   "users": {
     "title": "Users",
