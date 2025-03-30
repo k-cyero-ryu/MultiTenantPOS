@@ -47,38 +47,38 @@ export default function MHCDashboard() {
     setSteps([
       {
         id: "welcome",
-        title: t('tour.welcomeTitle', 'Welcome to MHC Dashboard'),
-        content: t('tour.welcomeContent', 'Let\'s take a quick tour of your dashboard features.'),
+        title: t('tour.welcomeTitle'),
+        content: t('tour.welcomeContent'),
         position: "bottom"
       },
       {
         id: "profile",
-        title: t('tour.profileTitle', 'Your Profile'),
-        content: t('tour.profileContent', 'View your user information and role here.'),
+        title: t('tour.profileTitle'),
+        content: t('tour.profileContent'),
         position: "bottom"
       },
       {
         id: "subsidiaries",
-        title: t('tour.subsidiariesTitle', 'Subsidiary Overview'),
-        content: t('tour.subsidiariesContent', 'Monitor all your subsidiary companies at a glance.'),
+        title: t('tour.subsidiariesTitle'),
+        content: t('tour.subsidiariesContent'),
         position: "bottom"
       },
       {
         id: "sales",
-        title: t('tour.salesTitle', 'Sales Performance'),
-        content: t('tour.salesContent', 'Track total sales across all subsidiaries.'),
+        title: t('tour.salesTitle'),
+        content: t('tour.salesContent'),
         position: "right"
       },
       {
         id: "users",
-        title: t('tour.usersTitle', 'User Management'),
-        content: t('tour.usersContent', 'Keep track of all users and subsidiary admins.'),
+        title: t('tour.usersTitle'),
+        content: t('tour.usersContent'),
         position: "left"
       },
       {
         id: "settings",
-        title: t('tour.settingsTitle', 'Database Settings'),
-        content: t('tour.settingsContent', 'Configure database settings in the Settings page. You can switch between PostgreSQL and MySQL engines.'),
+        title: t('tour.settingsTitle'),
+        content: t('tour.settingsContent'),
         position: "bottom"
       }
     ]);

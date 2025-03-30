@@ -142,7 +142,7 @@ export default function InventoryPage() {
         <div>
           <h1 className="text-3xl font-bold mb-2">{t('inventory.title')}</h1>
           <p className="text-muted-foreground">
-            {t('inventory.manage', 'Manage your inventory items')}
+            {t('inventory.manage')}
           </p>
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
@@ -217,7 +217,7 @@ export default function InventoryPage() {
                   name="costPrice"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{t('inventory.costPrice', 'Cost Price')}</FormLabel>
+                      <FormLabel>{t('inventory.costPrice')}</FormLabel>
                       <FormControl>
                         <Input
                           type="number"
@@ -237,7 +237,7 @@ export default function InventoryPage() {
                   name="salePrice"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>{t('inventory.salePrice', 'Sale Price')}</FormLabel>
+                      <FormLabel>{t('inventory.salePrice')}</FormLabel>
                       <FormControl>
                         <Input
                           type="number"
@@ -276,7 +276,7 @@ export default function InventoryPage() {
                   className="w-full"
                   disabled={createMutation.isPending}
                 >
-                  {t('inventory.create', 'Create Item')}
+                  {t('inventory.create')}
                 </Button>
               </form>
             </Form>
@@ -291,8 +291,8 @@ export default function InventoryPage() {
               <TableHead>{t('inventory.sku')}</TableHead>
               <TableHead>{t('inventory.name')}</TableHead>
               <TableHead>{t('inventory.category')}</TableHead>
-              <TableHead>{t('inventory.costPrice', 'Cost Price')}</TableHead>
-              <TableHead>{t('inventory.salePrice', 'Sale Price')}</TableHead>
+              <TableHead>{t('inventory.costPrice')}</TableHead>
+              <TableHead>{t('inventory.salePrice')}</TableHead>
               <TableHead>{t('inventory.quantity')}</TableHead>
               <TableHead className="w-[100px]">{t('common.actions')}</TableHead>
             </TableRow>
@@ -401,7 +401,7 @@ export default function InventoryPage() {
                 name="costPrice"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t('inventory.costPrice', 'Cost Price')}</FormLabel>
+                    <FormLabel>{t('inventory.costPrice')}</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
@@ -421,7 +421,7 @@ export default function InventoryPage() {
                 name="salePrice"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>{t('inventory.salePrice', 'Sale Price')}</FormLabel>
+                    <FormLabel>{t('inventory.salePrice')}</FormLabel>
                     <FormControl>
                       <Input
                         type="number"
@@ -460,7 +460,7 @@ export default function InventoryPage() {
                 className="w-full"
                 disabled={updateMutation.isPending}
               >
-                {t('inventory.update', 'Update Item')}
+                {t('inventory.update')}
               </Button>
             </form>
           </Form>
@@ -476,7 +476,7 @@ export default function InventoryPage() {
           <AlertDialogHeader>
             <AlertDialogTitle>{t('common.areYouSure')}</AlertDialogTitle>
             <AlertDialogDescription>
-              {t('inventory.deleteWarning', 'This action cannot be undone. This will permanently delete the inventory item.')}
+              {t('inventory.deleteWarning')}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
