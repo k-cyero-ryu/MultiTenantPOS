@@ -66,6 +66,12 @@ export default function MHCDashboard() {
         title: "User Management",
         content: "Keep track of all users and subsidiary admins.",
         position: "left"
+      },
+      {
+        id: "settings",
+        title: "Database Settings",
+        content: "Configure database settings in the Settings page. You can switch between PostgreSQL and MySQL engines.",
+        position: "bottom"
       }
     ]);
   }, [setSteps]);
@@ -150,6 +156,22 @@ export default function MHCDashboard() {
           </div>
         </TourStep>
       </div>
+      
+      <TourStep stepId="settings">
+        <Card className="p-6">
+          <div className="flex items-center justify-between">
+            <div>
+              <h3 className="text-lg font-semibold">Database Configuration</h3>
+              <p className="text-sm text-muted-foreground">
+                Configure database engine settings to switch between PostgreSQL and MySQL
+              </p>
+            </div>
+            <Button variant="outline" onClick={() => window.location.href = "/settings"}>
+              Open Settings
+            </Button>
+          </div>
+        </Card>
+      </TourStep>
     </div>
   );
 }

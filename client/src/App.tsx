@@ -11,6 +11,7 @@ import MHCDashboard from "@/pages/mhc/dashboard";
 import Subsidiaries from "@/pages/mhc/subsidiaries";
 import Reports from "@/pages/mhc/reports";
 import ActivityLogs from "@/pages/mhc/activity-logs";
+import Settings from "@/pages/mhc/settings";
 import SubsidiaryDashboard from "@/pages/subsidiary/dashboard";
 import Inventory from "@/pages/subsidiary/inventory";
 import Sales from "@/pages/subsidiary/sales";
@@ -78,6 +79,14 @@ function Router() {
             component={() => (
               <AppLayout>
                 <ActivityLogs />
+              </AppLayout>
+            )}
+          />
+          <ProtectedRoute
+            path="/settings"
+            component={() => (
+              <AppLayout>
+                <Settings />
               </AppLayout>
             )}
           />

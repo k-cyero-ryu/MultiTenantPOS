@@ -276,7 +276,7 @@ export function registerRoutes(app: Express): Server {
     "/api/subsidiaries/:subsidiaryId/users",
     requireSubsidiaryAccess,
     async (req, res) => {
-      if (req.user.role !== "subsidiary_admin") {
+      if (req.user?.role !== "subsidiary_admin") {
         return res.status(403).json({ message: "Only subsidiary admins can view users" });
       }
 
@@ -388,9 +388,12 @@ export function registerRoutes(app: Express): Server {
 
   // Activity Logs
   app.get("/api/activity-logs", requireAuth, async (req, res) => {
-    const logs = await storage.listActivityLogs(
-      req.user.role === "mhc_admin" ? undefined : req.user.subsidiaryId,
-    );
+    // Only pass a subsidiaryId if the user is not an MHC admin and has a subsidiaryId
+    const subsidiaryId = req.user?.role === "mhc_admin" ? 
+      undefined : 
+      (req.user?.subsidiaryId || undefined);
+      
+    const logs = await storage.listActivityLogs(subsidiaryId);
     res.json(logs);
   });
 
@@ -646,6 +649,67 @@ export function registerRoutes(app: Express): Server {
       ...rows.map(row => row.join(','))
     ].join('\n');
   }
+
+  // Database Configuration API
+  app.get("/api/config/database", requireMHCAdmin, (req, res) => {
+    try {
+      // Read from the configuration file
+      const fs = require('fs');
+      const path = require('path');
+      const configPath = path.resolve(process.cwd(), 'db.config.mjs');
+      const fileContent = fs.readFileSync(configPath, 'utf-8');
+      
+      // Extract engine value using a simple regex
+      const engineMatch = fileContent.match(/engine:\s*['"]([^'"]+)['"]/);
+      const engine = engineMatch ? engineMatch[1] : 'postgresql';
+      
+      const dbConfig = {
+        engine: engine,
+        // We don't expose sensitive connection details
+      };
+      res.json(dbConfig);
+    } catch (error: any) {
+      res.status(500).json({ message: "Failed to read database configuration", error: error.message });
+    }
+  });
+
+  app.post("/api/config/database", requireMHCAdmin, (req, res) => {
+    try {
+      const { engine } = req.body;
+      
+      // Validate engine type
+      if (engine !== 'postgresql' && engine !== 'mysql') {
+        return res.status(400).json({ message: "Invalid database engine. Must be 'postgresql' or 'mysql'" });
+      }
+
+      // Update the configuration file
+      const fs = require('fs');
+      const path = require('path');
+      const configPath = path.resolve(process.cwd(), 'db.config.mjs');
+      let fileContent = fs.readFileSync(configPath, 'utf-8');
+      
+      // Replace the engine value
+      fileContent = fileContent.replace(
+        /engine:\s*['"][^'"]+['"]/,
+        `engine: '${engine}'`
+      );
+      
+      // Write the updated content back to the file
+      fs.writeFileSync(configPath, fileContent);
+      
+      // Log the change for diagnostics
+      console.log(`Database engine updated to ${engine}`);
+      
+      res.status(200).json({ 
+        message: "Database configuration updated successfully", 
+        note: "Server restart required for changes to take effect",
+        engine
+      });
+    } catch (error: any) {
+      console.error("Failed to update database configuration:", error);
+      res.status(500).json({ message: "Failed to update database configuration", error: error.message });
+    }
+  });
 
   const httpServer = createServer(app);
   return httpServer;

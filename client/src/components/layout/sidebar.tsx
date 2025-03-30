@@ -12,7 +12,8 @@ import {
   LogOut,
   Menu,
   FileText,
-  Activity // Added import for Activity icon
+  Activity,
+  Settings
 } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useState } from "react";
@@ -36,7 +37,8 @@ export function Sidebar({ className }: SidebarProps) {
     { href: "/subsidiaries", icon: Building2, label: "Subsidiaries" },
     { href: "/users", icon: Users, label: "Users" },
     { href: "/reports", icon: FileText, label: "Reports" },
-    { href: "/activity-logs", icon: Activity, label: "Activity Logs" }, // Added Activity Logs link
+    { href: "/activity-logs", icon: Activity, label: "Activity Logs" },
+    { href: "/settings", icon: Settings, label: "Settings" },
   ] : [
     { href: "/", icon: LayoutDashboard, label: "Dashboard" },
     { href: "/inventory", icon: Package, label: "Inventory" },
