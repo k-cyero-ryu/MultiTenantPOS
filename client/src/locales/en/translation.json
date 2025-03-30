@@ -238,6 +238,7 @@
     "selectEndDate": "Select end date",
     "exportCSV": "Export CSV",
     "viewReport": "View Report",
+    "generating": "Generating PDF...",
     "reportPreview": "Report Preview",
     "previewFirstRows": "Preview of the first 5 rows",
     "loading": "Loading...",
