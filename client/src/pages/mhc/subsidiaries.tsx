@@ -51,6 +51,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { UserPlus } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 // Add the getLogoUrl function at the top of the file, after the imports
 const getLogoUrl = (logoPath: string) => {
@@ -63,6 +64,7 @@ export default function Subsidiaries() {
   const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [selectedSubsidiary, setSelectedSubsidiary] = useState<Subsidiary | null>(null);
+  const { t } = useTranslation();
 
   const { data: subsidiaries = [] } = useQuery<Subsidiary[]>({
     queryKey: ["/api/subsidiaries"],
@@ -83,7 +85,16 @@ export default function Subsidiaries() {
   });
 
   const createMutation = useMutation({
-    mutationFn: async (data: ReturnType<typeof form.getValues>) => {
+    mutationFn: async (data: {
+      name: string;
+      taxId: string;
+      email: string;
+      phoneNumber: string;
+      address: string;
+      city: string;
+      country: string;
+      status: boolean;
+    }) => {
       const formData = new FormData();
       const logoInput = document.querySelector<HTMLInputElement>('#logo-upload');
       const logoFile = logoInput?.files?.[0];
@@ -116,7 +127,7 @@ export default function Subsidiaries() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/subsidiaries"] });
-      toast({ title: "Subsidiary created successfully" });
+      toast({ title: t('subsidiaries.createSuccess', 'Subsidiary created successfully') });
       setOpen(false);
       form.reset();
     },
@@ -139,7 +150,7 @@ export default function Subsidiaries() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["/api/subsidiaries"] });
-      toast({ title: "Subsidiary status updated" });
+      toast({ title: t('subsidiaries.statusUpdated') });
     },
   });
 
@@ -155,7 +166,12 @@ export default function Subsidiaries() {
   });
 
   const createUserMutation = useMutation({
-    mutationFn: async (data: ReturnType<typeof userForm.getValues>) => {
+    mutationFn: async (data: {
+      username: string;
+      password: string;
+      role: string;
+      subsidiaryId: number;
+    }) => {
       const res = await apiRequest("POST", "/api/register", data);
       if (!res.ok) {
         const error = await res.text();
@@ -164,13 +180,13 @@ export default function Subsidiaries() {
       return res.json();
     },
     onSuccess: () => {
-      toast({ title: "User created successfully" });
+      toast({ title: t('users.createSuccess') });
       setSelectedSubsidiary(null);
       userForm.reset();
     },
     onError: (error: Error) => {
       toast({ 
-        title: "Failed to create user", 
+        title: t('users.createFailed'), 
         description: error.message,
         variant: "destructive"
       });
@@ -181,18 +197,18 @@ export default function Subsidiaries() {
     <div className="space-y-8 p-8">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold mb-2">Subsidiaries</h1>
+          <h1 className="text-3xl font-bold mb-2">{t('subsidiaries.title')}</h1>
           <p className="text-muted-foreground">
-            Manage your subsidiary companies
+            {t('subsidiaries.manage')}
           </p>
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <Button>Add Subsidiary</Button>
+            <Button>{t('subsidiaries.addNew')}</Button>
           </DialogTrigger>
           <DialogContent className="max-w-2xl">
             <DialogHeader>
-              <DialogTitle>Add New Subsidiary</DialogTitle>
+              <DialogTitle>{t('subsidiaries.addNew')}</DialogTitle>
             </DialogHeader>
             <Form {...form}>
               <form
@@ -207,7 +223,7 @@ export default function Subsidiaries() {
                     name="name"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Name</FormLabel>
+                        <FormLabel>{t('subsidiaries.name')}</FormLabel>
                         <FormControl>
                           <Input {...field} />
                         </FormControl>
@@ -220,7 +236,7 @@ export default function Subsidiaries() {
                     name="taxId"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Tax ID</FormLabel>
+                        <FormLabel>{t('subsidiaries.taxId')}</FormLabel>
                         <FormControl>
                           <Input {...field} />
                         </FormControl>
@@ -233,7 +249,7 @@ export default function Subsidiaries() {
                     name="email"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Email</FormLabel>
+                        <FormLabel>{t('subsidiaries.email')}</FormLabel>
                         <FormControl>
                           <Input type="email" {...field} />
                         </FormControl>
@@ -246,7 +262,7 @@ export default function Subsidiaries() {
                     name="phoneNumber"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Phone Number</FormLabel>
+                        <FormLabel>{t('subsidiaries.phoneNumber')}</FormLabel>
                         <FormControl>
                           <Input {...field} />
                         </FormControl>
@@ -255,7 +271,7 @@ export default function Subsidiaries() {
                     )}
                   />
                   <div className="col-span-2">
-                    <Label htmlFor="logo-upload">Company Logo</Label>
+                    <Label htmlFor="logo-upload">{t('subsidiaries.companyLogo')}</Label>
                     <Input
                       id="logo-upload"
                       type="file"
@@ -263,7 +279,7 @@ export default function Subsidiaries() {
                       className="cursor-pointer"
                     />
                     <p className="text-sm text-muted-foreground mt-1">
-                      Upload a PNG or JPG image for the company logo
+                      {t('subsidiaries.uploadImage')}
                     </p>
                   </div>
                   <FormField
@@ -271,7 +287,7 @@ export default function Subsidiaries() {
                     name="address"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Address</FormLabel>
+                        <FormLabel>{t('subsidiaries.address')}</FormLabel>
                         <FormControl>
                           <Input {...field} />
                         </FormControl>
@@ -284,7 +300,7 @@ export default function Subsidiaries() {
                     name="city"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>City</FormLabel>
+                        <FormLabel>{t('subsidiaries.city')}</FormLabel>
                         <FormControl>
                           <Input {...field} />
                         </FormControl>
@@ -297,7 +313,7 @@ export default function Subsidiaries() {
                     name="country"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Country</FormLabel>
+                        <FormLabel>{t('subsidiaries.country')}</FormLabel>
                         <FormControl>
                           <Input {...field} />
                         </FormControl>
@@ -311,7 +327,7 @@ export default function Subsidiaries() {
                   name="status"
                   render={({ field }) => (
                     <FormItem className="flex items-center gap-2">
-                      <FormLabel>Active</FormLabel>
+                      <FormLabel>{t('subsidiaries.activeStatus')}</FormLabel>
                       <FormControl>
                         <Switch
                           checked={field.value}
@@ -326,7 +342,7 @@ export default function Subsidiaries() {
                   className="w-full"
                   disabled={createMutation.isPending}
                 >
-                  Create Subsidiary
+                  {t('subsidiaries.createSubsidiary')}
                 </Button>
               </form>
             </Form>
@@ -338,14 +354,14 @@ export default function Subsidiaries() {
         <Table>
           <TableHeader>
               <TableRow>
-                <TableHead className="w-[60px]">Logo</TableHead>
-                <TableHead>Name</TableHead>
-                <TableHead>Tax ID</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Phone</TableHead>
-                <TableHead>Location</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="w-[150px]">Actions</TableHead>
+                <TableHead className="w-[60px]">{t('subsidiaries.logo')}</TableHead>
+                <TableHead>{t('subsidiaries.name')}</TableHead>
+                <TableHead>{t('subsidiaries.taxId')}</TableHead>
+                <TableHead>{t('subsidiaries.email')}</TableHead>
+                <TableHead>{t('subsidiaries.phoneNumber')}</TableHead>
+                <TableHead>{t('subsidiaries.location')}</TableHead>
+                <TableHead>{t('subsidiaries.status')}</TableHead>
+                <TableHead className="w-[150px]">{t('subsidiaries.actions')}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -372,7 +388,7 @@ export default function Subsidiaries() {
                       .join(", ")}
                   </TableCell>
                   <TableCell>
-                    {subsidiary.status ? "Active" : "Inactive"}
+                    {subsidiary.status ? t('subsidiaries.activeStatus') : t('subsidiaries.inactiveStatus')}
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-2">
@@ -406,7 +422,7 @@ export default function Subsidiaries() {
       >
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Add Admin User for {selectedSubsidiary?.name}</DialogTitle>
+            <DialogTitle>{t('users.addAdminFor', { name: selectedSubsidiary?.name })}</DialogTitle>
           </DialogHeader>
           <Form {...userForm}>
             <form
@@ -425,7 +441,7 @@ export default function Subsidiaries() {
                 name="username"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Username</FormLabel>
+                    <FormLabel>{t('users.username')}</FormLabel>
                     <FormControl>
                       <Input {...field} />
                     </FormControl>
@@ -438,7 +454,7 @@ export default function Subsidiaries() {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Password</FormLabel>
+                    <FormLabel>{t('users.password')}</FormLabel>
                     <FormControl>
                       <Input type="password" {...field} />
                     </FormControl>
@@ -451,7 +467,7 @@ export default function Subsidiaries() {
                 className="w-full"
                 disabled={createUserMutation.isPending}
               >
-                Create Admin User
+                {t('users.createAdminUser')}
               </Button>
             </form>
           </Form>

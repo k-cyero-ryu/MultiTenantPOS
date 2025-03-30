@@ -87,7 +87,20 @@
     "contactInfo": "Contact Information",
     "phone": "Phone",
     "email": "Email",
-    "active": "Active Subsidiaries"
+    "active": "Active Subsidiaries",
+    "manage": "Manage your subsidiary companies",
+    "createSubsidiary": "Create Subsidiary",
+    "createSuccess": "Subsidiary created successfully",
+    "statusUpdated": "Subsidiary status updated",
+    "logo": "Logo",
+    "companyLogo": "Company Logo",
+    "uploadImage": "Upload a PNG or JPG image for the company logo",
+    "phoneNumber": "Phone Number",
+    "location": "Location",
+    "status": "Status",
+    "actions": "Actions",
+    "activeStatus": "Active",
+    "inactiveStatus": "Inactive"
   },
   "inventory": {
     "title": "Inventory",
@@ -108,10 +121,15 @@
     "addNew": "Add New User",
     "edit": "Edit User",
     "username": "Username",
+    "password": "Password",
     "role": "Role",
     "administrator": "Administrator",
     "subsidiaryAdmin": "Subsidiary Administrator",
-    "user": "Regular User"
+    "user": "Regular User",
+    "addAdminFor": "Add Admin User for {{name}}",
+    "createAdminUser": "Create Admin User",
+    "createSuccess": "User created successfully",
+    "createFailed": "Failed to create user"
   },
   "tour": {
     "next": "Next",
